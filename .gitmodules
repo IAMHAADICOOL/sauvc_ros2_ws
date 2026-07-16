@@ -1,0 +1,3 @@
+[submodule "src/sauvc_stonefish/ardupilot"]
+	path = src/sauvc_stonefish/ardupilot
+	url = https://github.com/ArduPilot/ardupilot.git
