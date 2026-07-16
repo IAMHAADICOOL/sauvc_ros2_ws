@@ -273,18 +273,32 @@ Tools/environment_install/install-prereqs-ubuntu.sh -y
 
 # 2. Run the sim + SITL + bridge (3 terminals)
 ros2 launch sauvc_stonefish sauvc_finals.launch.py
-Tools/autotest/sim_vehicle.py -v ArduSub -f json:127.0.0.1 --console --map
+# Tools/autotest/sim_vehicle.py -v ArduSub -f json:127.0.0.1 --console --map
+sim_vehicle.py -v ArduSub -f json:127.0.0.1 --console -l 18.25,109.5,0,0
 ros2 run sauvc_stonefish ardusub_json_bridge.py
+ros2 run sauvc_ardusub_demo ardusub_mission
 
 # 3. MAVROS (ROS2) and/or pymavlink
 ros2 run mavros mavros_node --ros-args -p fcu_url:=udp://:14550@
 python3 -c "from pymavlink import mavutil; m=mavutil.mavlink_connection('udp:127.0.0.1:14550'); m.wait_heartbeat(); print('ArduSub alive')"
 ```
 
-In SITL set `FRAME_CONFIG` to the vectored-6DOF (8-motor) frame to match this
-vehicle. **Verify the motor mapping**: `MOTOR_MAP`/`MOTOR_SIGN` at the top of the
-bridge map SERVO1..8 to the Stonefish thruster order — check against the ArduSub
-motor layout documentation and flip as needed (test with QGC motor test sliders).
+**Bring-up checklist (do these in order, once):**
+
+1. In the SITL console: `param set FRAME_CONFIG <vectored-6DOF value>` then
+   `param show FRAME_CONFIG` (check the listed enum — it must be the 8-motor
+   vectored-6DOF frame), then restart SITL so the mixer reloads.
+2. The bridge treats any PWM outside 800–2200 as NEUTRAL (ArduPilot outputs 0
+   while disarmed — without this guard every thruster went full reverse before
+   arming; that bug is fixed).
+3. **Verify the motor mapping** with the sim window visible: arm, then run
+   `motortest` in the SITL console (or QGC Motor Test sliders) for motors 1..8
+   one at a time. Each should spin exactly one thruster in the expected place
+   and direction per the ArduSub vectored-6DOF layout. Fix wrong PLACEMENT by
+   reordering `MOTOR_MAP` in `ardusub_json_bridge.py`; fix wrong DIRECTION with
+   `MOTOR_SIGN` (or ArduSub `MOT_n_DIRECTION` params, closer to the real-vehicle
+   workflow). The shipped map is the BlueROV2-Heavy-style best guess
+   `[1,0,3,2,5,4,7,6]` — do not trust it until motor-tested.
 Depth-hold etc. work because SITL synthesizes its baro/EKF from the state the bridge
 sends; your *Stonefish* pressure/IMU topics remain available in parallel for your
 own autonomy nodes, exactly like reading the Pixhawk sensors via MAVROS in reality.

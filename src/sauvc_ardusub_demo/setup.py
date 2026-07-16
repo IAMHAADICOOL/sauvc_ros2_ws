@@ -18,7 +18,8 @@ setup(
     license='MIT',
     entry_points={
         'console_scripts': [
-            'ardusub_mission = sauvc_ardusub_demo.ardusub_mission:main'
+            'ardusub_mission = sauvc_ardusub_demo.ardusub_mission:main',
+            'motor_map_check = sauvc_ardusub_demo.motor_map_check:main'
         ],
     },
 )
