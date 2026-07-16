@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+<!--
+  TEMPLATE AUV for the SAUVC arena.
+  This is a placeholder vehicle (a 45x30x15 cm hull, near-neutrally buoyant, with a
+  BlueROV2-heavy-style thruster layout: 4 vectored horizontal + 2 vertical) so the
+  scene is drivable out of the box. Replace the hull box with your own OBJ meshes and
+  adjust thruster poses/coefficients to model YOUR vehicle - see README.
+
+  Included with args:  robot_name, start_position ("x y z"), start_yaw
+-->
+<scenario>
+    <robot name="$(arg robot_name)" fixed="false" self_collisions="false">
+
+        <!-- ============ BODY ============ -->
+        <base_link name="Vehicle" type="compound" physics="submerged">
+            <external_part name="Hull" type="box" physics="submerged" buoyant="true">
+                <dimensions xyz="0.45 0.30 0.15"/>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <material name="Vehicle"/>
+                <look name="grey"/>
+                <compound_transform xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            </external_part>
+            <!-- To use your own hull, swap the box for a mesh part, e.g.:
+            <external_part name="Hull" type="model" physics="submerged" buoyant="true">
+                <physical>
+                    <mesh filename="$(find my_vehicle_pkg)/data/hull_phy.obj" scale="1.0"/>
+                    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                </physical>
+                <visual>
+                    <mesh filename="$(find my_vehicle_pkg)/data/hull_vis.obj" scale="1.0"/>
+                    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                </visual>
+                <material name="Vehicle"/>
+                <look name="grey"/>
+                <compound_transform xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            </external_part>
+            -->
+        </base_link>
+
+        <world_transform xyz="$(arg start_position)" rpy="0.0 0.0 $(arg start_yaw)"/>
+
+        <!-- ============ SENSORS ============ -->
+        <sensor name="imu" type="imu" rate="100.0">
+            <link name="Vehicle"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <noise angle="0.000001745" angular_velocity="0.00001745"/>
+            <ros_publisher topic="/$(arg robot_name)/imu"/>
+        </sensor>
+
+        <sensor name="pressure" type="pressure" rate="10.0">
+            <link name="Vehicle"/>
+            <origin xyz="-0.2 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <noise pressure="5.0"/>
+            <ros_publisher topic="/$(arg robot_name)/pressure"/>
+        </sensor>
+
+        <sensor name="dvl" type="dvl" rate="5.0">
+            <link name="Vehicle"/>
+            <origin xyz="0.0 0.0 0.08" rpy="0.0 0.0 0.0"/>
+            <specs beam_angle="30.0"/>
+            <range velocity="9.0 9.0 9.0" altitude_min="0.1" altitude_max="60.0"/>
+            <noise velocity="0.0015" altitude="0.001"/>
+            <ros_publisher topic="/$(arg robot_name)/dvl" altitude_topic="/$(arg robot_name)/altitude"/>
+        </sensor>
+
+        <!-- Ground-truth odometry: very handy for debugging autonomy -->
+        <sensor name="odometry" type="odometry" rate="30.0">
+            <link name="Vehicle"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <ros_publisher topic="/$(arg robot_name)/odometry"/>
+        </sensor>
+
+        <!-- Forward-looking color camera. The rpy aligns the optical axis with body +X;
+             tweak if your image comes out rotated. -->
+        <sensor name="camera_front" type="camera" rate="15.0">
+            <link name="Vehicle"/>
+            <origin xyz="0.24 0.0 0.0" rpy="1.5708 0.0 1.5708"/>
+            <specs resolution_x="800" resolution_y="600" horizontal_fov="60.0"/>
+            <ros_publisher topic="/$(arg robot_name)/camera_front"/>
+        </sensor>
+
+        <!-- Downward camera for the drums -->
+        <sensor name="camera_down" type="camera" rate="15.0">
+            <link name="Vehicle"/>
+            <origin xyz="0.0 0.0 0.08" rpy="0.0 0.0 1.5708"/>
+            <specs resolution_x="800" resolution_y="600" horizontal_fov="60.0"/>
+            <ros_publisher topic="/$(arg robot_name)/camera_down"/>
+        </sensor>
+
+        <!-- ============ PINGER RECEIVER (USBL) ============ -->
+        <!-- Pairs with the acoustic modem (device_id 1) fixed inside the pinger drum in
+             sauvc_finals.scn. Publishes range + bearing to the drum, emulating what your
+             real hydrophone array estimates from the 45 kHz ULB pinger.
+             NOTE specs syntax (from the Stonefish 1.6 parser): min/max_vertical_fov [deg]
+             measured from the device axis; 0..180 = full spherical coverage. -->
+        <comm name="usbl" device_id="2" type="usbl">
+            <link name="Vehicle"/>
+            <origin xyz="0.0 0.0 0.08" rpy="0.0 0.0 0.0"/>
+            <specs min_vertical_fov="0.0" max_vertical_fov="180.0" range="100.0"/>
+            <connect device_id="1" occlusion_test="false"/>
+            <autoping rate="1.0"/>
+            <noise range="0.05" horizontal_angle="2.0" vertical_angle="3.0"/>
+            <ros_publisher topic="/$(arg robot_name)/usbl"/>
+        </comm>
+
+        <!-- ============ THRUSTERS (6x) ============ -->
+        <!-- Thrust acts along the actuator's local X axis. Layout (body frame, NED):
+             T1..T4 horizontal, vectored at 45 deg; T5, T6 vertical (thrust along +Z = down). -->
+
+        <actuator name="ThrusterFP" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="0.18 -0.16 0.0" rpy="0.0 0.0 -0.7854"/>
+            <specs max_setpoint="314.0" inverted_setpoint="false" normalized_setpoint="true"/>
+            <propeller diameter="0.08" right="true">
+                <mesh filename="$(find sauvc_stonefish)/data/propeller.obj" scale="1.0"/>
+                <material name="Plastic"/>
+                <look name="black"/>
+            </propeller>
+            <rotor_dynamics type="first_order">
+                <time_constant value="0.1"/>
+            </rotor_dynamics>
+            <thrust_model type="quadratic">
+                <thrust_coeff value="0.0005"/>  <!-- MEASURED: Stonefish quadratic model is T = Kt*w*|w|, w in rad/s (no rho/D!). 0.0005*314^2 = 49 N max (T200-class). Kt = T_max / w_max^2 -->
+            </thrust_model>
+        </actuator>
+
+        <actuator name="ThrusterFS" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="0.18 0.16 0.0" rpy="0.0 0.0 0.7854"/>
+            <specs max_setpoint="314.0" inverted_setpoint="true" normalized_setpoint="true"/>
+            <propeller diameter="0.08" right="false">
+                <mesh filename="$(find sauvc_stonefish)/data/propeller.obj" scale="1.0"/>
+                <material name="Plastic"/>
+                <look name="black"/>
+            </propeller>
+            <rotor_dynamics type="first_order">
+                <time_constant value="0.1"/>
+            </rotor_dynamics>
+            <thrust_model type="quadratic">
+                <thrust_coeff value="0.0005"/>
+            </thrust_model>
+        </actuator>
+
+        <actuator name="ThrusterAP" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="-0.18 -0.16 0.0" rpy="0.0 0.0 0.7854"/>
+            <specs max_setpoint="314.0" inverted_setpoint="false" normalized_setpoint="true"/>
+            <propeller diameter="0.08" right="true">
+                <mesh filename="$(find sauvc_stonefish)/data/propeller.obj" scale="1.0"/>
+                <material name="Plastic"/>
+                <look name="black"/>
+            </propeller>
+            <rotor_dynamics type="first_order">
+                <time_constant value="0.1"/>
+            </rotor_dynamics>
+            <thrust_model type="quadratic">
+                <thrust_coeff value="0.0005"/>
+            </thrust_model>
+        </actuator>
+
+        <actuator name="ThrusterAS" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="-0.18 0.16 0.0" rpy="0.0 0.0 -0.7854"/>
+            <specs max_setpoint="314.0" inverted_setpoint="true" normalized_setpoint="true"/>
+            <propeller diameter="0.08" right="false">
+                <mesh filename="$(find sauvc_stonefish)/data/propeller.obj" scale="1.0"/>
+                <material name="Plastic"/>
+                <look name="black"/>
+            </propeller>
+            <rotor_dynamics type="first_order">
+                <time_constant value="0.1"/>
+            </rotor_dynamics>
+            <thrust_model type="quadratic">
+                <thrust_coeff value="0.0005"/>
+            </thrust_model>
+        </actuator>
+
+        <actuator name="ThrusterHeaveP" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="0.0 -0.12 0.0" rpy="0.0 -1.5708 0.0"/>
+            <specs max_setpoint="314.0" inverted_setpoint="false" normalized_setpoint="true"/>
+            <propeller diameter="0.08" right="true">
+                <mesh filename="$(find sauvc_stonefish)/data/propeller.obj" scale="1.0"/>
+                <material name="Plastic"/>
+                <look name="black"/>
+            </propeller>
+            <rotor_dynamics type="first_order">
+                <time_constant value="0.1"/>
+            </rotor_dynamics>
+            <thrust_model type="quadratic">
+                <thrust_coeff value="0.0005"/>
+            </thrust_model>
+        </actuator>
+
+        <actuator name="ThrusterHeaveS" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="0.0 0.12 0.0" rpy="0.0 -1.5708 0.0"/>
+            <specs max_setpoint="314.0" inverted_setpoint="true" normalized_setpoint="true"/>
+            <propeller diameter="0.08" right="false">
+                <mesh filename="$(find sauvc_stonefish)/data/propeller.obj" scale="1.0"/>
+                <material name="Plastic"/>
+                <look name="black"/>
+            </propeller>
+            <rotor_dynamics type="first_order">
+                <time_constant value="0.1"/>
+            </rotor_dynamics>
+            <thrust_model type="quadratic">
+                <thrust_coeff value="0.0005"/>
+            </thrust_model>
+        </actuator>
+
+        <!-- ============ ROS2 WIRING ============ -->
+        <!-- Send std_msgs/Float64MultiArray with 6 values in [-1, 1] to drive the thrusters -->
+        <ros_subscriber thrusters="/$(arg robot_name)/thruster_setpoints"/>
+        <ros_publisher thrusters="/$(arg robot_name)/thruster_state"/>
+    </robot>
+</scenario>

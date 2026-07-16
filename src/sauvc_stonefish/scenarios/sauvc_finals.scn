@@ -1,0 +1,303 @@
+<?xml version="1.0"?>
+<!--
+  SAUVC 2026 FINALS ARENA - Stonefish scenario (for stonefish_ros2)
+
+  Frame: NED, Z down. Water surface z = 0. SLOPED FLOOR: depth d(x) = 1.6 - 0.032*|x|
+  (1.2 m at the end walls, 1.6 m at the pool center). Origin at pool center.
+  Starting wall at x = -12.5, target zone wall at x = +12.5.
+
+  Zones per the official top-view figure (positions inside each zone are randomized in
+  the real competition - the values below are just one valid draw, edit freely):
+
+    - Starting zone (140x140 cm)   surface, center (-11.6, -2.0)
+    - ORANGE FLARE ZONE: band 4-8 m from the starting wall -> x in [-8.5, -4.5], full width
+    - COLORED FLARES ZONE: band between the orange zone and the gate line
+                            -> x in [-4.5, 4.4], full width
+    - GATE LINE: ~16 m from the starting zone -> x = 4.4 (gate anywhere along y)
+    - TARGET ZONE: last ~2 m of the pool -> x in [10.5, 12.5]; 4 drums along y,
+      blue topmost per the figure
+
+  Floor depths used below: d(-6.5)=1.392, d(-1.0)=1.568, d(0.0)=1.600, d(1.5)=1.552,
+  d(4.4)=1.459, d(11.4)=1.235
+-->
+<scenario>
+    <environment>
+        <ned latitude="18.25" longitude="109.5"/>
+        <ocean>
+            <water density="1000.0" jerlov="0.05" temperature="26.0"/>
+            <waves height="0.0"/>
+            <particles enabled="true"/>
+        </ocean>
+        <atmosphere>
+            <sun azimuth="30.0" elevation="60.0"/>
+        </atmosphere>
+    </environment>
+
+    <materials>
+        <material name="Concrete"  density="2400.0" restitution="0.5"/>
+        <material name="Plastic"   density="1350.0" restitution="0.5"/>
+        <material name="Polyamide" density="1130.0" restitution="0.7"/>
+        <material name="Aluminium" density="2710.0" restitution="0.6"/>
+        <material name="Vehicle"   density="980.0"  restitution="0.3"/>
+        <!-- Materials for the user AUV (my_auv.scn) - THE mass/buoyancy tuning knobs -->
+        <material name="Shell"     density="5.0"    restitution="0.4"/>
+        <material name="Foam"      density="350.0"  restitution="0.4"/>
+        <material name="Ballast"   density="1655.0" restitution="0.4"/>
+        <friction_table>
+            <friction material1="Concrete"  material2="Concrete"  static="0.9" dynamic="0.7"/>
+            <friction material1="Concrete"  material2="Plastic"   static="0.6" dynamic="0.4"/>
+            <friction material1="Concrete"  material2="Polyamide" static="0.6" dynamic="0.4"/>
+            <friction material1="Concrete"  material2="Aluminium" static="0.7" dynamic="0.5"/>
+            <friction material1="Concrete"  material2="Vehicle"   static="0.6" dynamic="0.4"/>
+            <friction material1="Plastic"   material2="Plastic"   static="0.5" dynamic="0.3"/>
+            <friction material1="Plastic"   material2="Polyamide" static="0.5" dynamic="0.3"/>
+            <friction material1="Plastic"   material2="Aluminium" static="0.5" dynamic="0.3"/>
+            <friction material1="Plastic"   material2="Vehicle"   static="0.5" dynamic="0.3"/>
+            <friction material1="Polyamide" material2="Polyamide" static="0.5" dynamic="0.3"/>
+            <friction material1="Polyamide" material2="Aluminium" static="0.4" dynamic="0.25"/>
+            <friction material1="Polyamide" material2="Vehicle"   static="0.4" dynamic="0.25"/>
+            <friction material1="Aluminium" material2="Aluminium" static="0.6" dynamic="0.4"/>
+            <friction material1="Aluminium" material2="Vehicle"   static="0.5" dynamic="0.3"/>
+            <friction material1="Vehicle"   material2="Vehicle"   static="0.5" dynamic="0.3"/>
+            <friction material1="Concrete"  material2="Shell"     static="0.6" dynamic="0.4"/>
+            <friction material1="Plastic"   material2="Shell"     static="0.5" dynamic="0.3"/>
+            <friction material1="Polyamide" material2="Shell"     static="0.4" dynamic="0.25"/>
+            <friction material1="Ballast"   material2="Concrete"  static="0.7" dynamic="0.5"/>
+            <friction material1="Ballast"   material2="Plastic"   static="0.5" dynamic="0.35"/>
+        </friction_table>
+    </materials>
+
+    <!-- Pool shell (sloped floor), starting zone, shared looks -->
+    <include file="$(find sauvc_stonefish)/scenarios/sauvc_pool.scn"/>
+
+    <!-- ============ TASK 1: NAVIGATION GATE (150 cm wide, 100 cm tall, on floor) ============ -->
+    <!-- On the gate line x = 4.4 (~16 m from the starting zone); floor depth there: 1.459 m -->
+    <static name="GatePostPort" type="cylinder">
+        <dimensions radius="0.055" height="1.0"/>
+        <material name="Plastic"/>
+        <look name="red"/>
+        <world_transform xyz="4.4 -2.25 0.965" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="GatePostStbd" type="cylinder">
+        <dimensions radius="0.055" height="1.0"/>
+        <material name="Plastic"/>
+        <look name="green"/>
+        <world_transform xyz="4.4 -0.75 0.965" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="GateTopBar" type="cylinder">
+        <dimensions radius="0.055" height="1.5"/>
+        <material name="Plastic"/>
+        <look name="white"/>
+        <world_transform xyz="4.4 -1.5 0.465" rpy="1.5708 0.0 0.0"/>
+    </static>
+
+    <!-- ============ TASK 1: ORANGE FLARE (15 cm dia, floor to surface - AVOID!) ============ -->
+    <!-- Zone: 4-8 m from the starting wall -> x in [-8.5, -4.5]. Placed at (-6.5, -1.0),
+         floor depth 1.392 m; flare tip reaches the surface. -->
+    <static name="OrangeFlare" type="cylinder">
+        <dimensions radius="0.075" height="1.4"/>
+        <material name="Plastic"/>
+        <look name="orange"/>
+        <world_transform xyz="-6.5 -1.0 0.7" rpy="0.0 0.0 0.0"/>
+    </static>
+
+    <!-- ============ TASK 2: TARGET ZONE - 4 DRUMS (60 cm dia, 30 cm deep) ============ -->
+    <!-- Last ~2 m of the pool: drums at x = 11.4 (floor depth 1.235 m; base embedded ~1 cm
+         to sit flush on the sloped slab). Blue drum topmost (y = +4.5), matching the figure.
+         drum.obj origin is at the bottom center, extending upwards (-Z). -->
+    <!-- Green carpet (target-zone mat, as seen in competition photos) under the drums.
+         Thin slab lying on the sloped east floor (pitch matched to the slab). -->
+    <static name="TargetZoneCarpet" type="box">
+        <dimensions xyz="2.0 11.0 0.01"/>
+        <material name="Plastic"/>
+        <look name="green"/>
+        <world_transform xyz="11.4 0.0 1.229" rpy="0.0 0.032 0.0"/>
+    </static>
+
+    <static name="DrumBlue" type="model">
+        <physical>
+            <mesh filename="$(find sauvc_stonefish)/data/drum.obj" scale="1.0"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </physical>
+        <material name="Plastic"/>
+        <look name="blue"/>
+        <world_transform xyz="11.4 4.5 1.230" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="DrumRedPinger" type="model">
+        <!-- This red drum "contains" the 45 kHz pinger - see the acoustic modem below. -->
+        <physical>
+            <mesh filename="$(find sauvc_stonefish)/data/drum.obj" scale="1.0"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </physical>
+        <material name="Plastic"/>
+        <look name="red"/>
+        <world_transform xyz="11.4 1.5 1.230" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="DrumRed2" type="model">
+        <physical>
+            <mesh filename="$(find sauvc_stonefish)/data/drum.obj" scale="1.0"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </physical>
+        <material name="Plastic"/>
+        <look name="red"/>
+        <world_transform xyz="11.4 -1.5 1.230" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="DrumRed3" type="model">
+        <physical>
+            <mesh filename="$(find sauvc_stonefish)/data/drum.obj" scale="1.0"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </physical>
+        <material name="Plastic"/>
+        <look name="red"/>
+        <world_transform xyz="11.4 -4.5 1.230" rpy="0.0 0.0 0.0"/>
+    </static>
+
+    <!-- ============ "PINGER" (approximation): acoustic modem fixed to the world frame,
+         placed inside the pinger drum. Pair it with the USBL on the vehicle
+         (vehicle_template.scn) to get range + bearing to the drum, published on ROS.
+         Stonefish does not simulate raw 45 kHz acoustics/TDOA - this is the closest
+         physically-motivated equivalent (spherical propagation at the speed of sound,
+         optional line-of-sight occlusion). ============ -->
+    <comm name="DrumPinger" device_id="1" type="acoustic_modem">
+        <specs min_vertical_fov="0.0" max_vertical_fov="180.0" range="100.0"/>
+        <connect device_id="2" occlusion_test="false"/>
+        <world_transform xyz="11.4 1.5 1.1" rpy="0.0 0.0 0.0"/>
+    </comm>
+
+    <!-- Demo ball for Task 2/3 (3.5-4.5 cm; normally carried & dropped by YOUR AUV).
+         Floor depth at (-10.4): 1.267 m. -->
+    <dynamic name="TargetBall" type="sphere" physics="submerged">
+        <dimensions radius="0.02"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <material name="Polyamide"/>
+        <look name="white"/>
+        <world_transform xyz="-10.4 -1.0 1.24" rpy="0.0 0.0 0.0"/>
+    </dynamic>
+
+    <!-- ============ TASK 4: COMMUNICATION & LOCALIZATION FLARES ============ -->
+    <!-- Colored flares zone per the figure: band between the orange-flare zone and the
+         gate line -> x in [-4.5, 4.4], full pool width. 80 cm tall, 1.6 cm dia, standing
+         on the floor, golf ball resting in a small cup on top (dynamic: bump -> drops). -->
+
+    <!-- BLUE flare at (-1.0, 3.0), floor depth 1.568 -->
+    <!-- BLUE flare: DYNAMIC body with a weighted base - wobbles when bumped,
+         topples on a hard push, and the golf ball drops out (pole-bump realism).
+         Total height 0.8 m: base disc 0.025 + pole 0.775 + cup on top. -->
+    <dynamic name="FlareBlue" type="compound" physics="submerged">
+        <external_part name="Base" type="cylinder" physics="submerged" buoyant="true">
+            <dimensions radius="0.07" height="0.025"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <material name="Ballast"/>
+            <look name="blue"/>
+            <compound_transform xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </external_part>
+        <external_part name="Pole" type="cylinder" physics="submerged" buoyant="true">
+            <dimensions radius="0.008" height="0.775"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <material name="Plastic"/>
+            <look name="blue"/>
+            <compound_transform xyz="0.0 0.0 -0.4" rpy="0.0 0.0 0.0"/>
+        </external_part>
+        <external_part name="Cup" type="model" physics="submerged" buoyant="true">
+            <physical>
+                <mesh filename="$(find sauvc_stonefish)/data/cup.obj" scale="1.0"/>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            </physical>
+            <material name="Plastic"/>
+            <look name="blue"/>
+            <compound_transform xyz="0.0 0.0 -0.7875" rpy="0.0 0.0 0.0"/>
+        </external_part>
+        <world_transform xyz="-1.0 3.0 1.5555" rpy="0.0 0.0 0.0"/>
+    </dynamic>
+    <dynamic name="GolfBallBlue" type="sphere" physics="submerged">
+        <dimensions radius="0.0215"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <material name="Polyamide"/>
+        <look name="white"/>
+        <world_transform xyz="-1.0 3.0 0.736" rpy="0.0 0.0 0.0"/>
+    </dynamic>
+
+    <!-- RED flare at (1.5, 4.5), floor depth 1.552 -->
+    <!-- RED flare: DYNAMIC body with a weighted base - wobbles when bumped,
+         topples on a hard push, and the golf ball drops out (pole-bump realism).
+         Total height 0.8 m: base disc 0.025 + pole 0.775 + cup on top. -->
+    <dynamic name="FlareRed" type="compound" physics="submerged">
+        <external_part name="Base" type="cylinder" physics="submerged" buoyant="true">
+            <dimensions radius="0.07" height="0.025"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <material name="Ballast"/>
+            <look name="red"/>
+            <compound_transform xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </external_part>
+        <external_part name="Pole" type="cylinder" physics="submerged" buoyant="true">
+            <dimensions radius="0.008" height="0.775"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <material name="Plastic"/>
+            <look name="red"/>
+            <compound_transform xyz="0.0 0.0 -0.4" rpy="0.0 0.0 0.0"/>
+        </external_part>
+        <external_part name="Cup" type="model" physics="submerged" buoyant="true">
+            <physical>
+                <mesh filename="$(find sauvc_stonefish)/data/cup.obj" scale="1.0"/>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            </physical>
+            <material name="Plastic"/>
+            <look name="red"/>
+            <compound_transform xyz="0.0 0.0 -0.7875" rpy="0.0 0.0 0.0"/>
+        </external_part>
+        <world_transform xyz="1.5 4.5 1.5395" rpy="0.0 0.0 0.0"/>
+    </dynamic>
+    <dynamic name="GolfBallRed" type="sphere" physics="submerged">
+        <dimensions radius="0.0215"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <material name="Polyamide"/>
+        <look name="white"/>
+        <world_transform xyz="1.5 4.5 0.720" rpy="0.0 0.0 0.0"/>
+    </dynamic>
+
+    <!-- YELLOW flare at (0.0, -4.0), floor depth 1.600 -->
+    <!-- YELLOW flare: DYNAMIC body with a weighted base - wobbles when bumped,
+         topples on a hard push, and the golf ball drops out (pole-bump realism).
+         Total height 0.8 m: base disc 0.025 + pole 0.775 + cup on top. -->
+    <dynamic name="FlareYellow" type="compound" physics="submerged">
+        <external_part name="Base" type="cylinder" physics="submerged" buoyant="true">
+            <dimensions radius="0.07" height="0.025"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <material name="Ballast"/>
+            <look name="yellow"/>
+            <compound_transform xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        </external_part>
+        <external_part name="Pole" type="cylinder" physics="submerged" buoyant="true">
+            <dimensions radius="0.008" height="0.775"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <material name="Plastic"/>
+            <look name="yellow"/>
+            <compound_transform xyz="0.0 0.0 -0.4" rpy="0.0 0.0 0.0"/>
+        </external_part>
+        <external_part name="Cup" type="model" physics="submerged" buoyant="true">
+            <physical>
+                <mesh filename="$(find sauvc_stonefish)/data/cup.obj" scale="1.0"/>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            </physical>
+            <material name="Plastic"/>
+            <look name="yellow"/>
+            <compound_transform xyz="0.0 0.0 -0.7875" rpy="0.0 0.0 0.0"/>
+        </external_part>
+        <world_transform xyz="0.0 -4.0 1.5875" rpy="0.0 0.0 0.0"/>
+    </dynamic>
+    <dynamic name="GolfBallYellow" type="sphere" physics="submerged">
+        <dimensions radius="0.0215"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+        <material name="Polyamide"/>
+        <look name="white"/>
+        <world_transform xyz="0.0 -4.0 0.768" rpy="0.0 0.0 0.0"/>
+    </dynamic>
+
+    <!-- ================= VEHICLE ================= -->
+    <!-- User's AUV from CAD. Swap back to vehicle_template.scn for the simple box AUV. -->
+    <include file="$(find sauvc_stonefish)/scenarios/my_auv.scn">
+        <arg name="robot_name" value="sauvc_auv"/>
+        <arg name="start_position" value="-11.6 -2.0 0.3"/>
+        <arg name="start_yaw" value="0.0"/>
+    </include>
+</scenario>

@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<!--
+  SAUVC pool (25 m x 16 m), built as static bodies inside the Stonefish ocean.
+
+  IMPORTANT: Stonefish cannot simulate a bounded volume of water - the ocean is infinite.
+  The workaround: enable a flat, calm ocean and build the pool floor + walls as static
+  obstacles. The vehicle is physically confined to the pool.
+
+  Frame convention (Stonefish = NED):
+    X -> along the 25 m length (starting wall at x = -12.5, target zone at x = +12.5)
+    Y -> along the 16 m width
+    Z -> DOWN. Water surface at z = 0.
+
+  SLOPED FLOOR (per official side-view figure):
+    depth 1.2 m at both end walls, 1.6 m at the pool center -> V-shaped floor,
+    built from two inclined slabs. Depth as a function of x:
+
+        d(x) = 1.6 - 0.032 * |x|      (slope = 0.4 m / 12.5 m ~= 1.83 deg)
+
+    Use this formula when placing anything on the floor!
+-->
+<scenario>
+    <looks>
+        <!-- Blue mosaic tiles (procedural texture, data/pool_tiles.png). uv_mode="2" on the
+             floor boxes tiles the texture along each face based on its dimensions, giving a
+             repeating grid usable for visual odometry with a down-looking camera. -->
+        <look name="pool_tiles" rgb="1.0 1.0 1.0" roughness="0.35" texture="$(find sauvc_stonefish)/data/pool_tiles.png"/>
+        <look name="pool_wall"  rgb="0.75 0.85 0.95" roughness="0.35"/>
+        <look name="white"      rgb="0.95 0.95 0.95" roughness="0.4"/>
+        <look name="black"      rgb="0.05 0.05 0.05" roughness="0.5"/>
+        <look name="orange"     rgb="1.0 0.35 0.05"  roughness="0.4"/>
+        <look name="red"        rgb="0.9 0.05 0.05"  roughness="0.4"/>
+        <look name="green"      rgb="0.05 0.7 0.1"   roughness="0.4"/>
+        <look name="blue"       rgb="0.05 0.15 0.9"  roughness="0.4"/>
+        <look name="yellow"     rgb="0.95 0.85 0.05" roughness="0.4"/>
+        <look name="grey"       rgb="0.4 0.4 0.4"    roughness="0.5"/>
+    </looks>
+
+    <!-- ================= POOL SHELL ================= -->
+    <!-- V-shaped floor: two inclined slabs meeting at the pool center (x = 0, depth 1.6 m).
+         Slabs are 0.2 m thick; top surface at depth 1.2 m at the walls, 1.6 m at center.
+         If the slope appears inverted on your Stonefish version, flip the sign of the
+         pitch value in the rpy below. -->
+    <static name="PoolFloorWest" type="box">
+        <dimensions xyz="12.7 16.6 0.2"/>
+        <material name="Concrete"/>
+        <look name="pool_tiles" uv_mode="2"/>
+        <world_transform xyz="-6.25 0.0 1.5" rpy="0.0 -0.032 0.0"/>
+    </static>
+    <static name="PoolFloorEast" type="box">
+        <dimensions xyz="12.7 16.6 0.2"/>
+        <material name="Concrete"/>
+        <look name="pool_tiles" uv_mode="2"/>
+        <world_transform xyz="6.25 0.0 1.5" rpy="0.0 0.032 0.0"/>
+    </static>
+
+    <static name="PoolWallXPos" type="box">
+        <dimensions xyz="0.3 16.6 2.4"/>
+        <material name="Concrete"/>
+        <look name="pool_wall"/>
+        <world_transform xyz="12.65 0.0 0.7" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="PoolWallXNeg" type="box">
+        <dimensions xyz="0.3 16.6 2.4"/>
+        <material name="Concrete"/>
+        <look name="pool_wall"/>
+        <world_transform xyz="-12.65 0.0 0.7" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="PoolWallYPos" type="box">
+        <dimensions xyz="26.2 0.3 2.4"/>
+        <material name="Concrete"/>
+        <look name="pool_wall"/>
+        <world_transform xyz="0.0 8.15 0.7" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="PoolWallYNeg" type="box">
+        <dimensions xyz="26.2 0.3 2.4"/>
+        <material name="Concrete"/>
+        <look name="pool_wall"/>
+        <world_transform xyz="0.0 -8.15 0.7" rpy="0.0 0.0 0.0"/>
+    </static>
+
+    <!-- ============ STARTING ZONE (140 x 140 cm frame floating at the surface) ============ -->
+    <!-- Per the official top view: near the starting wall, slightly below the pool centerline.
+         Center: (-11.6, -2.0). The AUV is deployed inside this frame. -->
+    <static name="StartFrame1" type="box">
+        <dimensions xyz="0.03 1.46 0.02"/>
+        <material name="Plastic"/>
+        <look name="white"/>
+        <world_transform xyz="-12.315 -2.0 0.0" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="StartFrame2" type="box">
+        <dimensions xyz="0.03 1.46 0.02"/>
+        <material name="Plastic"/>
+        <look name="white"/>
+        <world_transform xyz="-10.885 -2.0 0.0" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="StartFrame3" type="box">
+        <dimensions xyz="1.46 0.03 0.02"/>
+        <material name="Plastic"/>
+        <look name="white"/>
+        <world_transform xyz="-11.6 -1.285 0.0" rpy="0.0 0.0 0.0"/>
+    </static>
+    <static name="StartFrame4" type="box">
+        <dimensions xyz="1.46 0.03 0.02"/>
+        <material name="Plastic"/>
+        <look name="white"/>
+        <world_transform xyz="-11.6 -2.715 0.0" rpy="0.0 0.0 0.0"/>
+    </static>
+</scenario>
