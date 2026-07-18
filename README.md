@@ -283,7 +283,6 @@ ros2 run <package> <node> --ros-args --params-file src/sauvc_bringup/config/flow
 
 | Launch file | Argument | Values | Default | Effect |
 |---|---|---|---|---|
-| `sauvc_finals.launch.py` | `vehicle` | `colored` \| `grey` | `colored` | `colored` = CAD-colored meshes; `grey` = uniform grey (`my_auv_grey.scn`). Physics identical. |
 | `sauvc_finals_random.launch.py` | `seed` | any integer | `0` | Arena layout seed. Same seed ⇒ identical arena. |
 | | `vehicle` | `colored` \| `grey` | `colored` | As above. |
 | `sauvc_qualification.launch.py` | — | — | — | No arguments; fixed qualification arena. |
@@ -295,8 +294,8 @@ ros2 run <package> <node> --ros-args --params-file src/sauvc_bringup/config/flow
 | `sauvc_bringup` phase launches | — | — | — | No CLI arguments by design: parameters are inline (with comments saying what to flip) or from `config/*.yaml`. Override per-run by running the underlying node standalone with `-p`, or edit the yaml. |
 
 ```bash
-ros2 launch sauvc_stonefish sauvc_finals.launch.py vehicle:=grey
-ros2 launch sauvc_stonefish sauvc_finals_random.launch.py seed:=42 vehicle:=colored
+ros2 launch sauvc_stonefish sauvc_finals.launch.py 
+ros2 launch sauvc_stonefish sauvc_finals_random.launch.py seed:=42 
 ```
 
 **Every node parameter is listed in the per-package READMEs.** Quick index:
