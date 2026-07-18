@@ -1,0 +1,14 @@
+# USB cameras via v4l2_camera. Find devices with:  v4l2-ctl --list-devices
+# Pin stable names with udev rules (see SETUP.md) so down/front never swap.
+/camera_down:
+  ros__parameters:
+    video_device: /dev/cam_down          # udev symlink (fallback: /dev/video0)
+    image_size: [640, 480]
+    pixel_format: YUYV
+    camera_frame_id: camera_down
+/camera_front:
+  ros__parameters:
+    video_device: /dev/cam_front         # udev symlink (fallback: /dev/video1)
+    image_size: [640, 480]
+    pixel_format: YUYV
+    camera_frame_id: camera_front

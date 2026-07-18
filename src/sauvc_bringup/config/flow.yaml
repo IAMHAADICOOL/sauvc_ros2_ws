@@ -1,0 +1,13 @@
+/flow_velocity_node:
+  ros__parameters:
+    # REPLACE with your UNDERWATER calibration (Phase 0)!
+    fx: 700.0
+    fy: 700.0
+    cx: 320.0
+    cy: 240.0
+    # Set from the hand-push sign test (Phase 3):
+    swap_xy: false
+    sign_x: 1.0
+    sign_y: 1.0
+    base_var: 0.02
+    image_topic: /camera_down/image_raw

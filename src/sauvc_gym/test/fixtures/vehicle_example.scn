@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<!--
+  TEST FIXTURE ONLY - not a delivery, not your scene file.
+
+  This reproduces the 8-thruster vectored layout (4 horizontal at 45 deg,
+  4 vertical) purely so the allocator unit tests have geometry to chew on.
+  The numbers come from the documented layout; the *angles* are this file's
+  own assumption. Your real vehicle .scn is the authority. Point the tests
+  at that instead once you are happy.
+
+  Frame: NED. +X forward, +Y starboard, +Z down.
+  Thrust acts along each actuator's local +X axis.
+-->
+<scenario>
+    <robot name="sauvc_auv" fixed="false" self_collisions="false">
+        <base_link name="Vehicle" type="model" physics="floating">
+            <physical>
+                <mesh filename="auv_phy.obj" scale="1.0"/>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <material name="Fiberglass"/>
+                <look name="yellow"/>
+            </physical>
+        </base_link>
+
+        <!-- ============ HORIZONTAL (vectored, 45 deg) ============ -->
+        <actuator name="HFP" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="0.245 -0.212 0.0" rpy="0.0 0.0 0.7853981634"/>
+            <specs max_setpoint="1.0"/>
+            <propeller diameter="0.076" right="true">
+                <mesh filename="propeller.obj" scale="1.0"/>
+                <material name="Neutral"/>
+                <look name="propeller"/>
+            </propeller>
+            <thrust_model type="quadratic" thrust_coeff="0.0005"/>
+            <rotor_dynamics type="zero_order" max_omega="314.0"/>
+        </actuator>
+
+        <actuator name="HFS" type="thruster" inverted_setpoint="true">
+            <link name="Vehicle"/>
+            <origin xyz="0.245 0.212 0.0" rpy="0.0 0.0 -0.7853981634"/>
+            <specs max_setpoint="1.0"/>
+            <propeller diameter="0.076" right="false">
+                <mesh filename="propeller.obj" scale="1.0"/>
+                <material name="Neutral"/>
+                <look name="propeller"/>
+            </propeller>
+            <thrust_model type="quadratic" thrust_coeff="0.0005"/>
+            <rotor_dynamics type="zero_order" max_omega="314.0"/>
+        </actuator>
+
+        <actuator name="HAP" type="thruster" inverted_setpoint="true">
+            <link name="Vehicle"/>
+            <origin xyz="-0.245 -0.212 0.0" rpy="0.0 0.0 2.3561944902"/>
+            <specs max_setpoint="1.0"/>
+            <propeller diameter="0.076" right="false">
+                <mesh filename="propeller.obj" scale="1.0"/>
+                <material name="Neutral"/>
+                <look name="propeller"/>
+            </propeller>
+            <thrust_model type="quadratic" thrust_coeff="0.0005"/>
+            <rotor_dynamics type="zero_order" max_omega="314.0"/>
+        </actuator>
+
+        <actuator name="HAS" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="-0.245 0.212 0.0" rpy="0.0 0.0 -2.3561944902"/>
+            <specs max_setpoint="1.0"/>
+            <propeller diameter="0.076" right="true">
+                <mesh filename="propeller.obj" scale="1.0"/>
+                <material name="Neutral"/>
+                <look name="propeller"/>
+            </propeller>
+            <thrust_model type="quadratic" thrust_coeff="0.0005"/>
+            <rotor_dynamics type="zero_order" max_omega="314.0"/>
+        </actuator>
+
+        <!-- ============ VERTICAL (thrust along body +Z, i.e. down) ============ -->
+        <actuator name="VFP" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="0.158 -0.120 0.0" rpy="0.0 -1.5707963268 0.0"/>
+            <specs max_setpoint="1.0"/>
+            <propeller diameter="0.076" right="true">
+                <mesh filename="propeller.obj" scale="1.0"/>
+                <material name="Neutral"/>
+                <look name="propeller"/>
+            </propeller>
+            <thrust_model type="quadratic" thrust_coeff="0.0005"/>
+            <rotor_dynamics type="zero_order" max_omega="314.0"/>
+        </actuator>
+
+        <actuator name="VFS" type="thruster" inverted_setpoint="true">
+            <link name="Vehicle"/>
+            <origin xyz="0.158 0.120 0.0" rpy="0.0 -1.5707963268 0.0"/>
+            <specs max_setpoint="1.0"/>
+            <propeller diameter="0.076" right="false">
+                <mesh filename="propeller.obj" scale="1.0"/>
+                <material name="Neutral"/>
+                <look name="propeller"/>
+            </propeller>
+            <thrust_model type="quadratic" thrust_coeff="0.0005"/>
+            <rotor_dynamics type="zero_order" max_omega="314.0"/>
+        </actuator>
+
+        <actuator name="VAP" type="thruster" inverted_setpoint="true">
+            <link name="Vehicle"/>
+            <origin xyz="-0.158 -0.120 0.0" rpy="0.0 -1.5707963268 0.0"/>
+            <specs max_setpoint="1.0"/>
+            <propeller diameter="0.076" right="false">
+                <mesh filename="propeller.obj" scale="1.0"/>
+                <material name="Neutral"/>
+                <look name="propeller"/>
+            </propeller>
+            <thrust_model type="quadratic" thrust_coeff="0.0005"/>
+            <rotor_dynamics type="zero_order" max_omega="314.0"/>
+        </actuator>
+
+        <actuator name="VAS" type="thruster">
+            <link name="Vehicle"/>
+            <origin xyz="-0.158 0.120 0.0" rpy="0.0 -1.5707963268 0.0"/>
+            <specs max_setpoint="1.0"/>
+            <propeller diameter="0.076" right="true">
+                <mesh filename="propeller.obj" scale="1.0"/>
+                <material name="Neutral"/>
+                <look name="propeller"/>
+            </propeller>
+            <thrust_model type="quadratic" thrust_coeff="0.0005"/>
+            <rotor_dynamics type="zero_order" max_omega="314.0"/>
+        </actuator>
+
+        <ros_subscriber thrusters="/sauvc_auv/thruster_setpoints"/>
+    </robot>
+</scenario>

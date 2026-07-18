@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>sauvc_teleop</name>
+  <version>0.1.0</version>
+  <description>
+    Keyboard teleoperation for the 4 actuated DOF (surge, sway, yaw, depth), publishing
+    the same /cmd/setpoint interface mission_node uses. Works with either control path
+    (direct_control_node or ardusub_setpoint_node) via a depth_mode parameter.
+  </description>
+  <maintainer email="team@sauvc.local">SAUVC Team</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export><build_type>ament_python</build_type></export>
+</package>

@@ -1,0 +1,21 @@
+# control_direct.yaml — gains for direct_control_node (PATH A, no ArduSub).
+# PLACEHOLDERS. Tune in sim: surge & yaw first (easy to see), then depth, then sway.
+# The vehicle is small (0.67 m) with strong thrusters (~49 N each), so start gentle.
+/direct_control_node:
+  ros__parameters:
+    rate_hz: 30.0
+    cmd_timeout: 0.5
+    cmd_z_is_depth: false      # true = Twist.linear.z is an absolute depth setpoint [m]
+
+    surge_kp: 1.5
+    surge_ki: 0.3
+    surge_kd: 0.0
+    sway_kp: 1.5
+    sway_ki: 0.3
+    sway_kd: 0.0
+    yaw_kp: 1.0
+    yaw_ki: 0.1
+    yaw_kd: 0.0
+    depth_kp: 3.0
+    depth_ki: 0.5
+    depth_kd: 0.8

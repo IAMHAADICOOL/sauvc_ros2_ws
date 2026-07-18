@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>sauvc_sim_bridge</name>
+  <version>0.1.0</version>
+  <description>
+    Shim layer that makes the Stonefish simulation indistinguishable from the real
+    vehicle's sensor drivers, so sauvc_localization / sauvc_vision / sauvc_mission run
+    byte-identical in sim and on hardware. Also hosts sim-only diagnostics (RTF monitor,
+    flow scorer) that have no hardware counterpart.
+  </description>
+  <maintainer email="team@sauvc.local">SAUVC Team</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>python3-pymavlink</exec_depend>
+  <!-- direct_control + ardusub_setpoint consume EKF odom / emit thruster cmds -->
+  <exec_depend>python3-numpy</exec_depend>
+  <!-- DVL message, for flow_scorer_node only. -->
+  <exec_depend>stonefish_ros2</exec_depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export><build_type>ament_python</build_type></export>
+</package>

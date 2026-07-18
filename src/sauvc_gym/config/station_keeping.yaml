@@ -1,0 +1,35 @@
+# Defaults for SauvcStationKeeping-v0.
+#
+# Reward weights are the one thing here you should expect to tune. Everything
+# else is either physics (which belongs in the .scn) or interface.
+
+env:
+  robot_name: sauvc_auv
+  control_hz: 10.0              # raise only if info["rtf"] stays above 0.9
+  action_dofs: [surge, sway, heave, yaw]
+  max_episode_steps: 600        # 60 s at 10 Hz
+  start_pose: [-11.4, 0.0, 1.0, 0.0]   # x, y, depth, yaw -- matches the arena
+  use_floor_profile: true       # SAUVC V-floor; false for a flat practice pool
+  odom_twist_frame: world       # CONFIRM against ardusub_json_bridge.py
+  reset_mode: soft              # soft | relaunch | service
+
+task:
+  depth_range: [0.5, 1.1]       # clear of surface and of the 1.2 m end-wall floor
+  yaw_range: [-3.14159, 3.14159]
+  randomise_goal: true
+
+reward:
+  w_depth: 1.0
+  w_yaw: 0.5
+  w_drift: 0.2
+  w_effort: 0.02                # keeps the ESCs alive on hardware
+  w_rate: 0.05                  # suppresses chatter a real thruster can't follow
+  w_attitude: 0.1
+  crash_penalty: 10.0
+
+reset:
+  pos_tol: 0.15
+  yaw_tol: 0.10
+  timeout: 30.0
+  kp_pos: 0.6
+  kd_pos: 0.9

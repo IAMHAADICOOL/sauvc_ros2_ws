@@ -162,18 +162,10 @@
             <ros_publisher topic="/$(arg robot_name)/camera_front"/>
         </sensor>
 
-        <!-- FIX(resolution parity + dropouts): 1280x720 made per-frame LK +
-             goodFeaturesToTrack (+ the eval's per-frame iSAM2) exceed the 33 ms frame
-             budget in a single rclpy thread -> best-effort QoS dropped frames -> pixel
-             gaps outgrew LK's pyramid search -> flow returned None for 48% of the
-             moving intervals in the eval log. 640x480 matches cameras.yaml (README
-             "Resolution parity") and cuts the LK cost ~3x. Intrinsics become
-             fx=fy=381.36, cx=320, cy=240 — updated in flow_sim.yaml and the eval
-             node defaults; keep all three in sync. -->
         <sensor name="camera_down" type="camera" rate="30.0">
             <link name="Vehicle"/>
             <origin xyz="0.05 0.0 0.11" rpy="0.0 0.0 1.5708"/>
-            <specs resolution_x="640" resolution_y="480" horizontal_fov="80.0"/>
+            <specs resolution_x="1280" resolution_y="720" horizontal_fov="80.0"/>
             <ros_publisher topic="/$(arg robot_name)/camera_down"/>
         </sensor>
 

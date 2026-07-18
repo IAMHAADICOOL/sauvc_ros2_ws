@@ -1,0 +1,65 @@
+# ekf_config.yaml — Phase 5. robot_localization EKF fusing IMU + flow velocity + depth.
+#
+# Install:  sudo apt install ros-humble-robot-localization
+# Run:      ros2 run robot_localization ekf_node --ros-args --params-file ekf_config.yaml
+#
+# Config vectors are 15 booleans:
+# [x, y, z,  roll, pitch, yaw,  vx, vy, vz,  vroll, vpitch, vyaw,  ax, ay, az]
+
+ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.5
+    two_d_mode: false
+    publish_tf: true
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # --- IMU: orientation + angular rates. (Accel integration OFF — too noisy underwater.)
+    imu0: /imu/data
+    imu0_config: [false, false, false,
+                  true,  true,  true,
+                  false, false, false,
+                  true,  true,  true,
+                  false, false, false]
+    imu0_differential: false
+    imu0_remove_gravitational_acceleration: true
+
+    # --- Optical flow: body-frame vx, vy with quality-scaled covariance from the node.
+    twist0: /flow/twist
+    twist0_config: [false, false, false,
+                    false, false, false,
+                    true,  true,  false,
+                    false, false, false,
+                    false, false, false]
+
+    # --- Pressure depth: absolute z.
+    pose0: /depth
+    pose0_config: [false, false, true,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+    pose0_differential: false
+
+    # Trust dynamics lightly; let measurements dominate.
+    process_noise_covariance_diagonal: [0.05, 0.05, 0.03,
+                                        0.02, 0.02, 0.04,
+                                        0.05, 0.05, 0.02,
+                                        0.01, 0.01, 0.02,
+                                        0.01, 0.01, 0.01]
+
+# Landmark corrections (Phase 6): the gate's forward distance (~16m) is roughly known
+# from the rulebook, but its LATERAL position is randomized per rulebook — never known.
+# So corrections must be per-axis, not a full teleport. mission_node publishes to
+# /pose_correction with x variance tight and y variance ~1e6 (a no-op on y). Wire it in
+# as a second pose source below (do NOT use /set_pose — that resets both axes).
+    pose1: /pose_correction
+    pose1_config: [true,  false, false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+    pose1_differential: false

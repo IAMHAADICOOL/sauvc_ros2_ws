@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>sauvc_flow_eval</name>
+  <version>0.1.0</version>
+  <description>Compare optical-flow / EKF / pressure / GTSAM localization estimates
+    against Stonefish ground truth, in one common frame, with OpenCV feeds and a
+    PlotJuggler layout. No landmarks, no ArduSub.</description>
+  <maintainer email="team@sauvc.local">SAUVC Team</maintainer>
+  <license>MIT</license>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>sauvc_localization</exec_depend>
+  <exec_depend>sauvc_sim_bridge</exec_depend>
+  <!-- gtsam is OPTIONAL and loaded at runtime; intentionally not a hard depend -->
+  <test_depend>python3-pytest</test_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

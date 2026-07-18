@@ -1,0 +1,46 @@
+# flow_sim.yaml — flow_velocity_node parameters for the SIMULATOR.
+#
+# This is the sim twin of sauvc_bringup/config/flow.yaml. The node code is identical;
+# only these numbers differ. That is the whole point of the shim architecture.
+#
+# INTRINSICS ARE EXACT HERE, NOT MEASURED.
+# Stonefish builds camera_info analytically (ROS2Interface::GenerateCameraMsgPrototypes):
+#     fx = (width/2) / tan(hfov/2)
+#     fy = (height/2) / ((height/width) * tan(hfov/2))   ==  fx, ALWAYS
+# so fx == fy by construction, and D is resize(5, 0.0) -- ZERO distortion. There is no
+# calibration step in sim because there is nothing to calibrate.
+#
+# Values below are for the CURRENT scene: 1280x720, horizontal_fov=80.0
+#     fx = fy = 762.72,  cx = 640.0,  cy = 360.0   (vertical FOV 50.5 deg)
+# If you drop the sim cameras to 640x480 to match cameras.yaml (recommended -- see
+# README "Resolution parity"), these become:
+#     fx = fy = 381.36,  cx = 320.0,  cy = 240.0   (vertical FOV 64.4 deg)
+#
+# Cross-check any time with:  ros2 topic echo /sauvc_auv/camera_down/camera_info --once
+#
+# WHAT THE SIM CANNOT TEST
+# There is no flat-port refraction model. On hardware, water behind a flat port changes
+# the effective focal length by ~1.33x, and an in-air calibration gives ~33% velocity
+# scale error -- the single most likely thing to bite you in the pool. That failure mode
+# DOES NOT EXIST here. The sim validates the flow ALGORITHM; it cannot validate your
+# CALIBRATION. Do not let a clean sim score talk you out of Phase 0.
+
+/flow_velocity_node:
+  ros__parameters:
+    fx: 762.72
+    fy: 762.72
+    cx: 640.0
+    cy: 360.0
+
+    # Determined by the Phase 3 sign test — but in sim, flow_scorer_node does the test
+    # for you: a negative `scale` against the DVL means these are wrong. The sim's
+    # camera_down mounting (my_auv.scn origin rpy="0.0 0.0 1.5708") need NOT match your
+    # real camera's, so these values are expected to differ from flow.yaml.
+    swap_xy: false
+    sign_x: 1.0
+    sign_y: 1.0
+
+    base_var: 0.02
+    # Remapped in sim_phase3_flow.launch.py from /sauvc_auv/camera_down/image_color
+    # (ColorCamera publishes /image_color + /camera_info; there is NO /image_raw).
+    image_topic: /camera_down/image_raw

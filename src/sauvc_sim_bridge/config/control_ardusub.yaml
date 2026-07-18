@@ -1,0 +1,15 @@
+# control_ardusub.yaml — ardusub_setpoint_node (PATH B). These are joystick SENSITIVITY
+# values, NOT control gains — ArduSub does the actual control. Set so cruise_speed
+# (~0.4 m/s) lands near half-stick.
+/ardusub_setpoint_node:
+  ros__parameters:
+    url: 'udp:127.0.0.1:14550'
+    rate_hz: 20.0
+    cmd_timeout: 0.5
+    auto_arm: false            # true = arm + set mode on startup
+    mode: 'ALT_HOLD'           # ArduSub depth-hold; z channel becomes depth-rate
+    z_neutral: 500             # 500 = hold in ALT_HOLD
+    surge_scale: 0.8           # m/s at full stick
+    sway_scale: 0.8
+    yaw_scale: 1.0             # rad/s at full stick
+    heave_scale: 0.5           # m/s at full z deflection
