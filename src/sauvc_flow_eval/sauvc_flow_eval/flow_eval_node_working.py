@@ -84,15 +84,6 @@ def _enu_quat_to_ned_wxyz(x, y, z, w):
     return flu_frd_to_ned_wxyz(x, y, z, w)
 
 
-def _quat_to_R(x, y, z, w):
-    n = np.sqrt(x * x + y * y + z * z + w * w) or 1.0
-    x, y, z, w = x / n, y / n, z / n, w / n
-    return np.array([
-        [1 - 2 * (y * y + z * z), 2 * (x * y - z * w),     2 * (x * z + y * w)],
-        [2 * (x * y + z * w),     1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
-        [2 * (x * z - y * w),     2 * (y * z + x * w),     1 - 2 * (x * x + y * y)]])
-
-
 def _parse_scene(path):
     """Parse a Stonefish .scn: vehicle start pose + landmark world positions.
 
@@ -130,27 +121,6 @@ def _parse_scene(path):
 
 def _yaw_from_quat_xyzw(x, y, z, w):
     return np.arctan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z))
-
-
-def _ned_quat_replace_yaw(q_wxyz, new_yaw):
-    """Rebuild a NED body quaternion (w,x,y,z) keeping its roll/pitch but with yaw
-    replaced by new_yaw. ZYX (yaw-pitch-roll) convention, matching gtsam Rot3.Ypr.
-
-    FIX(gtsam lateral drift): used to build the graph's attitude anchor when lane-
-    heading fusion is active — roll/pitch stay the IMU's (gravity-referenced,
-    drift-free), yaw becomes the lane-fused value instead of the published IMU yaw,
-    whose Stonefish yaw_drift ramp was the anchor's poison."""
-    w, x, y, z = q_wxyz
-    roll = math.atan2(2.0 * (w * x + y * z), 1.0 - 2.0 * (x * x + y * y))
-    sp = 2.0 * (w * y - z * x)
-    pitch = math.asin(max(-1.0, min(1.0, sp)))
-    cy, sy = math.cos(new_yaw * 0.5), math.sin(new_yaw * 0.5)
-    cp, sp_ = math.cos(pitch * 0.5), math.sin(pitch * 0.5)
-    cr, sr = math.cos(roll * 0.5), math.sin(roll * 0.5)
-    return (cr * cp * cy + sr * sp_ * sy,
-            sr * cp * cy - cr * sp_ * sy,
-            cr * sp_ * cy + sr * cp * sy,
-            cr * cp * sy - sr * sp_ * cy)
 
 
 class FlowEvalNode(Node):
@@ -215,14 +185,6 @@ class FlowEvalNode(Node):
         p('lane_heading_topic', '/heading/pool_relative')
         p('pool_axis_ned_yaw', 0.0)        # NED yaw of the pool axis lane yaw=0 [rad]
         p('lane_fresh_s', 1.0)             # max staleness to trust a lane yaw
-        # FIX(gtsam lateral drift): yaw sigma [rad] of the graph's attitude anchor
-        # while lane fusion is ACTIVE this cycle. Tight (~3 deg) because the lane-
-        # fused yaw is drift-free (err ~ +/-1 deg in the logs) and it is the graph's
-        # ONLY yaw information — its flow prior is rotated by its own yaw and hence
-        # yaw-blind. When lane is inactive/stale, the anchor falls back to the raw
-        # IMU quat with the estimator's loose default (~11 deg), i.e. the previous
-        # drift-bounding-only behavior.
-        p('lane_att_yaw_sigma', 0.05)
         # --- UPGRADE E: quality-scaled EKF noise ---
         p('r_flow_base', 0.02)             # base variance, scaled by frame quality
         # --- FLOW->IMU YAW ALIGNMENT (fixes the y-drift-while-moving-in-x) ---
@@ -235,17 +197,10 @@ class FlowEvalNode(Node):
         # ALL THREE flow-based estimators (EKF, integrator, GTSAM). On hardware set it
         # from a calibration run and disable autocal. In sim, autocal measures it from
         # ground truth on straight legs, applies it, and prints the number + attribution.
-        p('flow_yaw_offset', 0.0)          # rad, initial flow-body -> IMU-yaw correction
+        p('flow_yaw_offset', 0.0)          # rad, fixed flow-body -> IMU-yaw correction
         p('flow_yaw_autocal', True)        # sim only: estimate offset from GT straight legs
         p('flow_yaw_cal_min_speed', 0.05)  # m/s, only sample when clearly translating
-        # EWMA FIX: the offset is NOT fixed — the .scn's yaw_drift is a GROWING random
-        # walk, so a freeze-once estimate is correct only at the instant it froze and
-        # increasingly stale afterwards. Replaced with a never-freezing EWMA on the
-        # unit circle: steady-state lag ~= drift_per_sample / alpha. At yaw_drift
-        # 0.00029 rad/s sampled ~30 Hz with alpha 0.02 the lag is ~0.03 deg — bounded
-        # forever, instead of an error that grows without bound after a freeze.
-        p('flow_yaw_cal_alpha', 0.02)      # EWMA gain per accepted sample
-        p('flow_yaw_cal_min_n', 5)         # samples before the estimate is applied
+        p('flow_yaw_cal_freeze_n', 60)     # freeze the estimate after this many samples
         # --- UPGRADE F: ZUPT ---
         p('zupt', True)
         p('zupt_vel', 0.03)                # m/s: below this AND
@@ -291,18 +246,16 @@ class FlowEvalNode(Node):
         self.use_lane = bool(g('use_lane_heading'))
         self.pool_axis_ned = float(g('pool_axis_ned_yaw'))
         self.lane_fresh_s = float(g('lane_fresh_s'))
-        self.lane_att_yaw_sigma = float(g('lane_att_yaw_sigma'))
         self.r_flow_base = float(g('r_flow_base'))
         # flow->IMU yaw alignment state
         self.flow_yaw_offset = float(g('flow_yaw_offset'))
         self.flow_yaw_autocal = bool(g('flow_yaw_autocal'))
         self.yawcal_min_speed = float(g('flow_yaw_cal_min_speed'))
-        self.yawcal_alpha = float(g('flow_yaw_cal_alpha'))
-        self.yawcal_min_n = int(g('flow_yaw_cal_min_n'))
-        self._yawcal_s = 0.0            # EWMA of sin(offset_sample)  (unit circle)
-        self._yawcal_c = 0.0            # EWMA of cos(offset_sample)
+        self.yawcal_freeze_n = int(g('flow_yaw_cal_freeze_n'))
+        self._yawcal_s = 0.0            # sum sin(offset_sample)  (circular mean)
+        self._yawcal_c = 0.0            # sum cos(offset_sample)
         self._yawcal_n = 0
-        self._yawcal_log_t = 0.0        # throttle for the periodic offset report
+        self._yawcal_frozen = not self.flow_yaw_autocal
         self._gt_vel = None            # ground-truth planar velocity (compare frame)
         self._gt_prev_xy = None
         self._gt_prev_t = None
@@ -345,23 +298,9 @@ class FlowEvalNode(Node):
                                         'continuing without scene info')
         self.lane_yaw = None                    # latest lane-heading yaw [rad]
         self.lane_yaw_t = -1e9
-        # Diagnostic state for lane-heading fusion visibility (see _fused_yaws).
-        # Previously NOTHING outside on_image's local scope could see whether lane
-        # fusion was even active, let alone whether it was helping — the periodic
-        # print's "imu=" column always showed raw self.yaw_ned, never the fused
-        # value actually fed to the EKF/flow/GTSAM. That made it impossible to
-        # answer "is lane_heading_node fixing anything?" from the logs at all.
-        self.yaw_ned_fused = 0.0        # the yaw ACTUALLY used downstream this cycle
-        self.lane_active = False        # was lane fusion applied THIS cycle
-        self._lane_accept_n = 0         # accepted (fresh + within sanity gate)
-        self._lane_reject_stale_n = 0   # rejected: no fresh /heading/pool_relative
-        self._lane_reject_gate_n = 0    # rejected: disagreed with IMU by >30 deg
-        self._lane_summary_last_t = 0.0
-        self._lane_summary_period = 15.0   # s, matches the yaw-autocal log cadence
         # latest published value per source, for the terminal table
         self._latest = {k: None for k in
-                        ('ground_truth', 'dvl', 'flow', 'ekf', 'pressure', 'gtsam')}
-        self._gt_R = None          # GT body->NED rotation, for the DVL twist
+                        ('ground_truth', 'flow', 'ekf', 'pressure', 'gtsam')}
         self._last_print = 0.0
 
         # --- estimators ---
@@ -391,15 +330,13 @@ class FlowEvalNode(Node):
         self.yaw = 0.0          # compare-frame yaw (for flow integration / EKF)
         self.yaw_ned = 0.0      # NED yaw (for rotating flow into the graph's NED world)
         self.gt_anchor = None   # ground-truth first pose (compare frame); all tracks start here
-        self.gt_yaw_ned = None  # ground-truth NED yaw (orientation), for the verification print below
         self.depth = 0.0
         self.altitude = None
         self.prev_img_t = None
 
         # --- publishers ---
         self.pubs = {k: self.create_publisher(Odometry, f'/eval/{k}', 10)
-                     for k in ('ground_truth', 'dvl', 'flow', 'ekf', 'pressure',
-                               'gtsam')}
+                     for k in ('ground_truth', 'flow', 'ekf', 'pressure', 'gtsam')}
 
         # --- subscriptions ---
         robot = g('robot_name')
@@ -414,16 +351,6 @@ class FlowEvalNode(Node):
         if self.use_lane:
             self.create_subscription(Float32, g('lane_heading_topic'),
                                      self.on_lane_heading, 10)
-        # DVL truth-velocity row: SIM-ONLY reference (my_auv.scn declares the DVL
-        # purely so the flow can be graded; it must NEVER be fused). Import guarded:
-        # without stonefish_ros2 msgs (real vehicle) the row simply stays '--'.
-        try:
-            from stonefish_ros2.msg import DVL as _DVLMsg
-            self.create_subscription(_DVLMsg, f'/{robot}/dvl', self.on_dvl,
-                                     qos_profile_sensor_data)
-            self.get_logger().info('DVL reference row enabled (/%s/dvl)' % robot)
-        except ImportError:
-            self.get_logger().info('stonefish_ros2 DVL msg unavailable - dvl row off')
         if self.lm_mode in ('gate', 'map'):
             from std_msgs.msg import String as _String
             self.create_subscription(_String, g('features_topic'),
@@ -490,17 +417,11 @@ class FlowEvalNode(Node):
         wz = float(np.interp(t_query, ts, [b[3] for b in buf]))
         return (wx, wy, wz)
 
-    def _update_yaw_autocal(self, vx_b, vy_b, yaw_raw, t):
-        """Track the flow-body -> IMU-yaw offset from ground truth on straight legs.
-
-        EWMA FIX (replaces freeze-after-N): the dominant contributor is the .scn's
-        yaw_drift — a GROWING random walk on the published IMU yaw, not a fixed
-        extrinsic. A frozen estimate is exact at the freeze instant and accumulates
-        error at the full drift rate forever after; a never-freezing EWMA on the unit
-        circle instead tracks it with a small BOUNDED lag ~= drift_per_sample/alpha
-        (~0.03 deg at the current .scn rate). Rotates the RAW flow body velocity into
-        the compare-frame world with yaw_raw and measures the angle to the GT
-        world-velocity direction; sim-only (needs GT), harmless on hardware."""
+    def _update_yaw_autocal(self, vx_b, vy_b, yaw_raw):
+        """Estimate the fixed flow-body -> IMU-yaw offset from ground truth on straight
+        legs. Rotates the RAW flow body velocity (no offset) into the compare-frame
+        world with yaw_raw, and measures the angle to the GT world-velocity direction.
+        Averages circularly and freezes; sim-only (needs GT), harmless on hardware."""
         gv = self._gt_vel
         if gv is None:
             return
@@ -513,96 +434,52 @@ class FlowEvalNode(Node):
             return
         # offset delta such that rotating flow by (yaw + delta) aligns it with GT
         d = math.atan2(gv[1], gv[0]) - math.atan2(fwy, fwx)
-        a = self.yawcal_alpha
-        if self._yawcal_n == 0:
-            self._yawcal_s, self._yawcal_c = math.sin(d), math.cos(d)
-        else:
-            self._yawcal_s = (1.0 - a) * self._yawcal_s + a * math.sin(d)
-            self._yawcal_c = (1.0 - a) * self._yawcal_c + a * math.cos(d)
+        self._yawcal_s += math.sin(d)
+        self._yawcal_c += math.cos(d)
         self._yawcal_n += 1
-        if self._yawcal_n >= self.yawcal_min_n:
+        if self._yawcal_n >= 5:              # apply the running mean once it's stable-ish
             self.flow_yaw_offset = math.atan2(self._yawcal_s, self._yawcal_c)
-        if t - self._yawcal_log_t > 30.0 and self._yawcal_n >= self.yawcal_min_n:
-            self._yawcal_log_t = t
-            self.get_logger().info(
-                'flow->IMU yaw offset (EWMA, tracking — never frozen): %+.2f deg '
-                'over %d samples. Growing = the .scn yaw_drift accumulating, by '
-                'design. Hardware: measure once, set -p flow_yaw_offset and '
-                '-p flow_yaw_autocal:=false.'
-                % (math.degrees(self.flow_yaw_offset), self._yawcal_n))
+        if self._yawcal_n >= self.yawcal_freeze_n:
+            self._yawcal_frozen = True
+            gt_hdg = (math.degrees(math.atan2(gv[1], gv[0]))
+                      if self.frame == 'ned' else float('nan'))
+            self.get_logger().warn(
+                'flow->IMU yaw offset auto-calibrated to %+.2f deg (%.4f rad) over %d '
+                'straight-line samples. This is a FIXED frame misalignment between the '
+                'flow body frame and the yaw rotating it — an IMU-shim NED-yaw bias or '
+                'the down-camera/IMU mount yaw in the .scn — NOT vehicle motion, which '
+                'is why every flow-based track drifted in y while moving only in x. '
+                'It is now nulled for all three estimators. To fix it at the source (and '
+                'remove the startup transient): set -p flow_yaw_offset:=%.4f '
+                '-p flow_yaw_autocal:=false, or correct the mount/shim. Attribution: '
+                'IMU yaw_ned=%.2f deg vs GT heading=%.2f deg — if these disagree it is '
+                'the IMU/shim; if they agree it is the camera mount.'
+                % (math.degrees(self.flow_yaw_offset), self.flow_yaw_offset,
+                   self._yawcal_n, self.flow_yaw_offset,
+                   math.degrees(self.yaw_ned), gt_hdg))
 
     def _fused_yaws(self, t_wall):
-        """UPGRADE D: (yaw_compare, yaw_ned) with fresh lane-heading substitution.
-
-        Also records, on self, WHETHER fusion applied this cycle and what the
-        resulting yaw actually is — this is what makes lane_heading's effect
-        (or lack of it) visible in the periodic print and in the summary log
-        below, instead of the print always showing raw IMU yaw regardless of
-        whether lane fusion ran at all."""
+        """UPGRADE D: (yaw_compare, yaw_ned) with fresh lane-heading substitution."""
         yaw_ned = self.yaw_ned
-        self.lane_active = False
-        if not self.use_lane:
-            pass  # feature off; nothing to report
-        elif self.lane_yaw is None or t_wall - self.lane_yaw_t >= self.lane_fresh_s:
-            self._lane_reject_stale_n += 1
-        else:
-            # FIX(ENU->NED is a REFLECTION, not an offset): lane_heading_node
-            # publishes an ENU-convention heading (0=East, CCW-positive) minus its
-            # OWN pool_axis_offset param — run that node with pool_axis_offset LEFT
-            # AT ITS DEFAULT 0.0 for this fusion (it exists for a different,
-            # mission-relative purpose; see that node's docstring). NED yaw
-            # (bearing: 0=North, CW-positive) is yaw_ned = pi/2 - yaw_enu — verified
-            # both against eval_common's vector convention (NED(x,y,z)=ENU(y,x,-z))
-            # and against compass bearings at all four cardinal headings.
-            # The OLD formula here (cand = lane_yaw + pool_axis_ned_yaw) assumed a
-            # constant SHIFT between the two conventions, which is only ever exact
-            # at the single heading it happened to be checked against (spawn) and
-            # is off by up to a full 180 deg elsewhere — verified numerically
-            # (error = -2*yaw_ned, mod wrap). In practice the sanity gate below was
-            # silently REJECTING the lane fusion on every real turn and falling
-            # back to IMU-only, so lane heading was never actually engaging except
-            # near the start heading. pool_axis_ned_yaw is now a small NED-frame
-            # TRIM applied AFTER the reflection (default 0; use it only for a
-            # genuine residual, e.g. floor tiles not quite aligned with true pool
-            # axis at the venue — not for ENU/NED conversion, which is now exact).
-            cand = (np.pi / 2.0 - self.lane_yaw) + self.pool_axis_ned
+        if (self.use_lane and self.lane_yaw is not None
+                and t_wall - self.lane_yaw_t < self.lane_fresh_s):
+            cand = self.lane_yaw + self.pool_axis_ned
+            # SANITY GATE(frame mismatch): lane_heading's yaw is built from the
+            # ENU/FLU IMU quaternion; if pool_axis_offset was not set to the pool
+            # axis's ENU yaw (pi/2 for this scene), the published yaw is off by a
+            # multiple of 90 deg and would rotate x motion into y. Reject and WARN
+            # instead of corrupting the track.
             d = (cand - self.yaw_ned + np.pi) % (2 * np.pi) - np.pi
             if abs(d) > np.radians(30.0):
-                self._lane_reject_gate_n += 1
                 if t_wall - self._lane_warned > 5.0:
                     self._lane_warned = t_wall
                     self.get_logger().warn(
                         f'lane yaw rejected: disagrees with IMU-NED yaw by '
                         f'{np.degrees(d):+.0f} deg — run lane_heading_node with '
-                        '-p pool_axis_offset:=0.0 (its default; the ENU->NED '
-                        'reflection and any trim are handled here). Falling back '
-                        'to IMU yaw.')
+                        '-p pool_axis_offset:=1.5708 (the pool axis ENU yaw). '
+                        'Falling back to IMU yaw.')
             else:
                 yaw_ned = cand
-                self.lane_active = True
-                self._lane_accept_n += 1
-        self.yaw_ned_fused = yaw_ned
-        if self.use_lane and t_wall - self._lane_summary_last_t > self._lane_summary_period:
-            self._lane_summary_last_t = t_wall
-            tot = self._lane_accept_n + self._lane_reject_stale_n + self._lane_reject_gate_n
-            if tot > 0:
-                d_now = None
-                if self.gt_yaw_ned is not None:
-                    d_now = math.degrees(math.atan2(math.sin(yaw_ned - self.gt_yaw_ned),
-                                                    math.cos(yaw_ned - self.gt_yaw_ned)))
-                d_imu = None
-                if self.gt_yaw_ned is not None:
-                    d_imu = math.degrees(math.atan2(math.sin(self.yaw_ned - self.gt_yaw_ned),
-                                                    math.cos(self.yaw_ned - self.gt_yaw_ned)))
-                self.get_logger().info(
-                    f'lane_heading effectiveness: accepted {self._lane_accept_n}/{tot} '
-                    f'({100.0*self._lane_accept_n/tot:.0f}%), rejected-stale '
-                    f'{self._lane_reject_stale_n} (no fresh /heading/pool_relative), '
-                    f'rejected-gate {self._lane_reject_gate_n} (disagreed >30 deg). '
-                    + (f'Right now: fused_yaw err={d_now:+.2f} deg vs raw IMU err='
-                       f'{d_imu:+.2f} deg — {"HELPING" if abs(d_now) < abs(d_imu) else "NOT currently helping"}.'
-                       if d_now is not None else
-                       'No GT yaw yet to compare against (sim-only check).'))
         yaw_cmp = yaw_ned if self.frame == 'ned' else (np.pi / 2 - yaw_ned)
         return yaw_cmp, yaw_ned
 
@@ -671,18 +548,6 @@ class FlowEvalNode(Node):
                     f'MAP re-observation: {name} -> pos <- ({p_meas[0]:+.2f}, '
                     f'{p_meas[1]:+.2f}), innov {innov:.2f} m')
 
-    def on_dvl(self, msg):
-        # DVL velocity is body-frame FRD at the sensor (mount rpy 0, lever arm tiny
-        # at our rotation rates): rotate to NED with the latest GT attitude, then to
-        # the compare frame. Position columns stay '--' - a DVL measures velocity.
-        if self._gt_R is None:
-            return
-        v = msg.velocity
-        v_ned = self._gt_R @ np.array([v.x, v.y, v.z])
-        v_cmp = gt_world_to_compare(v_ned, self.frame)
-        self._latest['dvl'] = (None, None, None, float(v_cmp[0]), float(v_cmp[1]))
-        self._maybe_print(msg.header.stamp)
-
     # ---- sensor callbacks ----
     def on_imu(self, msg):
         # /imu/data is already ENU/FLU (imu_shim). For the GTSAM path we want body-frame
@@ -739,11 +604,6 @@ class FlowEvalNode(Node):
         pos_ned = np.array([p.x, p.y, p.z])
         self.gt_x_ned = float(p.x)     # UPGRADE A: feeds the in-node floor profile
         px, py, pz = gt_world_to_compare(pos_ned, self.frame)
-        # GT NED yaw (orientation, not velocity-derived) — used ONLY to verify, in the
-        # running log, that the GTSAM graph's own attitude tracks truth better than the
-        # published (yaw_drift-corrupted) IMU orientation. Never fed into any estimator.
-        qo = msg.pose.pose.orientation
-        self.gt_yaw_ned = float(_yaw_from_quat_xyzw(qo.x, qo.y, qo.z, qo.w))
         # GT planar velocity (compare frame) for the flow->IMU yaw autocal. Light
         # low-pass; guarded against absurd gaps. Never fed into any estimator — only
         # used to measure the fixed extrinsic yaw offset.
@@ -768,16 +628,7 @@ class FlowEvalNode(Node):
             # which is what dead reckoning actually measures. Without this the plots carry
             # a fixed ~12.1 m x-offset and can never overlay.
             self.gt_anchor = (px, py, pz)
-        # twist is in the CHILD (body FRD) frame per the Odometry spec: rotate to
-        # NED world with the GT quaternion, then to the compare frame's axes. The
-        # exact simulator twist, NOT the differentiated position (that stays
-        # dedicated to the yaw autocal's direction measurement above).
-        self._gt_R = _quat_to_R(qo.x, qo.y, qo.z, qo.w)
-        vb = msg.twist.twist.linear
-        v_ned = self._gt_R @ np.array([vb.x, vb.y, vb.z])
-        v_cmp = gt_world_to_compare(v_ned, self.frame)
-        self._publish('ground_truth', px, py, pz, msg.header.stamp,
-                      vx=float(v_cmp[0]), vy=float(v_cmp[1]))
+        self._publish('ground_truth', px, py, pz, msg.header.stamp)
 
     def on_image(self, msg):
         if self.bridge is None:
@@ -861,8 +712,8 @@ class FlowEvalNode(Node):
             # is un-frozen, then apply it to the yaw used by ALL flow-based estimators.
             # Measured against the RAW yaw so the estimate is independent of what is
             # already applied. This is what stops y from drifting while moving in x.
-            if self.flow_yaw_autocal:
-                self._update_yaw_autocal(vx_b, vy_b, yaw_cmp, t)
+            if not self._yawcal_frozen:
+                self._update_yaw_autocal(vx_b, vy_b, yaw_cmp)
             yaw_cmp_f = yaw_cmp + self.flow_yaw_offset
             yaw_ned_f = yaw_ned_used + self.flow_yaw_offset
 
@@ -878,12 +729,8 @@ class FlowEvalNode(Node):
             fx_, fy_ = self.flow_pos.update(vx_b, vy_b, yaw_cmp_f, t)
             fz = depth_to_world_z(self.depth, self.frame)
             ax, ay, az = self._anchor(fx_, fy_, fz)
-            # velocity column in the WORLD compare frame like every other row
-            # (was body-frame - not comparable), rotated by the SAME offset-corrected
-            # yaw the integrator uses.
-            cwf, swf = math.cos(yaw_cmp_f), math.sin(yaw_cmp_f)
             self._publish('flow', ax, ay, az, msg.header.stamp,
-                          vx=cwf * vx_b - swf * vy_b, vy=swf * vx_b + cwf * vy_b)
+                          vx=res['vx'], vy=res['vy'])
 
             # EKF publish (position + velocity)
             ex, ey, ez = self.ekf.position
@@ -897,32 +744,9 @@ class FlowEvalNode(Node):
                 # FIX(y mirror): the graph world is ALWAYS NED regardless of the
                 # compare frame, so the FLU->FRD flip is unconditional here.
                 vy_frd = -vy_b if self.frame != 'ned' else vy_b   # vy_b is FRD in 'ned'
-
-                # WHICH YAW TO ROTATE BY: confirmed by reading Stonefish's IMU.cpp
-                # directly — accumulatedYawDrift (the .scn's yaw_drift param) is added
-                # ONLY to the published orientation's yaw channel, as a pure post-hoc
-                # ramp; the raw angular_velocity channel this graph's add_imu() consumes
-                # is computed from the TRUE angular velocity, entirely upstream of that
-                # injection. So the graph's OWN preintegrated attitude never sees the
-                # drift at all, while yaw_ned_f (used by the EKF/integrator, which have
-                # no other yaw source) is derived from the published orientation and
-                # DOES carry it — corrected only by the external EWMA's ~0.05 deg lag.
-                # Using yaw_ned_f here too would feed the graph a "measurement" already
-                # rotated by an external yaw, defeating the point of letting it fuse an
-                # independent source. Fall back to yaw_ned_f only before the graph has
-                # an attitude of its own (i.e. for the very first, initializing sample).
-                # AMENDED(gtsam lateral drift): "its own attitude doesn't need external
-                # help" was HALF right. The preintegrated attitude is indeed yaw_drift-
-                # free, but rotating flow by the graph's own yaw makes that measurement
-                # yaw-BLIND (self-referential), so the graph's heading is set entirely
-                # by its attitude anchor — which used the raw published quat and thus
-                # re-injected the very drift the gyros never saw. The rotation below
-                # stays as-is (still correct); the fix is in the ANCHOR at the
-                # add_keyframe call: lane-fused yaw + tight sigma when available.
-                yaw_for_gtsam = self.gtsam.current_ned_yaw()
-                if yaw_for_gtsam is None:
-                    yaw_for_gtsam = yaw_ned_f
-                c, sn = np.cos(yaw_for_gtsam), np.sin(yaw_for_gtsam)
+                # (vx_b/vy_b already carry the ZUPT clamp; use the SAME offset-corrected
+                # NED yaw as the EKF/integrator so all three share one alignment.)
+                c, sn = np.cos(yaw_ned_f), np.sin(yaw_ned_f)
                 fv_ned = np.array([c * vx_b - sn * vy_frd,
                                    sn * vx_b + c * vy_frd, 0.0])
                 if not self.gtsam.initialized:
@@ -941,48 +765,16 @@ class FlowEvalNode(Node):
                     # quality-scaled evidence as the EKF (sigma = sqrt(var)), and
                     # near-zero under ZUPT — a confidently-stationary prior is
                     # exactly what pins the graph's velocity bias estimation.
-                    #
-                    # ATTITUDE ANCHOR — FIX(gtsam lateral drift). The anchor is the
-                    # graph's ONLY yaw information: its flow prior is rotated by its
-                    # own yaw (see yaw_for_gtsam above) and is therefore yaw-blind,
-                    # so even a loose anchor fully DETERMINES the graph's heading
-                    # rather than merely bounding it. Anchoring to the raw IMU quat
-                    # meant the graph's yaw tracked the published orientation's
-                    # Stonefish yaw_drift ramp (~1->7 deg over a run), and rotating
-                    # the flow velocity by that wrong yaw produced a lateral velocity
-                    # bias ~ v*sin(yaw_err) (~+0.01 m/s at 4 deg) that integrated
-                    # into ~5-7 cm of sideways drift per metre travelled — the
-                    # divergence the EKF (which consumes the lane-fused yaw) never
-                    # showed. So: when lane fusion is ACTIVE this cycle, substitute
-                    # the lane-fused, drift-free yaw (yaw_ned_f — including the
-                    # flow-alignment offset, same convention the EKF integrates
-                    # with) into the anchor quat, keeping the IMU's gravity-
-                    # referenced roll/pitch, and tighten the yaw sigma
-                    # (lane_att_yaw_sigma) so the anchor actually corrects heading.
-                    # Lane stale/inactive -> previous behavior (raw IMU quat, loose
-                    # estimator-default sigma): drift-bounded, hardware-safe.
-                    if not self._have_imu:
-                        att_quat, att_yaw_sig = None, None
-                    elif self.lane_active:
-                        att_quat = _ned_quat_replace_yaw(self.last_quat_wxyz_ned,
-                                                         yaw_ned_f)
-                        att_yaw_sig = self.lane_att_yaw_sigma
-                    else:
-                        att_quat, att_yaw_sig = self.last_quat_wxyz_ned, None
-                    out = self.gtsam.add_keyframe(fv_ned, self.depth,
-                                                  imu_quat_wxyz=att_quat,
-                                                  flow_sigma=math.sqrt(r_var),
-                                                  att_yaw_sigma=att_yaw_sig)
+                    out = self.gtsam.add_keyframe(fv_ned, self.depth)
+                                                #   flow_sigma=math.sqrt(r_var))
                     if out is not None:
                         pos_ned, vel_ned = out
                         # graph pos is NED absolute (z=depth). Convert to compare frame,
                         # then anchor x/y to ground truth start like the others.
                         gp = gt_world_to_compare(np.array(pos_ned), self.frame)
                         gx, gy, gz = self._anchor(gp[0], gp[1], gp[2])
-                        gv = gt_world_to_compare(np.asarray(vel_ned, float),
-                                                 self.frame)
                         self._publish('gtsam', gx, gy, gz, msg.header.stamp,
-                                      vx=float(gv[0]), vy=float(gv[1]))
+                                      vx=float(vel_ned[0]), vy=float(vel_ned[1]))
 
         if self.show_cam:
             cv2.imshow('down camera', frame_bgr)
@@ -1003,8 +795,8 @@ class FlowEvalNode(Node):
             return x, y, z
         return x + a[0], y + a[1], z + a[2]
 
-    def _publish(self, key, x, y, z, stamp, vx=None, vy=None):
-        self._latest[key] = (x, y, z, vx, vy)
+    def _publish(self, key, x, y, z, stamp, vx=0.0, vy=0.0):
+        self._latest[key] = (x, y, z)
         self._maybe_print(stamp)
         od = Odometry()
         od.header.stamp = stamp
@@ -1013,8 +805,8 @@ class FlowEvalNode(Node):
         od.pose.pose.position.x = float(x)
         od.pose.pose.position.y = float(y)
         od.pose.pose.position.z = float(z)
-        od.twist.twist.linear.x = float(vx) if vx is not None else 0.0
-        od.twist.twist.linear.y = float(vy) if vy is not None else 0.0
+        od.twist.twist.linear.x = float(vx)
+        od.twist.twist.linear.y = float(vy)
         self.pubs[key].publish(od)
 
     def _maybe_print(self, stamp):
@@ -1027,50 +819,16 @@ class FlowEvalNode(Node):
 
         def fmt(v):
             if v is None:
-                v = (None,) * 5
-            cells = [f"{c:+8.3f}" if c is not None else f"{'--':>8}" for c in v]
-            return ' '.join(cells)
+                return f"{'--':>8} {'--':>8} {'--':>8}"
+            return f"{v[0]:+8.3f} {v[1]:+8.3f} {v[2]:+8.3f}"
 
-        order = ['ground_truth', 'dvl', 'flow', 'ekf', 'pressure', 'gtsam']
+        order = ['ground_truth', 'flow', 'ekf', 'pressure', 'gtsam']
         lines = [f"\n─ estimates [{self.frame.upper()} frame]  "
-                 f"x        y        z       vx       vy ──────"]
+                 f"x        y        z ─────────────"]
         for k in order:
             if k == 'gtsam' and not self.gtsam.available:
                 continue
             lines.append(f"  {k:<13} {fmt(self._latest[k])}")
-        # VERIFICATION LINE (checks the claim in gtsam_estimator.current_ned_yaw's
-        # docstring): if this graph really is immune to the .scn's yaw_drift because it
-        # integrates raw gyro upstream of where Stonefish injects that drift, gtsam_yaw
-        # should track gt_yaw far more closely than imu_yaw does, and the gap between
-        # imu_yaw and gt_yaw should be the one that keeps growing over a long run.
-        if self.gtsam.available and self.gtsam.initialized and self.gt_yaw_ned is not None:
-            gy = self.gtsam.current_ned_yaw()
-            if gy is not None:
-                d = lambda a, b: math.degrees(math.atan2(math.sin(a - b), math.cos(a - b)))
-                lines.append(
-                    f"  yaw[deg]      gt={math.degrees(self.gt_yaw_ned):+7.2f}  "
-                    f"imu={math.degrees(self.yaw_ned):+7.2f} (err {d(self.yaw_ned, self.gt_yaw_ned):+6.2f})  "
-                    f"gtsam={math.degrees(gy):+7.2f} (err {d(gy, self.gt_yaw_ned):+6.2f})")
-        # LANE-HEADING VISIBILITY: previously this print's imu= column was the ONLY
-        # yaw info shown, and it's raw self.yaw_ned regardless of whether lane fusion
-        # ran — there was no way to tell from these logs whether lane_heading_node was
-        # doing anything at all. This line shows the ACTUAL yaw fed to EKF/flow/GTSAM
-        # this cycle (self.yaw_ned_fused), whether lane fusion was active THIS cycle,
-        # and — when GT is available (sim) — whether that fused yaw is closer to truth
-        # than raw IMU would have been, i.e. whether lane fusion is actually helping.
-        if self.use_lane:
-            d = lambda a, b: math.degrees(math.atan2(math.sin(a - b), math.cos(a - b)))
-            tag = 'ACTIVE' if self.lane_active else 'inactive(IMU fallback)'
-            extra = ''
-            if self.gt_yaw_ned is not None:
-                e_fused = d(self.yaw_ned_fused, self.gt_yaw_ned)
-                e_imu = d(self.yaw_ned, self.gt_yaw_ned)
-                extra = (f'  fused_err={e_fused:+6.2f}  imu_err={e_imu:+6.2f}  '
-                        f'{"better" if abs(e_fused) < abs(e_imu) else "WORSE/no-help"}')
-            lines.append(f"  lane[{tag:<22}] raw_lane_yaw="
-                        + (f"{math.degrees(self.lane_yaw):+7.2f}deg"
-                           if self.lane_yaw is not None else "   never rx'd")
-                        + extra)
         print('\n'.join(lines))
 
 

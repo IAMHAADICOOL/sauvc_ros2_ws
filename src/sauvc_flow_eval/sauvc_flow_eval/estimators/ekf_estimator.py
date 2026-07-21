@@ -70,6 +70,26 @@ class EkfEstimator:
         self._kalman(z, H, R)
         self.initialized = True
 
+    def update_position_xy(self, px, py, t, var_x, var_y):
+        """MAP-BASED LANDMARK UPDATE. Apply a world-frame position pseudo-measurement
+        derived from observing a mapped landmark:  p_meas = landmark_world - rel_obs_world.
+
+        Per-axis variances make it ANISOTROPIC - the SAUVC gate's x is known from the
+        rulebook but its y is randomized, so a gate observation constrains vehicle x
+        tightly while y must stay untouched: pass var_y = 1e12 (a no-op on y). When a
+        landmark's full (x, y) is known (e.g. stored at first sighting in the small-map
+        scheme), pass both variances finite.
+
+        var per axis = (landmark position variance) + (relative-observation variance).
+        This is the editable seam for feature observations: the state stays
+        [x y z vx vy] - pure localization against a known/stored map, NOT SLAM state
+        augmentation."""
+        self._step_time(t)
+        z_meas = np.array([px, py])
+        H = np.zeros((2, 5)); H[0, 0] = 1.0; H[1, 1] = 1.0
+        R = np.diag([max(float(var_x), 1e-6), max(float(var_y), 1e-6)])
+        self._kalman(z_meas, H, R)
+
     def update_depth(self, pz, t):
         self._step_time(t)
         z = np.array([pz])

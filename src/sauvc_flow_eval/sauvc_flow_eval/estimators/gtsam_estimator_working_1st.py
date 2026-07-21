@@ -81,7 +81,6 @@ class GtsamEstimator:
         # (~1 deg/min) a negligible contributor at this sigma. Disable with att_prior=
         # False to reproduce the divergence.
         self.att_prior = bool(att_prior)
-        self.att_rp_sigma = float(att_rp_sigma)
         self.att_noise = gtsam.noiseModel.Diagonal.Sigmas(np.array(
             [att_rp_sigma, att_rp_sigma, att_yaw_sigma, 1e6, 1e6, 1e6])) if self.ok else None
         # iSAM2 with DEFAULT relinearization. REVERTED: an earlier experiment forced
@@ -96,15 +95,6 @@ class GtsamEstimator:
         self.isam = gtsam.ISAM2()
         self.bias = gtsam.imuBias.ConstantBias()
         self.pim = gtsam.PreintegratedCombinedMeasurements(self.params, self.bias)
-        # UPGRADE(Forster TRO16 static initialization): buffer stationary IMU samples
-        # BEFORE initialize() so the initial gyro/accel biases can be MEASURED instead
-        # of assumed zero. The old tight zero-centred bias prior (sigma 1e-3) fought
-        # any real bias exactly like a residual-gravity error; centring the prior on
-        # the measured value removes that tension - a large share of the paper's
-        # "careful initialization" advantage.
-        self._init_buf = []          # (accel_xyz, gyro_xyz) while not initialized
-        self._init_buf_max = 300     # ~3 s @ 100 Hz; vehicle floats static at spawn
-        self.gravity = float(gravity)
         self.k = 0
         self.initialized = False
         self.pose = None
@@ -120,12 +110,6 @@ class GtsamEstimator:
             return
         dt = t - self.t_prev_imu
         self.t_prev_imu = t
-        if not self.initialized:
-            # UPGRADE(static init): record pre-init samples for bias estimation.
-            if len(self._init_buf) < self._init_buf_max:
-                self._init_buf.append((np.asarray(accel_xyz, float),
-                                       np.asarray(gyro_xyz, float)))
-            return
         if 0.0 < dt < 0.1 and self.initialized:
             self.pim.integrateMeasurement(np.asarray(accel_xyz, float),
                                           np.asarray(gyro_xyz, float), dt)
@@ -138,31 +122,11 @@ class GtsamEstimator:
         pos = np.array([0.0, 0.0, float(depth)])
         self.pose = gtsam.Pose3(rot, pos)
         self.vel = np.asarray(init_vel_ned, float)
-        # UPGRADE(Forster TRO16 static init): estimate initial biases from the
-        # buffered stationary samples. Static specific force in body = R^T (0,0,-g)
-        # (NED, gravity +z down); anything beyond that in the accel mean is bias.
-        # The gyro mean IS the gyro bias (vehicle floats motionless at spawn). The
-        # bias PRIOR is then centred on the measurement with an honest sigma
-        # (accel 0.05, gyro 0.005) instead of pinned at zero with sigma 1e-3.
-        if len(self._init_buf) >= 20:
-            acc = np.mean([a for a, _ in self._init_buf], axis=0)
-            gyr = np.mean([w for _, w in self._init_buf], axis=0)
-            f_expected = rot.matrix().T @ np.array([0.0, 0.0, -self.gravity])
-            self.bias = gtsam.imuBias.ConstantBias(acc - f_expected, gyr)
-            self.pim = gtsam.PreintegratedCombinedMeasurements(self.params, self.bias)
-            bias_noise = gtsam.noiseModel.Diagonal.Sigmas(
-                np.array([0.05, 0.05, 0.05, 0.005, 0.005, 0.005]))
-            print(f'[gtsam] static init from {len(self._init_buf)} samples: '
-                  f'accel_bias={np.round(acc - f_expected, 4)} '
-                  f'gyro_bias={np.round(gyr, 5)}')
-        else:
-            bias_noise = gtsam.noiseModel.Isotropic.Sigma(6, 1e-3)
-            print(f'[gtsam] static init skipped ({len(self._init_buf)} < 20 samples)')
-        self._init_buf = []
         graph = gtsam.NonlinearFactorGraph()
         values = gtsam.Values()
         pose_noise = gtsam.noiseModel.Diagonal.Sigmas(np.array([0.05, 0.05, 0.05, 0.1, 0.1, 0.1]))
         vel_noise = gtsam.noiseModel.Isotropic.Sigma(3, 0.1)
+        bias_noise = gtsam.noiseModel.Isotropic.Sigma(6, 1e-3)
         graph.add(gtsam.PriorFactorPose3(X(0), self.pose, pose_noise))
         graph.add(gtsam.PriorFactorVector(V(0), self.vel, vel_noise))
         graph.add(gtsam.PriorFactorConstantBias(B(0), self.bias, bias_noise))
@@ -172,27 +136,7 @@ class GtsamEstimator:
         self.isam.update(graph, values)
         self.initialized = True
 
-    def add_keyframe(self, flow_vel_ned, depth, imu_quat_wxyz=None,
-                     flow_sigma=None, att_yaw_sigma=None):
-        """flow_sigma: optional per-keyframe stddev [m/s] for the flow velocity
-        prior. Parity with the EKF: it scales its flow measurement noise by frame
-        quality (spread/n_inliers) and drops it to near-zero under ZUPT; the graph
-        should weight the very same evidence the same way. z sigma stays 1e6 ALWAYS
-        (flow says nothing about vz). None -> the constructor default.
-
-        att_yaw_sigma: optional per-keyframe yaw stddev [rad] for the attitude
-        anchor. FIX(gtsam lateral drift): when the caller has a drift-free absolute
-        yaw (lane-heading fusion active), it substitutes that yaw into
-        imu_quat_wxyz and passes a TIGHTER sigma here (~0.05 rad) so the anchor
-        actually corrects the graph's heading instead of merely bounding it. With
-        the loose default (~11 deg) the anchor is the graph's ONLY yaw information
-        (the flow prior is rotated by the graph's own yaw, hence yaw-blind), so the
-        graph's yaw simply tracked whatever yaw the anchor carried — previously the
-        raw IMU orientation, whose Stonefish yaw_drift ramp then integrated into
-        ~sin(yaw_err) lateral position drift per metre travelled. Roll/pitch keep
-        the constructor sigma (gravity-referenced, always trustworthy). None ->
-        the constructor default noise (loose raw-IMU anchoring, drift-bounding
-        only)."""
+    def add_keyframe(self, flow_vel_ned, depth, imu_quat_wxyz=None):
         if not self.ok or not self.initialized:
             return None
         if self._pending_imu < 1:
@@ -206,11 +150,7 @@ class GtsamEstimator:
         values.insert(V(k), nav.velocity())
         values.insert(B(k), self.bias)
         if flow_vel_ned is not None:
-            noise = (self.flow_noise if flow_sigma is None else
-                     gtsam.noiseModel.Diagonal.Sigmas(np.array(
-                         [max(float(flow_sigma), 1e-4),
-                          max(float(flow_sigma), 1e-4), 1e6])))
-            graph.add(gtsam.PriorFactorVector(V(k), np.asarray(flow_vel_ned, float), noise))
+            graph.add(gtsam.PriorFactorVector(V(k), np.asarray(flow_vel_ned, float), self.flow_noise))
         graph.add(gtsam.GPSFactor(X(k), np.array([0.0, 0.0, float(depth)]), self.depth_noise))
         # Loose absolute attitude anchor from the IMU (see __init__). Without it the yaw
         # DOF is unobservable at low speed and the graph diverges. Position DOFs carry
@@ -218,12 +158,7 @@ class GtsamEstimator:
         if self.att_prior and imu_quat_wxyz is not None:
             att_rot = gtsam.Rot3.Quaternion(*imu_quat_wxyz)
             att_pose = gtsam.Pose3(att_rot, nav.pose().translation())
-            att_noise = (self.att_noise if att_yaw_sigma is None else
-                         gtsam.noiseModel.Diagonal.Sigmas(np.array(
-                             [self.att_rp_sigma, self.att_rp_sigma,
-                              max(float(att_yaw_sigma), 1e-3),
-                              1e6, 1e6, 1e6])))
-            graph.add(gtsam.PriorFactorPose3(X(k), att_pose, att_noise))
+            graph.add(gtsam.PriorFactorPose3(X(k), att_pose, self.att_noise))
         self.isam.update(graph, values)
         est = self.isam.calculateEstimate()
         self.pose = est.atPose3(X(k))

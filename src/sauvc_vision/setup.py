@@ -8,5 +8,6 @@ setup(
     install_requires=['setuptools'], zip_safe=True,
     entry_points={'console_scripts': [
         'gate_detector_node = sauvc_vision.gate_detector_node:main',
+        'image_saver_node = sauvc_vision.image_saver_node:main'
     ]},
 )

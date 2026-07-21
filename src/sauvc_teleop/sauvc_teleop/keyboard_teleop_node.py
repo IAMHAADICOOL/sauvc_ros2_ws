@@ -77,8 +77,8 @@ class KeyboardTeleopNode(Node):
         super().__init__('keyboard_teleop_node')
         p = self.declare_parameter
         p('rate_hz', 20.0)
-        p('surge_step', 0.15); p('sway_step', 0.15); p('yaw_step', 0.3)
-        p('max_surge', 0.6);   p('max_sway', 0.6);    p('max_yaw', 1.2)
+        p('surge_step', 0.15); p('sway_step', 0.15); p('yaw_step', 0.15)
+        p('max_surge', 0.6);   p('max_sway', 0.6);    p('max_yaw', 0.6)
         p('depth_step', 0.1)
         p('min_depth', 0.0);   p('max_depth', 1.5)
         p('depth_mode', 'absolute')     # 'absolute' (Path A) | 'pulse' (Path B)

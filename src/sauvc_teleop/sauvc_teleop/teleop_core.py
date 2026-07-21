@@ -48,7 +48,7 @@ STEP_SCALE_FACTOR = 1.3
 class TeleopLimits:
     max_surge: float = 0.6
     max_sway: float = 0.6
-    max_yaw: float = 1.2
+    max_yaw: float = 0.6
     min_depth: float = 0.0
     max_depth: float = 1.5
 
@@ -61,7 +61,7 @@ class TeleopState:
     depth_target: Optional[float] = None   # None until seeded from a real /depth reading
     surge_step: float = 0.15
     sway_step: float = 0.15
-    yaw_step: float = 0.3
+    yaw_step: float = 0.15
     depth_step: float = 0.1
     pulse_until: float = 0.0               # wall time; 'pulse' mode only
     pulse_sign: float = 0.0
