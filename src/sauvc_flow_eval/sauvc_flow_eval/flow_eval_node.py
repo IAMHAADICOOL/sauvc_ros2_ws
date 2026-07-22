@@ -262,6 +262,7 @@ class FlowEvalNode(Node):
         p('print_estimates', True)       # print all 5 x/y/z to the terminal
         p('print_rate', 5.0)             # Hz, terminal print throttle
         p('gravity', 9.81)
+        p('flow_compensate_vz', False)
 
         g = lambda n: self.get_parameter(n).value
         self.frame = g('compare_frame')
@@ -368,7 +369,8 @@ class FlowEvalNode(Node):
         self.flow = FlowEstimator(g('fx'), g('fy'), g('cx'), g('cy'),
                                   use_clahe=g('use_clahe'),
                                   grid_rows=g('feature_grid_rows'),
-                                  grid_cols=g('feature_grid_cols'))
+                                  grid_cols=g('feature_grid_cols'),
+                                  compensate_vz=g('flow_compensate_vz'))
         self.ekf = EkfEstimator()
         self.gtsam = GtsamEstimator(gravity=g('gravity'), compare_frame=self.frame)
         self.flow_pos = PositionIntegrator()

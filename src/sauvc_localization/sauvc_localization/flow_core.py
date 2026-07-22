@@ -34,7 +34,8 @@ class FlowVelocityEstimator:
                  swap_xy=False, sign_x=1.0, sign_y=1.0,
                  min_features=25,
                  max_hold_frames=5, max_hold_dt=0.5, fb_max_err=1.0,
-                 use_clahe=False, grid_rows=0, grid_cols=0):
+                 use_clahe=False, grid_rows=0, grid_cols=0,
+                 compensate_vz=False):
         # Camera intrinsics — MUST be from an UNDERWATER calibration.
         self.fx, self.fy, self.cx, self.cy = fx, fy, cx, cy
         self.max_corners = max_corners
@@ -85,6 +86,18 @@ class FlowVelocityEstimator:
         self.clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8)) if use_clahe else None
         self.grid_rows = int(grid_rows)
         self.grid_cols = int(grid_cols)
+        # OPTIONAL(expansion/Vz compensation): the translational-flow derivation drops
+        # the term fx*X*(dZ/dt)/Z^2, which is only exactly zero if Vz=0 or the tracked
+        # feature sits at the image center. Moving toward/away from the floor while
+        # ALSO translating leaks a position-dependent "zoom" pattern into the median
+        # flow whenever the inlier features aren't perfectly symmetric about the
+        # principal point -- grid-distributed detection above makes that assumption
+        # much safer, but doesn't guarantee it every frame. This removes the leftover
+        # leakage using the same altitude reading this class already receives every
+        # frame -- no new sensor input required. Off by default: validate with the
+        # hand-push test (see offline_flow_test.py) before trusting it.
+        self.compensate_vz = bool(compensate_vz)
+        self.ref_altitude = None      # altitude recorded when prev_gray/prev_pts was set
         self.hold_frames = 0          # consecutive failed frames on the held reference
         self.hold_dt = 0.0            # seconds accumulated across held frames
         self.last_failure = None      # why the most recent process() returned None
@@ -123,16 +136,22 @@ class FlowVelocityEstimator:
         return pts  # shape (N,1,2) float32 or None
 
     # --- reference-frame management (FIX: dropout = lost displacement) -----------------
-    def _advance_ref(self, gray):
+    def _advance_ref(self, gray, altitude=None):
         """Move the LK reference to the current frame. Call ONLY on a successful
         estimate, or on non-tracking failures (bad altitude/dt) where the pixel
-        displacement could not have been used anyway."""
+        displacement could not have been used anyway.
+
+        altitude: the altitude reading AT this reference frame, stored so the next
+        successful process() can compute how much altitude changed across the
+        interval it spans (dt_eff) for the optional Vz compensation. None (bootstrap,
+        or an invalid reading) disables compensation until a good reading returns."""
         self.prev_gray = gray
         self.prev_pts = self._detect(gray)
         self.hold_frames = 0
         self.hold_dt = 0.0
+        self.ref_altitude = altitude
 
-    def _fail(self, gray, dt, reason, hold):
+    def _fail(self, gray, dt, reason, hold, altitude=None):
         """Record a failure. hold=True keeps the previous reference so the next
         successful track spans the gap; the gap time accrues in hold_dt. Once the
         hold limits are exceeded the track is declared lost and the reference
@@ -140,14 +159,14 @@ class FlowVelocityEstimator:
         self.last_failure = reason
         self.fail_counts[reason] = self.fail_counts.get(reason, 0) + 1
         if not hold:
-            self._advance_ref(gray)
+            self._advance_ref(gray, altitude)
             return None
         self.hold_frames += 1
         self.hold_dt += max(dt, 0.0)
         if self.hold_frames > self.max_hold_frames or self.hold_dt > self.max_hold_dt:
             self.last_failure = reason + '+track_lost'
             self.fail_counts['track_lost'] = self.fail_counts.get('track_lost', 0) + 1
-            self._advance_ref(gray)
+            self._advance_ref(gray, altitude)
         return None
 
     def process(self, gray, dt, gyro_xy_cam, altitude):
@@ -166,7 +185,7 @@ class FlowVelocityEstimator:
 
         if self.prev_gray is None or self.prev_pts is None or len(self.prev_pts) < self.min_features:
             self.last_failure = 'bootstrap'
-            self._advance_ref(gray)
+            self._advance_ref(gray, altitude)
             return None
 
         if dt <= 0:
@@ -192,7 +211,7 @@ class FlowVelocityEstimator:
         if nxt is None:
             # FIX: was `self.prev_gray, self.prev_pts = gray, self._detect(gray)` —
             # discarding the gap. HOLD instead.
-            return self._fail(gray, dt, 'lk_none', hold=True)
+            return self._fail(gray, dt, 'lk_none', hold=True, altitude=altitude)
 
         # FIX(false matches): forward-backward consistency check. LK can "succeed"
         # onto the wrong texture — especially across a held gap or on repetitive
@@ -203,7 +222,7 @@ class FlowVelocityEstimator:
         back, bstat, _berr = cv2.calcOpticalFlowPyrLK(gray, self.prev_gray,
                                                       nxt, None, **self.lk_params)
         if back is None:
-            return self._fail(gray, dt, 'lk_none', hold=True)
+            return self._fail(gray, dt, 'lk_none', hold=True, altitude=altitude)
         fb_err = np.linalg.norm(
             self.prev_pts.reshape(-1, 2) - back.reshape(-1, 2), axis=1)
         good = ((status.reshape(-1) == 1) & (bstat.reshape(-1) == 1)
@@ -219,12 +238,14 @@ class FlowVelocityEstimator:
         # unusable anyway (bad altitude).
 
         if n_tracked < self.min_features:
-            return self._fail(gray, dt, 'few_tracked', hold=True)
+            return self._fail(gray, dt, 'few_tracked', hold=True, altitude=altitude)
 
         if altitude is None or altitude < 0.1:
             # Tracking is fine but the displacement cannot be scaled to metres, so
-            # holding buys nothing — advance so the pixel gap doesn't grow.
-            return self._fail(gray, dt, 'bad_altitude', hold=False)
+            # holding buys nothing — advance so the pixel gap doesn't grow. altitude
+            # is invalid here, so don't record it as the new ref_altitude (None keeps
+            # Vz compensation disabled until a good reading re-establishes it).
+            return self._fail(gray, dt, 'bad_altitude', hold=False, altitude=None)
 
         # Effective interval: the current frame gap PLUS any frames held across
         # failures. Velocity must be displacement over the WHOLE spanned time or a
@@ -238,7 +259,7 @@ class FlowVelocityEstimator:
         inlier = np.all(np.abs(d - med) < 4.0 * mad + 1.0, axis=1)
         n_inliers = int(inlier.sum())
         if n_inliers < self.min_features:
-            return self._fail(gray, dt, 'few_inliers', hold=True)
+            return self._fail(gray, dt, 'few_inliers', hold=True, altitude=altitude)
         du, dv = np.median(d[inlier], axis=0)         # pixels per SPANNED interval
 
         # --- Derotation ---------------------------------------------------------------
@@ -250,6 +271,21 @@ class FlowVelocityEstimator:
         wx, wy = gyro_xy_cam
         du_t = du - (-self.fx * wy * dt_eff)
         dv_t = dv - (+self.fy * wx * dt_eff)
+
+        # --- OPTIONAL: expansion/Vz compensation ---------------------------------------
+        # Full translational term: u_dot = -fx*Vx/Z + (x_img/Z)*Vz -- moving toward/away
+        # from the floor (Vz != 0) adds a "zoom" pattern growing with distance from the
+        # principal point. Antisymmetric in x_img, so it cancels in the median IF inlier
+        # features are symmetric about the image center (grid-distributed detection
+        # above makes that likelier, not guaranteed). This removes the leftover leakage
+        # directly: Vz*dt_eff = ref_altitude - altitude (altitude change across the SAME
+        # interval this flow spans), so the correction needs no separate dt term.
+        if self.compensate_vz and self.ref_altitude is not None:
+            delta_alt = self.ref_altitude - altitude   # >0 while descending (closer to floor)
+            x_bar = float(np.mean(p0[inlier, 0])) - self.cx
+            y_bar = float(np.mean(p0[inlier, 1])) - self.cy
+            du_t -= x_bar * delta_alt / altitude
+            dv_t -= y_bar * delta_alt / altitude
 
         # --- Scale to metric camera-frame velocity --------------------------------------
         # Ground point image motion is opposite camera translation: u_dot = -f * Vx_c / h
@@ -274,12 +310,12 @@ class FlowVelocityEstimator:
         if recovered > 0.0 and self.last_v is not None:
             jump = math.hypot(bx - self.last_v[0], by - self.last_v[1])
             if jump > self.v_jump_max:
-                return self._fail(gray, dt, 'alias_reject', hold=True)
+                return self._fail(gray, dt, 'alias_reject', hold=True, altitude=altitude)
 
         self.px_rate = (du / dt_eff, dv / dt_eff)
         self.last_v = (float(bx), float(by))
         self.last_failure = None
-        self._advance_ref(gray)           # success: NOW the reference moves forward
+        self._advance_ref(gray, altitude)  # success: NOW the reference moves forward
 
         # Quality: spread of inlier flow (pixels) — big spread = unreliable frame.
         spread = float(np.mean(np.std(d[inlier], axis=0)))
