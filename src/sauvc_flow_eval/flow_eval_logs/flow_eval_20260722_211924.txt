@@ -1,0 +1,2548 @@
+# flow_eval_node run log — started 2026-07-22 21:19:24
+# argv: /home/haadi/Robotics_Job/sauvc_ws/install/sauvc_flow_eval/lib/sauvc_flow_eval/flow_eval_node --ros-args -p scene_file:=/home/haadi/Robotics_Job/sauvc_ws/src/sauvc_stonefish/scenarios/sauvc_finals.scn -p flow_yaw_autocal:=false -p flow_yaw_offset:=0.0 -p use_lane_heading:=true -p pool_axis_ned_yaw:=0.0 -p show_camera:=false -p show_optical_flow:=false -p log_to_file:=true -p log_dir:=~/Robotics_Job/sauvc_ws/src/sauvc_flow_eval/flow_eval_logs -p flow_compensate_vz:=true -p live_plot:=true
+[INFO] [1784735364.202650403] [flow_eval_node]: run log: teeing all console output to /home/haadi/Robotics_Job/sauvc_ws/src/sauvc_flow_eval/flow_eval_logs/flow_eval_20260722_211924.txt
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth        --       --       --       --       --
+  dvl                 --       --       --       --       --
+  flow                --       --       --       --       --
+  ekf                 --       --       --       --       --
+  pressure       -11.600   -2.000   +0.299       --       --
+  gtsam               --       --       --       --       --
+  lane[inactive(IMU fallback)] raw_lane_yaw= +89.58deg
+[INFO] [1784735364.760174736] [flow_eval_node]: lane_heading effectiveness: accepted 1/1 (100%), rejected-stale 0 (no fresh /heading/pool_relative), rejected-gate 0 (disagreed >30 deg). Right now: fused_yaw err=+1.14 deg vs raw IMU err=+1.09 deg — NOT currently helping.
+[gtsam] static init from 27 samples: accel_bias=[-6.00000e-04  1.39000e-02  1.96023e+01] gyro_bias=[0.00055 0.00024 0.00015]
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.001
+  flow           -11.600   -2.000   +0.082   +0.039   -0.017
+  ekf            -11.597   -2.001   +0.082   +0.039   -0.017
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam               --       --       --       --       --
+  yaw[deg]      gt=  +0.00  imu=  -0.56 (err  -0.56)  gtsam=  +1.09 (err  +1.09)
+  lane[ACTIVE                ] raw_lane_yaw= +90.54deg  fused_err= +1.14  imu_err= -0.56  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.000
+  flow           -11.593   -2.003   +0.078   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.078   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.078       --       --
+  gtsam          -11.593   -2.003   +0.078   +0.000   -0.000
+  yaw[deg]      gt=  -0.00  imu=  +0.09 (err  +0.09)  gtsam=  -0.65 (err  -0.65)
+  lane[ACTIVE                ] raw_lane_yaw= +90.85deg  fused_err= -0.85  imu_err= +0.09  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.593   -2.003   +0.085   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.085   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.079       --       --
+  gtsam          -11.593   -2.003   +0.078   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.27 (err  -1.27)  gtsam=  -0.65 (err  -0.65)
+  lane[ACTIVE                ] raw_lane_yaw= +91.22deg  fused_err= +1.09  imu_err= -1.27  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   +0.000
+  dvl                 --       --       --   -0.001   +0.003
+  flow           -11.593   -2.003   +0.084   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.084   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.081       --       --
+  gtsam          -11.594   -2.003   +0.083   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.28 (err  -0.28)  gtsam=  +0.56 (err  +0.56)
+  lane[ACTIVE                ] raw_lane_yaw= +90.26deg  fused_err= -0.28  imu_err= -0.28  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   +0.003   -0.001
+  flow           -11.593   -2.003   +0.082   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.082   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam          -11.594   -2.003   +0.083   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.35 (err  +2.35)  gtsam=  +0.26 (err  +0.26)
+  lane[ACTIVE                ] raw_lane_yaw= +87.71deg  fused_err= +0.95  imu_err= +2.35  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   -0.000   +0.001
+  flow           -11.593   -2.003   +0.080   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.080   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.084       --       --
+  gtsam          -11.594   -2.003   +0.084   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.17 (err  -0.17)  gtsam=  -1.21 (err  -1.21)
+  lane[ACTIVE                ] raw_lane_yaw= +90.19deg  fused_err= -0.58  imu_err= -0.17  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   +0.000
+  dvl                 --       --       --   -0.001   +0.000
+  flow           -11.593   -2.003   +0.078   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.078   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.078       --       --
+  gtsam          -11.594   -2.003   +0.083   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.04 (err  +0.04)  gtsam=  -0.67 (err  -0.67)
+  lane[ACTIVE                ] raw_lane_yaw= +89.98deg  fused_err= +0.02  imu_err= +0.04  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.593   -2.003   +0.082   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.082   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.081       --       --
+  gtsam          -11.594   -2.003   +0.083   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.37 (err  +0.37)  gtsam=  -0.67 (err  -0.67)
+  lane[ACTIVE                ] raw_lane_yaw= +89.56deg  fused_err= -1.87  imu_err= +0.37  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.002
+  flow           -11.593   -2.003   +0.081   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.081   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam          -11.594   -2.002   +0.082   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.35 (err  -0.35)  gtsam=  +1.58 (err  +1.58)
+  lane[ACTIVE                ] raw_lane_yaw= +90.28deg  fused_err= -1.09  imu_err= -0.35  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   +0.000
+  dvl                 --       --       --   -0.002   +0.002
+  flow           -11.593   -2.003   +0.081   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.081   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.081       --       --
+  gtsam          -11.594   -2.002   +0.082   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -2.20 (err  -2.20)  gtsam=  +1.58 (err  +1.58)
+  lane[ACTIVE                ] raw_lane_yaw= +89.65deg  fused_err= -1.09  imu_err= -2.20  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.593   -2.003   +0.082   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.082   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.081       --       --
+  gtsam          -11.594   -2.003   +0.082   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.23 (err  +0.23)  gtsam=  +0.90 (err  +0.90)
+  lane[ACTIVE                ] raw_lane_yaw= +89.72deg  fused_err= +0.85  imu_err= +0.23  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.002
+  flow           -11.593   -2.003   +0.086   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.086   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam          -11.594   -2.003   +0.086   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.22 (err  -0.22)  gtsam=  +0.77 (err  +0.77)
+  lane[ACTIVE                ] raw_lane_yaw= +90.19deg  fused_err= +0.76  imu_err= -0.22  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.593   -2.003   +0.082   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.083   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam          -11.594   -2.003   +0.084   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.06 (err  +1.06)  gtsam=  +0.71 (err  +0.71)
+  lane[ACTIVE                ] raw_lane_yaw= +88.92deg  fused_err= +1.08  imu_err= +1.06  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   +0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.593   -2.003   +0.083   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.083   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.084       --       --
+  gtsam          -11.594   -2.003   +0.081   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.56 (err  -1.56)  gtsam=  -0.29 (err  -0.29)
+  lane[ACTIVE                ] raw_lane_yaw= +91.60deg  fused_err= +1.47  imu_err= -1.56  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   +0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.593   -2.003   +0.085   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.085   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.086       --       --
+  gtsam          -11.594   -2.003   +0.081   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.27 (err  -0.27)  gtsam=  -0.29 (err  -0.29)
+  lane[ACTIVE                ] raw_lane_yaw= +90.32deg  fused_err= +0.51  imu_err= -0.27  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   +0.000
+  dvl                 --       --       --   -0.001   +0.002
+  flow           -11.593   -2.003   +0.087   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.085   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.087       --       --
+  gtsam          -11.594   -2.003   +0.085   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.59 (err  +2.59)  gtsam=  +0.55 (err  +0.55)
+  lane[ACTIVE                ] raw_lane_yaw= +89.01deg  fused_err= +0.99  imu_err= +2.59  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   -0.002   +0.001
+  flow           -11.593   -2.003   +0.078   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.078   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.080       --       --
+  gtsam          -11.594   -2.003   +0.085   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.41 (err  +1.41)  gtsam=  +0.55 (err  +0.55)
+  lane[ACTIVE                ] raw_lane_yaw= +88.67deg  fused_err= +0.01  imu_err= +1.41  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.003   -0.001
+  flow           -11.593   -2.003   +0.086   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.086   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam          -11.594   -2.003   +0.086   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.79 (err  +1.79)  gtsam=  +0.36 (err  +0.36)
+  lane[ACTIVE                ] raw_lane_yaw= +88.30deg  fused_err= +0.35  imu_err= +1.79  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   -0.001   +0.003
+  flow           -11.593   -2.003   +0.086   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.086   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.081       --       --
+  gtsam          -11.594   -2.003   +0.086   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.63 (err  +1.63)  gtsam=  +0.36 (err  +0.36)
+  lane[ACTIVE                ] raw_lane_yaw= +88.44deg  fused_err= +0.35  imu_err= +1.63  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   +0.000   -0.001
+  flow           -11.593   -2.003   +0.081   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.081   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam          -11.594   -2.003   +0.081   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.59 (err  -0.59)  gtsam=  +2.83 (err  +2.83)
+  lane[ACTIVE                ] raw_lane_yaw= +90.70deg  fused_err= +3.04  imu_err= -0.59  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   +0.000
+  dvl                 --       --       --   -0.002   -0.004
+  flow           -11.593   -2.003   +0.083   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.081   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam          -11.594   -2.003   +0.081   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.93 (err  -1.93)  gtsam=  +2.83 (err  +2.83)
+  lane[ACTIVE                ] raw_lane_yaw= +91.99deg  fused_err= -1.99  imu_err= -1.93  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   -0.003   +0.003
+  flow           -11.593   -2.003   +0.085   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.085   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam          -11.594   -2.003   +0.083   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.19 (err  +2.19)  gtsam=  -1.58 (err  -1.58)
+  lane[ACTIVE                ] raw_lane_yaw= +87.86deg  fused_err= +0.56  imu_err= +2.19  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.084   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.001
+  flow           -11.593   -2.003   +0.076   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.076   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.084       --       --
+  gtsam          -11.594   -2.003   +0.076   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.46 (err  -0.46)  gtsam=  +0.77 (err  +0.77)
+  lane[ACTIVE                ] raw_lane_yaw= +90.53deg  fused_err= +1.02  imu_err= -0.46  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.086   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.593   -2.003   +0.076   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.076   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.085       --       --
+  gtsam          -11.594   -2.003   +0.076   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.36 (err  +0.36)  gtsam=  +0.77 (err  +0.77)
+  lane[ACTIVE                ] raw_lane_yaw= +89.71deg  fused_err= +1.02  imu_err= +0.36  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.089   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.000
+  flow           -11.593   -2.003   +0.076   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.076   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.081       --       --
+  gtsam          -11.594   -2.003   +0.076   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.04 (err  -0.04)  gtsam=  +0.77 (err  +0.77)
+  lane[ACTIVE                ] raw_lane_yaw= +90.14deg  fused_err= +1.02  imu_err= -0.04  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.092   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.000
+  flow           -11.593   -2.003   +0.084   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.084   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam          -11.594   -2.003   +0.084   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.04 (err  -0.04)  gtsam=  +0.33 (err  +0.33)
+  lane[ACTIVE                ] raw_lane_yaw= +90.15deg  fused_err= +0.31  imu_err= -0.04  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.095   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.002
+  flow           -11.593   -2.003   +0.084   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.084   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.084       --       --
+  gtsam          -11.594   -2.003   +0.084   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.34 (err  +1.34)  gtsam=  -0.84 (err  -0.84)
+  lane[ACTIVE                ] raw_lane_yaw= +90.97deg  fused_err= -0.97  imu_err= +1.34  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.099   +0.000   -0.000
+  dvl                 --       --       --   +0.005   +0.000
+  flow           -11.593   -2.003   +0.081   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.081   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.084       --       --
+  gtsam          -11.594   -2.003   +0.084   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.26 (err  -0.26)  gtsam=  -0.84 (err  -0.84)
+  lane[ACTIVE                ] raw_lane_yaw= +90.35deg  fused_err= +0.54  imu_err= -0.26  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.102   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.002
+  flow           -11.593   -2.003   +0.083   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.083   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.086       --       --
+  gtsam          -11.594   -2.003   +0.083   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.85 (err  -0.85)  gtsam=  -1.12 (err  -1.12)
+  lane[ACTIVE                ] raw_lane_yaw= +90.93deg  fused_err= -1.15  imu_err= -0.85  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.106   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.001
+  flow           -11.593   -2.003   +0.087   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.087   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.092       --       --
+  gtsam          -11.594   -2.003   +0.087   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.11 (err  +1.11)  gtsam=  -1.39 (err  -1.39)
+  lane[ACTIVE                ] raw_lane_yaw= +89.00deg  fused_err= -1.43  imu_err= +1.11  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.110   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.593   -2.003   +0.091   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.090   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.091       --       --
+  gtsam          -11.594   -2.003   +0.087   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.31 (err  -0.31)  gtsam=  -1.39 (err  -1.39)
+  lane[ACTIVE                ] raw_lane_yaw= +90.46deg  fused_err= -0.46  imu_err= -0.31  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.114   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.000
+  flow           -11.593   -2.003   +0.098   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.098   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.098       --       --
+  gtsam          -11.594   -2.003   +0.091   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.79 (err  +2.79)  gtsam=  -0.56 (err  -0.56)
+  lane[ACTIVE                ] raw_lane_yaw= +87.35deg  fused_err= +0.11  imu_err= +2.79  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.117   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.593   -2.003   +0.098   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.098   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.101       --       --
+  gtsam          -11.594   -2.003   +0.098   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.53 (err  +0.53)  gtsam=  +0.29 (err  +0.29)
+  lane[ACTIVE                ] raw_lane_yaw= +89.62deg  fused_err= +0.42  imu_err= +0.53  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.122   -0.000   -0.000
+  dvl                 --       --       --   -0.003   -0.000
+  flow           -11.593   -2.003   +0.109   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.109   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.107       --       --
+  gtsam          -11.594   -2.003   +0.105   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.11 (err  -1.11)  gtsam=  +2.32 (err  +2.32)
+  lane[ACTIVE                ] raw_lane_yaw= +91.30deg  fused_err= -0.95  imu_err= -1.11  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.126   -0.000   -0.000
+  dvl                 --       --       --   +0.003   +0.003
+  flow           -11.593   -2.003   +0.106   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.106   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.110       --       --
+  gtsam          -11.594   -2.003   +0.106   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.07 (err  +0.07)  gtsam=  -0.98 (err  -0.98)
+  lane[ACTIVE                ] raw_lane_yaw= +90.09deg  fused_err= -1.55  imu_err= +0.07  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.129   -0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.000
+  flow           -11.593   -2.003   +0.109   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.109   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.115       --       --
+  gtsam          -11.594   -2.003   +0.106   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.85 (err  +0.85)  gtsam=  -0.98 (err  -0.98)
+  lane[ACTIVE                ] raw_lane_yaw= +89.32deg  fused_err= +0.28  imu_err= +0.85  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.134   +0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.001
+  flow           -11.593   -2.003   +0.111   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.111   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.117       --       --
+  gtsam          -11.594   -2.003   +0.115   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.49 (err  +2.49)  gtsam=  +0.05 (err  +0.05)
+  lane[ACTIVE                ] raw_lane_yaw= +87.63deg  fused_err= -1.37  imu_err= +2.49  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.137   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.000
+  flow           -11.593   -2.003   +0.117   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.117   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.123       --       --
+  gtsam          -11.595   -2.003   +0.117   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.74 (err  -1.74)  gtsam=  +0.36 (err  +0.36)
+  lane[ACTIVE                ] raw_lane_yaw= +91.86deg  fused_err= +0.40  imu_err= -1.74  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.142   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.593   -2.003   +0.126   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.126   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.123       --       --
+  gtsam          -11.595   -2.003   +0.123   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.47 (err  +1.47)  gtsam=  +1.77 (err  +1.77)
+  lane[ACTIVE                ] raw_lane_yaw= +88.71deg  fused_err= +0.85  imu_err= +1.47  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.146   -0.000   -0.000
+  dvl                 --       --       --   -0.004   +0.001
+  flow           -11.593   -2.003   +0.126   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.126   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.130       --       --
+  gtsam          -11.595   -2.003   +0.126   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.43 (err  +2.43)  gtsam=  +0.39 (err  +0.39)
+  lane[ACTIVE                ] raw_lane_yaw= +90.15deg  fused_err= +0.18  imu_err= +2.43  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.150   -0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.001
+  flow           -11.593   -2.003   +0.128   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.128   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.129       --       --
+  gtsam          -11.595   -2.003   +0.126   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.25 (err  -0.25)  gtsam=  +0.39 (err  +0.39)
+  lane[ACTIVE                ] raw_lane_yaw= +90.54deg  fused_err= +1.41  imu_err= -0.25  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.153   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.002
+  flow           -11.593   -2.003   +0.137   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.137   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.139       --       --
+  gtsam          -11.595   -2.003   +0.129   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.63 (err  -0.63)  gtsam=  -1.87 (err  -1.87)
+  lane[ACTIVE                ] raw_lane_yaw= +90.88deg  fused_err= -0.31  imu_err= -0.63  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.157   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.001
+  flow           -11.593   -2.003   +0.139   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.139   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.138       --       --
+  gtsam          -11.595   -2.003   +0.139   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.21 (err  -1.21)  gtsam=  -0.55 (err  -0.55)
+  lane[ACTIVE                ] raw_lane_yaw= +91.43deg  fused_err= -0.37  imu_err= -1.21  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.161   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.002
+  flow           -11.593   -2.003   +0.144   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.144   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.143       --       --
+  gtsam          -11.595   -2.003   +0.139   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.07 (err  +1.07)  gtsam=  -0.55 (err  -0.55)
+  lane[ACTIVE                ] raw_lane_yaw= +89.11deg  fused_err= +0.16  imu_err= +1.07  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.165   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.002
+  flow           -11.593   -2.003   +0.143   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.143   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.145       --       --
+  gtsam          -11.595   -2.003   +0.143   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.08 (err  -0.08)  gtsam=  -1.49 (err  -1.49)
+  lane[ACTIVE                ] raw_lane_yaw= +90.16deg  fused_err= -1.58  imu_err= -0.08  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.170   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.593   -2.003   +0.145   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.145   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.148       --       --
+  gtsam          -11.595   -2.003   +0.143   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.03 (err  +1.03)  gtsam=  -1.49 (err  -1.49)
+  lane[ACTIVE                ] raw_lane_yaw= +89.03deg  fused_err= -1.36  imu_err= +1.03  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.173   -0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.000
+  flow           -11.593   -2.003   +0.152   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.152   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.159       --       --
+  gtsam          -11.594   -2.003   +0.152   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.69 (err  -0.69)  gtsam=  +1.28 (err  +1.28)
+  lane[ACTIVE                ] raw_lane_yaw= +90.81deg  fused_err= +1.50  imu_err= -0.69  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.178   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.001
+  flow           -11.593   -2.003   +0.157   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.157   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.158       --       --
+  gtsam          -11.594   -2.003   +0.157   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.71 (err  -1.71)  gtsam=  +1.82 (err  +1.82)
+  lane[ACTIVE                ] raw_lane_yaw= +91.87deg  fused_err= +1.90  imu_err= -1.71  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.181   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.000
+  flow           -11.593   -2.003   +0.161   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.161   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.162       --       --
+  gtsam          -11.595   -2.003   +0.161   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.04 (err  -0.04)  gtsam=  -0.46 (err  -0.46)
+  lane[ACTIVE                ] raw_lane_yaw= +90.21deg  fused_err= -0.80  imu_err= -0.04  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.185   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.001
+  flow           -11.593   -2.003   +0.168   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.168   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.169       --       --
+  gtsam          -11.595   -2.003   +0.168   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.35 (err  -0.35)  gtsam=  +0.18 (err  +0.18)
+  lane[ACTIVE                ] raw_lane_yaw= +90.58deg  fused_err= +0.27  imu_err= -0.35  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.189   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.000
+  flow           -11.593   -2.003   +0.170   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.170   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.172       --       --
+  gtsam          -11.594   -2.003   +0.170   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.49 (err  +0.49)  gtsam=  +0.83 (err  +0.83)
+  lane[ACTIVE                ] raw_lane_yaw= +89.76deg  fused_err= +0.94  imu_err= +0.49  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.193   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.000
+  flow           -11.593   -2.003   +0.173   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.173   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.177       --       --
+  gtsam          -11.595   -2.003   +0.173   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -2.15 (err  -2.15)  gtsam=  -1.48 (err  -1.48)
+  lane[ACTIVE                ] raw_lane_yaw= +92.35deg  fused_err= -1.81  imu_err= -2.15  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.197   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.003
+  flow           -11.593   -2.003   +0.181   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.181   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.183       --       --
+  gtsam          -11.594   -2.002   +0.181   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.55 (err  +0.55)  gtsam=  +1.28 (err  +1.28)
+  lane[ACTIVE                ] raw_lane_yaw= +89.69deg  fused_err= +1.61  imu_err= +0.55  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.201   -0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.003
+  flow           -11.593   -2.003   +0.185   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.184   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.181       --       --
+  gtsam          -11.594   -2.002   +0.181   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.53 (err  +1.53)  gtsam=  +1.28 (err  +1.28)
+  lane[ACTIVE                ] raw_lane_yaw= +88.65deg  fused_err= -2.63  imu_err= +1.53  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.205   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.000
+  flow           -11.593   -2.003   +0.186   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.186   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.188       --       --
+  gtsam          -11.594   -2.002   +0.184   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.69 (err  -1.69)  gtsam=  -1.42 (err  -1.42)
+  lane[ACTIVE                ] raw_lane_yaw= +91.82deg  fused_err= -0.40  imu_err= -1.69  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.209   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.002
+  flow           -11.593   -2.003   +0.186   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.186   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.191       --       --
+  gtsam          -11.594   -2.002   +0.184   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.72 (err  +1.72)  gtsam=  -1.42 (err  -1.42)
+  lane[ACTIVE                ] raw_lane_yaw= +88.42deg  fused_err= -0.40  imu_err= +1.72  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.212   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.002
+  flow           -11.593   -2.003   +0.193   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.193   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.191       --       --
+  gtsam          -11.596   -2.002   +0.194   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.78 (err  -1.78)  gtsam=  +2.23 (err  +2.23)
+  lane[ACTIVE                ] raw_lane_yaw= +92.02deg  fused_err= +0.06  imu_err= -1.78  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.217   -0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.001
+  flow           -11.593   -2.003   +0.193   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.193   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.196       --       --
+  gtsam          -11.595   -2.003   +0.193   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.34 (err  -0.34)  gtsam=  +0.69 (err  +0.69)
+  lane[ACTIVE                ] raw_lane_yaw= +90.65deg  fused_err= +0.44  imu_err= -0.34  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.221   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.002
+  flow           -11.593   -2.003   +0.204   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.204   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.204       --       --
+  gtsam          -11.595   -2.003   +0.204   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.52 (err  +0.52)  gtsam=  +0.27 (err  +0.27)
+  lane[ACTIVE                ] raw_lane_yaw= +89.78deg  fused_err= +0.22  imu_err= +0.52  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.224   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.002
+  flow           -11.593   -2.003   +0.208   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.208   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.209       --       --
+  gtsam          -11.595   -2.003   +0.204   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.77 (err  -0.77)  gtsam=  +0.27 (err  +0.27)
+  lane[ACTIVE                ] raw_lane_yaw= +91.03deg  fused_err= -0.23  imu_err= -0.77  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.229   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.001
+  flow           -11.593   -2.003   +0.209   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.209   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.214       --       --
+  gtsam          -11.595   -2.003   +0.209   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.10 (err  -0.10)  gtsam=  -1.07 (err  -1.07)
+  lane[ACTIVE                ] raw_lane_yaw= +90.37deg  fused_err= -1.25  imu_err= -0.10  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.232   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.000
+  flow           -11.593   -2.003   +0.212   +0.000   +0.000
+  ekf            -11.590   -2.004   +0.216   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.212       --       --
+  gtsam          -11.595   -2.003   +0.216   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.48 (err  -1.48)  gtsam=  +0.48 (err  +0.48)
+  lane[ACTIVE                ] raw_lane_yaw= +91.76deg  fused_err= -1.76  imu_err= -1.48  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.235   +0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.003
+  flow           -11.593   -2.002   +0.216   -0.008   +0.011
+  ekf            -11.590   -2.004   +0.216   -0.002   +0.006
+  pressure       -11.600   -2.000   +0.216       --       --
+  gtsam          -11.595   -2.003   +0.219   +0.005   -0.002
+  yaw[deg]      gt=  +0.00  imu=  +0.34 (err  +0.34)  gtsam=  +0.52 (err  +0.52)
+  lane[ACTIVE                ] raw_lane_yaw= +89.94deg  fused_err= +0.06  imu_err= +0.34  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.238   -0.001   +0.001
+  dvl                 --       --       --   -0.000   -0.003
+  flow           -11.594   -2.001   +0.219   -0.009   +0.009
+  ekf            -11.591   -2.003   +0.219   -0.008   +0.009
+  pressure       -11.600   -2.000   +0.217       --       --
+  gtsam          -11.595   -2.003   +0.219   +0.005   -0.002
+  yaw[deg]      gt=  +0.00  imu=  +1.26 (err  +1.26)  gtsam=  +0.52 (err  +0.52)
+  lane[ACTIVE                ] raw_lane_yaw= +89.03deg  fused_err= -1.03  imu_err= +1.26  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.242   -0.001   +0.001
+  dvl                 --       --       --   -0.003   +0.000
+  flow           -11.595   -2.000   +0.226   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.226   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.225       --       --
+  gtsam          -11.594   -2.002   +0.222   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +3.30 (err  +3.30)  gtsam=  -0.63 (err  -0.63)
+  lane[ACTIVE                ] raw_lane_yaw= +87.03deg  fused_err= -2.44  imu_err= +3.30  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.243   -0.001   +0.000
+  dvl                 --       --       --   +0.002   -0.001
+  flow           -11.595   -2.000   +0.223   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.223   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.226       --       --
+  gtsam          -11.594   -2.002   +0.222   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.14 (err  +1.14)  gtsam=  -0.63 (err  -0.63)
+  lane[ACTIVE                ] raw_lane_yaw= +89.16deg  fused_err= -1.60  imu_err= +1.14  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.242   -0.000   +0.000
+  dvl                 --       --       --   +0.004   +0.000
+  flow           -11.595   -2.000   +0.225   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.225   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.224       --       --
+  gtsam          -11.595   -2.004   +0.225   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.68 (err  +0.68)  gtsam=  -0.32 (err  -0.32)
+  lane[ACTIVE                ] raw_lane_yaw= +89.64deg  fused_err= -0.30  imu_err= +0.68  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.242   +0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.002
+  flow           -11.595   -2.000   +0.227   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.225   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.227       --       --
+  gtsam          -11.595   -2.004   +0.225   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.45 (err  -0.45)  gtsam=  -0.32 (err  -0.32)
+  lane[ACTIVE                ] raw_lane_yaw= +90.82deg  fused_err= -0.82  imu_err= -0.45  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.244   +0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.000
+  flow           -11.595   -2.000   +0.227   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.227   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.225       --       --
+  gtsam          -11.594   -2.004   +0.227   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.68 (err  +1.68)  gtsam=  -0.76 (err  -0.76)
+  lane[ACTIVE                ] raw_lane_yaw= +88.64deg  fused_err= -0.82  imu_err= +1.68  better
+[INFO] [1784735379.755763041] [flow_eval_node]: lane_heading effectiveness: accepted 111/111 (100%), rejected-stale 0 (no fresh /heading/pool_relative), rejected-gate 0 (disagreed >30 deg). Right now: fused_yaw err=+0.98 deg vs raw IMU err=+1.26 deg — HELPING.
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.246   +0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.002
+  flow           -11.595   -2.000   +0.228   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.228   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.228       --       --
+  gtsam          -11.594   -2.003   +0.226   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.26 (err  +1.26)  gtsam=  -1.55 (err  -1.55)
+  lane[ACTIVE                ] raw_lane_yaw= +89.02deg  fused_err= +0.98  imu_err= +1.26  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.250   +0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.000
+  flow           -11.595   -2.000   +0.234   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.234   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.237       --       --
+  gtsam          -11.594   -2.003   +0.232   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.58 (err  +0.58)  gtsam=  -1.03 (err  -1.03)
+  lane[ACTIVE                ] raw_lane_yaw= +89.72deg  fused_err= +1.26  imu_err= +0.58  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.253   +0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.001
+  flow           -11.595   -2.000   +0.237   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.237   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.233       --       --
+  gtsam          -11.594   -2.003   +0.237   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.22 (err  +2.22)  gtsam=  +0.25 (err  +0.25)
+  lane[ACTIVE                ] raw_lane_yaw= +88.07deg  fused_err= +0.42  imu_err= +2.22  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.257   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.002
+  flow           -11.595   -2.000   +0.237   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.237   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.242       --       --
+  gtsam          -11.594   -2.003   +0.237   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.80 (err  +0.80)  gtsam=  +0.25 (err  +0.25)
+  lane[ACTIVE                ] raw_lane_yaw= +89.48deg  fused_err= -0.41  imu_err= +0.80  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.260   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.001
+  flow           -11.595   -2.000   +0.243   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.243   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.243       --       --
+  gtsam          -11.595   -2.004   +0.243   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.26 (err  -0.26)  gtsam=  -0.13 (err  -0.13)
+  lane[ACTIVE                ] raw_lane_yaw= +90.54deg  fused_err= -0.17  imu_err= -0.26  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.264   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.595   -2.000   +0.243   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.243   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.244       --       --
+  gtsam          -11.595   -2.004   +0.243   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.58 (err  -0.58)  gtsam=  -0.13 (err  -0.13)
+  lane[ACTIVE                ] raw_lane_yaw= +90.86deg  fused_err= -0.17  imu_err= -0.58  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.267   -0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.002
+  flow           -11.595   -2.000   +0.247   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.247   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.251       --       --
+  gtsam          -11.594   -2.004   +0.247   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.76 (err  -0.76)  gtsam=  -0.62 (err  -0.62)
+  lane[ACTIVE                ] raw_lane_yaw= +91.05deg  fused_err= -0.66  imu_err= -0.76  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.271   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.000
+  flow           -11.595   -2.000   +0.249   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.249   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.258       --       --
+  gtsam          -11.594   -2.004   +0.251   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.68 (err  +0.68)  gtsam=  -0.88 (err  -0.88)
+  lane[ACTIVE                ] raw_lane_yaw= +89.58deg  fused_err= +0.41  imu_err= +0.68  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.275   +0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.000
+  flow           -11.595   -2.000   +0.253   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.256   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.253       --       --
+  gtsam          -11.594   -2.003   +0.258   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.53 (err  +1.53)  gtsam=  -1.21 (err  -1.22)
+  lane[ACTIVE                ] raw_lane_yaw= +88.66deg  fused_err= +1.34  imu_err= +1.53  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.279   +0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.001
+  flow           -11.595   -2.000   +0.261   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.261   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.264       --       --
+  gtsam          -11.594   -2.004   +0.260   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.38 (err  +1.38)  gtsam=  -0.61 (err  -0.61)
+  lane[ACTIVE                ] raw_lane_yaw= +88.84deg  fused_err= +0.15  imu_err= +1.38  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.283   +0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.001
+  flow           -11.595   -2.000   +0.265   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.265   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.265       --       --
+  gtsam          -11.594   -2.003   +0.265   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.29 (err  +1.29)  gtsam=  -1.33 (err  -1.33)
+  lane[ACTIVE                ] raw_lane_yaw= +88.91deg  fused_err= -1.44  imu_err= +1.29  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.286   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.001
+  flow           -11.595   -2.000   +0.273   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.273   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.271       --       --
+  gtsam          -11.595   -2.004   +0.266   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.20 (err  +0.20)  gtsam=  +0.52 (err  +0.52)
+  lane[ACTIVE                ] raw_lane_yaw= +90.02deg  fused_err= +0.48  imu_err= +0.20  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.291   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.002
+  flow           -11.595   -2.000   +0.273   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.273   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.269       --       --
+  gtsam          -11.595   -2.004   +0.266   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.53 (err  -0.53)  gtsam=  +0.52 (err  +0.52)
+  lane[ACTIVE                ] raw_lane_yaw= +90.76deg  fused_err= +0.48  imu_err= -0.53  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.294   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.002
+  flow           -11.595   -2.000   +0.272   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.272   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.281       --       --
+  gtsam          -11.595   -2.003   +0.272   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.24 (err  -0.24)  gtsam=  +1.28 (err  +1.27)
+  lane[ACTIVE                ] raw_lane_yaw= +90.47deg  fused_err= +1.36  imu_err= -0.24  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.298   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.595   -2.000   +0.281   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.281   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.279       --       --
+  gtsam          -11.595   -2.003   +0.281   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +3.55 (err  +3.55)  gtsam=  +1.67 (err  +1.67)
+  lane[ACTIVE                ] raw_lane_yaw= +86.72deg  fused_err= +1.73  imu_err= +3.55  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.302   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.000
+  flow           -11.595   -2.000   +0.285   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.285   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.286       --       --
+  gtsam          -11.595   -2.003   +0.282   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.43 (err  +0.43)  gtsam=  +0.24 (err  +0.24)
+  lane[ACTIVE                ] raw_lane_yaw= +89.41deg  fused_err= +0.59  imu_err= +0.43  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.306   -0.000   -0.000
+  dvl                 --       --       --   -0.003   -0.003
+  flow           -11.595   -2.000   +0.288   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.288   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.288       --       --
+  gtsam          -11.595   -2.003   +0.288   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.03 (err  -0.03)  gtsam=  +2.03 (err  +2.03)
+  lane[ACTIVE                ] raw_lane_yaw= +91.06deg  fused_err= +2.28  imu_err= -0.03  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.310   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.595   -2.000   +0.291   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.291   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.292       --       --
+  gtsam          -11.595   -2.003   +0.288   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.66 (err  -0.66)  gtsam=  +2.03 (err  +2.03)
+  lane[ACTIVE                ] raw_lane_yaw= +91.04deg  fused_err= -0.85  imu_err= -0.66  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.314   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.002
+  flow           -11.595   -2.000   +0.296   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.296   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.294       --       --
+  gtsam          -11.595   -2.004   +0.292   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.36 (err  -0.36)  gtsam=  +1.04 (err  +1.04)
+  lane[ACTIVE                ] raw_lane_yaw= +90.28deg  fused_err= -0.41  imu_err= -0.36  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.318   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.595   -2.000   +0.296   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.296   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.298       --       --
+  gtsam          -11.595   -2.004   +0.292   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.86 (err  +0.86)  gtsam=  +1.04 (err  +1.04)
+  lane[ACTIVE                ] raw_lane_yaw= +89.05deg  fused_err= -0.41  imu_err= +0.86  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.322   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.001
+  flow           -11.595   -2.000   +0.302   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.302   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.302       --       --
+  gtsam          -11.594   -2.003   +0.298   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.20 (err  +2.20)  gtsam=  -0.16 (err  -0.16)
+  lane[ACTIVE                ] raw_lane_yaw= +88.78deg  fused_err= +1.22  imu_err= +2.20  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.325   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.000
+  flow           -11.595   -2.000   +0.312   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.311   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.305       --       --
+  gtsam          -11.594   -2.003   +0.312   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.61 (err  +0.61)  gtsam=  +1.25 (err  +1.25)
+  lane[ACTIVE                ] raw_lane_yaw= +89.79deg  fused_err= +1.39  imu_err= +0.61  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.329   -0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.002
+  flow           -11.595   -2.000   +0.311   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.311   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.311       --       --
+  gtsam          -11.594   -2.003   +0.312   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.56 (err  +1.56)  gtsam=  +1.25 (err  +1.25)
+  lane[ACTIVE                ] raw_lane_yaw= +88.77deg  fused_err= -1.46  imu_err= +1.56  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.333   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.000
+  flow           -11.595   -2.000   +0.311   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.311   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.316       --       --
+  gtsam          -11.594   -2.003   +0.312   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.93 (err  -0.93)  gtsam=  +1.25 (err  +1.25)
+  lane[ACTIVE                ] raw_lane_yaw= +91.25deg  fused_err= -1.46  imu_err= -0.93  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.336   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.000
+  flow           -11.595   -2.000   +0.311   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.311   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.319       --       --
+  gtsam          -11.594   -2.003   +0.312   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.18 (err  +0.17)  gtsam=  +1.25 (err  +1.25)
+  lane[ACTIVE                ] raw_lane_yaw= +90.15deg  fused_err= -1.46  imu_err= +0.17  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.341   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.002
+  flow           -11.595   -2.000   +0.320   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.320   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.319       --       --
+  gtsam          -11.594   -2.003   +0.320   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.29 (err  +1.29)  gtsam=  -1.68 (err  -1.68)
+  lane[ACTIVE                ] raw_lane_yaw= +89.03deg  fused_err= -1.84  imu_err= +1.29  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.345   -0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.002
+  flow           -11.595   -2.000   +0.325   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.325   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.327       --       --
+  gtsam          -11.594   -2.003   +0.324   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.13 (err  +1.13)  gtsam=  -0.80 (err  -0.80)
+  lane[ACTIVE                ] raw_lane_yaw= +89.23deg  fused_err= +2.33  imu_err= +1.13  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.348   -0.000   -0.000
+  dvl                 --       --       --   +0.003   -0.001
+  flow           -11.595   -2.000   +0.329   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.329   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.330       --       --
+  gtsam          -11.594   -2.003   +0.329   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.53 (err  -0.53)  gtsam=  +0.85 (err  +0.85)
+  lane[ACTIVE                ] raw_lane_yaw= +90.93deg  fused_err= +1.09  imu_err= -0.53  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.353   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.001
+  flow           -11.595   -2.000   +0.335   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.335   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.335       --       --
+  gtsam          -11.594   -2.003   +0.335   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.26 (err  +1.26)  gtsam=  -0.47 (err  -0.47)
+  lane[ACTIVE                ] raw_lane_yaw= +89.14deg  fused_err= -0.67  imu_err= +1.26  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.356   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.000
+  flow           -11.595   -2.000   +0.335   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.335   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.340       --       --
+  gtsam          -11.594   -2.003   +0.335   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.30 (err  +1.30)  gtsam=  -0.47 (err  -0.47)
+  lane[ACTIVE                ] raw_lane_yaw= +89.10deg  fused_err= -0.12  imu_err= +1.30  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.360   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.003
+  flow           -11.595   -2.000   +0.339   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.339   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.343       --       --
+  gtsam          -11.594   -2.003   +0.339   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.88 (err  +0.88)  gtsam=  +0.33 (err  +0.33)
+  lane[ACTIVE                ] raw_lane_yaw= +89.53deg  fused_err= +0.41  imu_err= +0.88  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.364   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.001
+  flow           -11.595   -2.000   +0.351   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.344   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.351       --       --
+  gtsam          -11.595   -2.003   +0.344   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.34 (err  +1.34)  gtsam=  +2.11 (err  +2.11)
+  lane[ACTIVE                ] raw_lane_yaw= +89.17deg  fused_err= +0.83  imu_err= +1.34  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.368   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.002
+  flow           -11.595   -2.000   +0.350   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.350   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.349       --       --
+  gtsam          -11.594   -2.003   +0.350   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.27 (err  +1.27)  gtsam=  +0.01 (err  +0.01)
+  lane[ACTIVE                ] raw_lane_yaw= +89.25deg  fused_err= +0.22  imu_err= +1.27  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.372   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.002
+  flow           -11.595   -2.000   +0.349   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.349   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.354       --       --
+  gtsam          -11.594   -2.003   +0.350   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.82 (err  -1.82)  gtsam=  +0.01 (err  +0.01)
+  lane[ACTIVE                ] raw_lane_yaw= +92.36deg  fused_err= +0.75  imu_err= -1.82  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.376   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.595   -2.000   +0.349   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.349   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.359       --       --
+  gtsam          -11.594   -2.003   +0.350   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.89 (err  +0.89)  gtsam=  +0.01 (err  +0.01)
+  lane[ACTIVE                ] raw_lane_yaw= +89.62deg  fused_err= +0.75  imu_err= +0.89  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.379   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.000
+  flow           -11.595   -2.000   +0.362   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.362   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.363       --       --
+  gtsam          -11.594   -2.003   +0.359   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.30 (err  -1.30)  gtsam=  +1.60 (err  +1.60)
+  lane[ACTIVE                ] raw_lane_yaw= +91.84deg  fused_err= -0.68  imu_err= -1.30  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.384   -0.000   -0.000
+  dvl                 --       --       --   +0.003   +0.001
+  flow           -11.595   -2.000   +0.362   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.362   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.365       --       --
+  gtsam          -11.594   -2.003   +0.359   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.90 (err  +0.90)  gtsam=  +1.60 (err  +1.60)
+  lane[ACTIVE                ] raw_lane_yaw= +89.65deg  fused_err= -0.68  imu_err= +0.90  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.387   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.002
+  flow           -11.595   -2.000   +0.366   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.366   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.368       --       --
+  gtsam          -11.594   -2.003   +0.365   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.58 (err  +0.58)  gtsam=  +0.46 (err  +0.46)
+  lane[ACTIVE                ] raw_lane_yaw= +89.98deg  fused_err= -0.45  imu_err= +0.58  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.391   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.000
+  flow           -11.595   -2.000   +0.373   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.373   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.373       --       --
+  gtsam          -11.594   -2.003   +0.373   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.64 (err  +1.64)  gtsam=  -0.83 (err  -0.83)
+  lane[ACTIVE                ] raw_lane_yaw= +88.95deg  fused_err= -0.96  imu_err= +1.64  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.395   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.002
+  flow           -11.595   -2.000   +0.373   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.373   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.377       --       --
+  gtsam          -11.594   -2.003   +0.373   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.06 (err  +1.06)  gtsam=  -0.83 (err  -0.83)
+  lane[ACTIVE                ] raw_lane_yaw= +89.57deg  fused_err= -0.96  imu_err= +1.06  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.400   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.595   -2.000   +0.379   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.379   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.382       --       --
+  gtsam          -11.594   -2.003   +0.379   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.18 (err  +2.18)  gtsam=  +0.22 (err  +0.22)
+  lane[ACTIVE                ] raw_lane_yaw= +88.43deg  fused_err= +0.34  imu_err= +2.18  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.403   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.001
+  flow           -11.595   -2.000   +0.384   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.384   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.387       --       --
+  gtsam          -11.594   -2.003   +0.381   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.15 (err  +1.15)  gtsam=  +0.94 (err  +0.94)
+  lane[ACTIVE                ] raw_lane_yaw= +89.48deg  fused_err= -0.03  imu_err= +1.15  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.407   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.001
+  flow           -11.595   -2.000   +0.389   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.389   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.390       --       --
+  gtsam          -11.594   -2.003   +0.389   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.38 (err  -1.38)  gtsam=  +1.09 (err  +1.09)
+  lane[ACTIVE                ] raw_lane_yaw= +92.04deg  fused_err= +1.10  imu_err= -1.38  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.411   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.001
+  flow           -11.595   -2.000   +0.390   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.390   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.392       --       --
+  gtsam          -11.594   -2.003   +0.389   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -2.27 (err  -2.27)  gtsam=  +1.09 (err  +1.09)
+  lane[ACTIVE                ] raw_lane_yaw= +92.90deg  fused_err= -2.04  imu_err= -2.27  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.415   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.595   -2.000   +0.392   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.392   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.395       --       --
+  gtsam          -11.594   -2.003   +0.392   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.85 (err  -0.85)  gtsam=  +0.57 (err  +0.57)
+  lane[ACTIVE                ] raw_lane_yaw= +91.53deg  fused_err= +0.51  imu_err= -0.85  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.418   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.001
+  flow           -11.595   -2.000   +0.397   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.397   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.401       --       --
+  gtsam          -11.594   -2.003   +0.397   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.79 (err  -0.79)  gtsam=  +0.53 (err  +0.53)
+  lane[ACTIVE                ] raw_lane_yaw= +91.46deg  fused_err= +0.52  imu_err= -0.79  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.423   -0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.003
+  flow           -11.595   -2.000   +0.402   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.402   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.404       --       --
+  gtsam          -11.594   -2.003   +0.401   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.20 (err  +0.20)  gtsam=  +0.10 (err  +0.10)
+  lane[ACTIVE                ] raw_lane_yaw= +90.47deg  fused_err= -0.24  imu_err= +0.20  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.427   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.595   -2.000   +0.409   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.409   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.415       --       --
+  gtsam          -11.594   -2.003   +0.409   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.21 (err  +0.21)  gtsam=  -1.69 (err  -1.69)
+  lane[ACTIVE                ] raw_lane_yaw= +90.42deg  fused_err= -1.96  imu_err= +0.21  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.431   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.001
+  flow           -11.595   -2.000   +0.409   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.409   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.414       --       --
+  gtsam          -11.594   -2.003   +0.409   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.79 (err  -0.79)  gtsam=  -1.69 (err  -1.69)
+  lane[ACTIVE                ] raw_lane_yaw= +91.49deg  fused_err= -1.96  imu_err= -0.79  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.435   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.001
+  flow           -11.595   -2.000   +0.417   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.417   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.419       --       --
+  gtsam          -11.594   -2.003   +0.417   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.90 (err  +2.90)  gtsam=  +0.13 (err  +0.13)
+  lane[ACTIVE                ] raw_lane_yaw= +87.80deg  fused_err= +0.27  imu_err= +2.90  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.438   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.002
+  flow           -11.595   -2.000   +0.425   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.425   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.420       --       --
+  gtsam          -11.594   -2.003   +0.419   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.23 (err  +0.23)  gtsam=  -0.66 (err  -0.66)
+  lane[ACTIVE                ] raw_lane_yaw= +89.96deg  fused_err= +0.04  imu_err= +0.23  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.443   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.000
+  flow           -11.595   -2.000   +0.422   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.422   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.428       --       --
+  gtsam          -11.594   -2.003   +0.422   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.51 (err  +1.51)  gtsam=  -1.89 (err  -1.89)
+  lane[ACTIVE                ] raw_lane_yaw= +89.21deg  fused_err= -2.07  imu_err= +1.51  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.447   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.002
+  flow           -11.595   -2.000   +0.430   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.430   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.430       --       --
+  gtsam          -11.594   -2.003   +0.430   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.42 (err  +0.42)  gtsam=  -0.56 (err  -0.56)
+  lane[ACTIVE                ] raw_lane_yaw= +90.43deg  fused_err= -0.43  imu_err= +0.42  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.451   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.001
+  flow           -11.595   -2.000   +0.432   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.432   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.430       --       --
+  gtsam          -11.594   -2.003   +0.430   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.13 (err  -1.13)  gtsam=  -0.56 (err  -0.56)
+  lane[ACTIVE                ] raw_lane_yaw= +91.84deg  fused_err= +0.33  imu_err= -1.13  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.454   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.001
+  flow           -11.595   -2.000   +0.435   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.435   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.439       --       --
+  gtsam          -11.594   -2.003   +0.430   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.69 (err  +0.69)  gtsam=  -0.68 (err  -0.68)
+  lane[ACTIVE                ] raw_lane_yaw= +89.98deg  fused_err= +0.11  imu_err= +0.69  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.459   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.595   -2.000   +0.439   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.439   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.438       --       --
+  gtsam          -11.593   -2.002   +0.439   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.43 (err  -0.43)  gtsam=  -1.02 (err  -1.02)
+  lane[ACTIVE                ] raw_lane_yaw= +91.08deg  fused_err= -1.07  imu_err= -0.43  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.462   -0.000   -0.000
+  dvl                 --       --       --   +0.003   +0.001
+  flow           -11.595   -2.000   +0.442   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.442   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.447       --       --
+  gtsam          -11.594   -2.003   +0.441   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.25 (err  +0.25)  gtsam=  -0.15 (err  -0.15)
+  lane[ACTIVE                ] raw_lane_yaw= +90.44deg  fused_err= +0.28  imu_err= +0.25  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.467   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.000
+  flow           -11.595   -2.000   +0.451   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.451   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.448       --       --
+  gtsam          -11.594   -2.003   +0.451   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.88 (err  +1.88)  gtsam=  -1.53 (err  -1.53)
+  lane[ACTIVE                ] raw_lane_yaw= +88.77deg  fused_err= -1.70  imu_err= +1.88  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.471   -0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.002
+  flow           -11.595   -2.000   +0.451   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.451   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.455       --       --
+  gtsam          -11.594   -2.003   +0.451   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.99 (err  +0.99)  gtsam=  -1.53 (err  -1.53)
+  lane[ACTIVE                ] raw_lane_yaw= +89.66deg  fused_err= -1.97  imu_err= +0.99  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.475   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.000
+  flow           -11.595   -2.000   +0.455   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.455   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.458       --       --
+  gtsam          -11.593   -2.003   +0.455   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.58 (err  +0.58)  gtsam=  -1.22 (err  -1.22)
+  lane[ACTIVE                ] raw_lane_yaw= +90.04deg  fused_err= -0.62  imu_err= +0.58  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.479   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.595   -2.000   +0.455   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.455   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.463       --       --
+  gtsam          -11.593   -2.003   +0.455   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.16 (err  +1.16)  gtsam=  -1.22 (err  -1.22)
+  lane[ACTIVE                ] raw_lane_yaw= +89.42deg  fused_err= -0.62  imu_err= +1.16  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.482   -0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.001
+  flow           -11.595   -2.000   +0.469   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.469   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.465       --       --
+  gtsam          -11.593   -2.003   +0.463   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.17 (err  +0.17)  gtsam=  -0.98 (err  -0.98)
+  lane[ACTIVE                ] raw_lane_yaw= +90.42deg  fused_err= -1.10  imu_err= +0.17  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.486   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.005
+  flow           -11.595   -2.000   +0.469   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.469   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.469       --       --
+  gtsam          -11.594   -2.004   +0.469   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.34 (err  +0.34)  gtsam=  +2.19 (err  +2.19)
+  lane[ACTIVE                ] raw_lane_yaw= +87.49deg  fused_err= +2.51  imu_err= +0.34  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.490   -0.000   -0.000
+  dvl                 --       --       --   +0.003   -0.002
+  flow           -11.595   -2.000   +0.473   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.469   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.473       --       --
+  gtsam          -11.594   -2.004   +0.469   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.90 (err  -0.90)  gtsam=  +2.19 (err  +2.19)
+  lane[ACTIVE                ] raw_lane_yaw= +89.68deg  fused_err= +0.32  imu_err= -0.90  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.494   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.003
+  flow           -11.595   -2.000   +0.474   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.474   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.479       --       --
+  gtsam          -11.594   -2.003   +0.473   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.21 (err  +0.21)  gtsam=  +0.56 (err  +0.56)
+  lane[ACTIVE                ] raw_lane_yaw= +90.21deg  fused_err= -0.34  imu_err= +0.21  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.498   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.001
+  flow           -11.595   -2.000   +0.479   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.479   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.481       --       --
+  gtsam          -11.594   -2.003   +0.478   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.40 (err  +0.40)  gtsam=  -0.28 (err  -0.28)
+  lane[ACTIVE                ] raw_lane_yaw= +90.25deg  fused_err= +0.20  imu_err= +0.40  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.502   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.003
+  flow           -11.595   -2.000   +0.481   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.481   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.484       --       --
+  gtsam          -11.594   -2.003   +0.481   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.30 (err  +1.30)  gtsam=  +1.40 (err  +1.40)
+  lane[ACTIVE                ] raw_lane_yaw= +89.38deg  fused_err= +1.60  imu_err= +1.30  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.505   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.595   -2.000   +0.484   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.484   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.488       --       --
+  gtsam          -11.594   -2.003   +0.481   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.07 (err  +0.07)  gtsam=  +1.40 (err  +1.40)
+  lane[ACTIVE                ] raw_lane_yaw= +90.58deg  fused_err= -0.66  imu_err= +0.07  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.509   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.595   -2.000   +0.491   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.491   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.491       --       --
+  gtsam          -11.594   -2.003   +0.488   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.07 (err  +0.07)  gtsam=  -0.25 (err  -0.25)
+  lane[ACTIVE                ] raw_lane_yaw= +90.58deg  fused_err= -0.58  imu_err= +0.07  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.513   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.003
+  flow           -11.595   -2.000   +0.494   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.494   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.494       --       --
+  gtsam          -11.594   -2.003   +0.488   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.07 (err  +0.07)  gtsam=  -0.25 (err  -0.25)
+  lane[ACTIVE                ] raw_lane_yaw= +90.58deg  fused_err= -0.58  imu_err= +0.07  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.517   -0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.000
+  flow           -11.595   -2.000   +0.498   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.498   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.504       --       --
+  gtsam          -11.594   -2.003   +0.488   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.71 (err  +0.71)  gtsam=  -0.25 (err  -0.25)
+  lane[ACTIVE                ] raw_lane_yaw= +89.84deg  fused_err= +1.70  imu_err= +0.71  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.522   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.000
+  flow           -11.595   -2.000   +0.498   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.498   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.502       --       --
+  gtsam          -11.594   -2.003   +0.488   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.71 (err  +0.71)  gtsam=  -0.25 (err  -0.25)
+  lane[ACTIVE                ] raw_lane_yaw= +89.84deg  fused_err= +1.70  imu_err= +0.71  WORSE/no-help
+[INFO] [1784735395.065027173] [flow_eval_node]: lane_heading effectiveness: accepted 219/219 (100%), rejected-stale 0 (no fresh /heading/pool_relative), rejected-gate 0 (disagreed >30 deg). Right now: fused_yaw err=+0.16 deg vs raw IMU err=+0.71 deg — HELPING.
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.525   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.000
+  flow           -11.595   -2.000   +0.510   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.510   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.514       --       --
+  gtsam          -11.594   -2.003   +0.510   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.71 (err  +0.71)  gtsam=  +0.11 (err  +0.11)
+  lane[ACTIVE                ] raw_lane_yaw= +89.84deg  fused_err= +0.16  imu_err= +0.71  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.530   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.002
+  flow           -11.595   -2.000   +0.510   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.510   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.511       --       --
+  gtsam          -11.594   -2.003   +0.510   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.71 (err  +0.71)  gtsam=  +0.11 (err  +0.11)
+  lane[ACTIVE                ] raw_lane_yaw= +89.84deg  fused_err= +0.16  imu_err= +0.71  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.533   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.000
+  flow           -11.595   -2.000   +0.510   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.510   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.516       --       --
+  gtsam          -11.594   -2.003   +0.510   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.71 (err  +0.71)  gtsam=  +0.11 (err  +0.11)
+  lane[ACTIVE                ] raw_lane_yaw= +89.84deg  fused_err= +0.16  imu_err= +0.71  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.538   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.002
+  flow           -11.595   -2.000   +0.524   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.510   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.524       --       --
+  gtsam          -11.594   -2.003   +0.510   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.09 (err  -0.09)  gtsam=  +0.11 (err  +0.11)
+  lane[ACTIVE                ] raw_lane_yaw= +90.71deg  fused_err= -0.71  imu_err= -0.09  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.542   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.595   -2.000   +0.526   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.526   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.526       --       --
+  gtsam          -11.594   -2.004   +0.524   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.11 (err  -0.11)  gtsam=  -0.67 (err  -0.67)
+  lane[ACTIVE                ] raw_lane_yaw= +90.71deg  fused_err= -0.71  imu_err= -0.11  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.546   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.595   -2.000   +0.525   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.525   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.528       --       --
+  gtsam          -11.594   -2.004   +0.525   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.00 (err  +1.00)  gtsam=  +0.08 (err  +0.08)
+  lane[ACTIVE                ] raw_lane_yaw= +88.87deg  fused_err= +0.18  imu_err= +1.00  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.549   -0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.002
+  flow           -11.595   -2.000   +0.528   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.528   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.528       --       --
+  gtsam          -11.595   -2.004   +0.528   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.53 (err  -0.53)  gtsam=  -1.21 (err  -1.21)
+  lane[ACTIVE                ] raw_lane_yaw= +91.13deg  fused_err= -1.37  imu_err= -0.53  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.553   -0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.001
+  flow           -11.595   -2.000   +0.531   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.531   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.533       --       --
+  gtsam          -11.595   -2.004   +0.528   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.27 (err  -0.27)  gtsam=  -1.21 (err  -1.21)
+  lane[ACTIVE                ] raw_lane_yaw= +90.93deg  fused_err= +0.31  imu_err= -0.27  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.557   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.595   -2.000   +0.540   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.535   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.540       --       --
+  gtsam          -11.595   -2.003   +0.533   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.82 (err  +0.82)  gtsam=  +1.49 (err  +1.49)
+  lane[ACTIVE                ] raw_lane_yaw= +89.87deg  fused_err= +0.13  imu_err= +0.82  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.561   -0.000   -0.000
+  dvl                 --       --       --   -0.003   +0.002
+  flow           -11.595   -2.000   +0.540   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.540   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.543       --       --
+  gtsam          -11.595   -2.003   +0.540   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -2.14 (err  -2.14)  gtsam=  +0.33 (err  +0.33)
+  lane[ACTIVE                ] raw_lane_yaw= +92.83deg  fused_err= +0.13  imu_err= -2.14  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.564   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.002
+  flow           -11.595   -2.000   +0.543   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.543   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.553       --       --
+  gtsam          -11.594   -2.003   +0.543   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.23 (err  +1.23)  gtsam=  -0.94 (err  -0.94)
+  lane[ACTIVE                ] raw_lane_yaw= +89.49deg  fused_err= -1.12  imu_err= +1.23  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.569   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.002
+  flow           -11.595   -2.000   +0.551   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.549   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.551       --       --
+  gtsam          -11.595   -2.003   +0.549   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.23 (err  -0.23)  gtsam=  +0.10 (err  +0.10)
+  lane[ACTIVE                ] raw_lane_yaw= +90.93deg  fused_err= -0.93  imu_err= -0.23  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.572   -0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.002
+  flow           -11.595   -2.000   +0.553   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.551   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.553       --       --
+  gtsam          -11.595   -2.003   +0.549   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.32 (err  +0.32)  gtsam=  +0.10 (err  +0.10)
+  lane[ACTIVE                ] raw_lane_yaw= +90.36deg  fused_err= -0.36  imu_err= +0.32  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.577   +0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.595   -2.000   +0.557   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.557   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.560       --       --
+  gtsam          -11.594   -2.003   +0.553   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.66 (err  +0.66)  gtsam=  -0.31 (err  -0.31)
+  lane[ACTIVE                ] raw_lane_yaw= +89.99deg  fused_err= -0.52  imu_err= +0.66  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.579   +0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.002
+  flow           -11.595   -2.000   +0.557   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.557   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.560       --       --
+  gtsam          -11.594   -2.003   +0.553   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.54 (err  +0.54)  gtsam=  -0.31 (err  -0.31)
+  lane[ACTIVE                ] raw_lane_yaw= +90.08deg  fused_err= -0.52  imu_err= +0.54  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.580   -0.002   -0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.596   -2.000   +0.560   -0.002   +0.000
+  ekf            -11.593   -2.001   +0.560   -0.002   +0.000
+  pressure       -11.600   -2.000   +0.563       --       --
+  gtsam          -11.595   -2.003   +0.560   -0.002   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.18 (err  +1.18)  gtsam=  +0.97 (err  +0.97)
+  lane[ACTIVE                ] raw_lane_yaw= +89.47deg  fused_err= +1.08  imu_err= +1.18  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.582   -0.002   -0.000
+  dvl                 --       --       --   -0.001   +0.002
+  flow           -11.596   -2.000   +0.567   -0.005   -0.000
+  ekf            -11.593   -2.001   +0.567   -0.004   -0.000
+  pressure       -11.600   -2.000   +0.566       --       --
+  gtsam          -11.596   -2.003   +0.567   -0.005   -0.001
+  yaw[deg]      gt=  +0.00  imu=  -1.41 (err  -1.41)  gtsam=  +0.49 (err  +0.49)
+  lane[ACTIVE                ] raw_lane_yaw= +91.30deg  fused_err= +0.44  imu_err= -1.41  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.585   -0.002   -0.000
+  dvl                 --       --       --   -0.003   -0.000
+  flow           -11.596   -2.000   +0.568   +0.001   +0.001
+  ekf            -11.593   -2.001   +0.568   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.566       --       --
+  gtsam          -11.596   -2.003   +0.567   -0.005   -0.001
+  yaw[deg]      gt=  +0.00  imu=  +1.90 (err  +1.90)  gtsam=  +0.49 (err  +0.49)
+  lane[ACTIVE                ] raw_lane_yaw= +88.73deg  fused_err= -0.58  imu_err= +1.90  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.588   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.596   -2.000   +0.569   +0.001   -0.000
+  ekf            -11.593   -2.001   +0.569   +0.001   -0.000
+  pressure       -11.600   -2.000   +0.570       --       --
+  gtsam          -11.597   -2.003   +0.569   +0.001   -0.001
+  yaw[deg]      gt=  +0.00  imu=  +1.33 (err  +1.33)  gtsam=  +0.78 (err  +0.78)
+  lane[ACTIVE                ] raw_lane_yaw= +89.31deg  fused_err= +0.82  imu_err= +1.33  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.591   +0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.002
+  flow           -11.596   -2.000   +0.570   +0.003   +0.000
+  ekf            -11.593   -2.001   +0.570   +0.003   -0.000
+  pressure       -11.600   -2.000   +0.576       --       --
+  gtsam          -11.597   -2.003   +0.569   +0.001   -0.001
+  yaw[deg]      gt=  +0.00  imu=  +1.31 (err  +1.31)  gtsam=  +0.78 (err  +0.78)
+  lane[ACTIVE                ] raw_lane_yaw= +89.35deg  fused_err= +1.03  imu_err= +1.31  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.595   +0.000   -0.000
+  dvl                 --       --       --   +0.003   +0.001
+  flow           -11.596   -2.000   +0.575   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.575   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.579       --       --
+  gtsam          -11.597   -2.003   +0.576   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.28 (err  +2.28)  gtsam=  -1.09 (err  -1.09)
+  lane[ACTIVE                ] raw_lane_yaw= +88.37deg  fused_err= +1.17  imu_err= +2.28  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.599   +0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.596   -2.000   +0.580   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.579   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.581       --       --
+  gtsam          -11.597   -2.004   +0.576   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.63 (err  +0.63)  gtsam=  +2.76 (err  +2.76)
+  lane[ACTIVE                ] raw_lane_yaw= +90.08deg  fused_err= -0.29  imu_err= +0.63  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.602   +0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.001
+  flow           -11.596   -2.000   +0.583   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.583   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.587       --       --
+  gtsam          -11.597   -2.004   +0.576   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.27 (err  +1.27)  gtsam=  +2.76 (err  +2.76)
+  lane[ACTIVE                ] raw_lane_yaw= +89.44deg  fused_err= +0.09  imu_err= +1.27  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.605   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.000
+  flow           -11.596   -2.000   +0.591   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.591   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.591       --       --
+  gtsam          -11.597   -2.004   +0.591   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.87 (err  +1.86)  gtsam=  +0.26 (err  +0.26)
+  lane[ACTIVE                ] raw_lane_yaw= +88.85deg  fused_err= +0.06  imu_err= +1.86  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.609   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.001
+  flow           -11.596   -2.000   +0.589   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.589   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.591       --       --
+  gtsam          -11.597   -2.004   +0.591   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +3.46 (err  +3.46)  gtsam=  +0.26 (err  +0.26)
+  lane[ACTIVE                ] raw_lane_yaw= +87.33deg  fused_err= +0.41  imu_err= +3.46  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.612   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.001
+  flow           -11.596   -2.000   +0.592   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.592   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.593       --       --
+  gtsam          -11.597   -2.003   +0.592   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.22 (err  -0.22)  gtsam=  +1.19 (err  +1.19)
+  lane[ACTIVE                ] raw_lane_yaw= +91.01deg  fused_err= +1.27  imu_err= -0.22  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.616   -0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.001
+  flow           -11.596   -2.000   +0.592   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.592   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.600       --       --
+  gtsam          -11.597   -2.003   +0.592   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.18 (err  +0.18)  gtsam=  +1.19 (err  +1.19)
+  lane[ACTIVE                ] raw_lane_yaw= +90.60deg  fused_err= +1.27  imu_err= +0.18  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.620   +0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.001
+  flow           -11.596   -2.000   +0.603   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.603   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.600       --       --
+  gtsam          -11.597   -2.003   +0.598   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.38 (err  +1.38)  gtsam=  +1.14 (err  +1.14)
+  lane[ACTIVE                ] raw_lane_yaw= +89.09deg  fused_err= +0.91  imu_err= +1.38  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.623   +0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.000
+  flow           -11.596   -2.000   +0.606   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.606   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.610       --       --
+  gtsam          -11.597   -2.003   +0.606   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.02 (err  +1.02)  gtsam=  +0.12 (err  +0.12)
+  lane[ACTIVE                ] raw_lane_yaw= +89.98deg  fused_err= +0.02  imu_err= +1.02  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.626   +0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.000
+  flow           -11.596   -2.000   +0.610   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.610   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.609       --       --
+  gtsam          -11.597   -2.003   +0.610   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.45 (err  +2.45)  gtsam=  -1.39 (err  -1.39)
+  lane[ACTIVE                ] raw_lane_yaw= +88.36deg  fused_err= -1.65  imu_err= +2.45  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.629   +0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.002
+  flow           -11.596   -2.000   +0.610   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.610   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.612       --       --
+  gtsam          -11.597   -2.003   +0.610   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.37 (err  +1.37)  gtsam=  -1.39 (err  -1.39)
+  lane[ACTIVE                ] raw_lane_yaw= +89.44deg  fused_err= -1.65  imu_err= +1.37  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.632   +0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.000
+  flow           -11.596   -2.000   +0.614   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.614   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.615       --       --
+  gtsam          -11.597   -2.003   +0.614   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.29 (err  -0.29)  gtsam=  -0.54 (err  -0.54)
+  lane[ACTIVE                ] raw_lane_yaw= +91.09deg  fused_err= -0.45  imu_err= -0.29  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.637   -0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.002
+  flow           -11.596   -2.000   +0.614   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.614   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.619       --       --
+  gtsam          -11.597   -2.003   +0.614   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.21 (err  +1.21)  gtsam=  -0.54 (err  -0.54)
+  lane[ACTIVE                ] raw_lane_yaw= +88.16deg  fused_err= -0.45  imu_err= +1.21  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.640   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.000
+  flow           -11.596   -2.000   +0.621   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.621   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.623       --       --
+  gtsam          -11.597   -2.004   +0.621   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.45 (err  +2.45)  gtsam=  +1.03 (err  +1.03)
+  lane[ACTIVE                ] raw_lane_yaw= +88.43deg  fused_err= +1.15  imu_err= +2.45  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.643   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.000
+  flow           -11.596   -2.000   +0.626   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.626   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.629       --       --
+  gtsam          -11.597   -2.004   +0.621   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.36 (err  +1.36)  gtsam=  +0.60 (err  +0.60)
+  lane[ACTIVE                ] raw_lane_yaw= +89.52deg  fused_err= +0.48  imu_err= +1.36  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.643   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.002
+  flow           -11.596   -2.000   +0.626   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.626   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.623       --       --
+  gtsam          -11.597   -2.004   +0.621   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.30 (err  +0.30)  gtsam=  +0.60 (err  +0.60)
+  lane[ACTIVE                ] raw_lane_yaw= +91.28deg  fused_err= +0.48  imu_err= +0.30  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.642   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.001
+  flow           -11.596   -2.000   +0.622   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.622   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.627       --       --
+  gtsam          -11.597   -2.003   +0.622   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.90 (err  +1.90)  gtsam=  -0.91 (err  -0.91)
+  lane[ACTIVE                ] raw_lane_yaw= +89.01deg  fused_err= -1.02  imu_err= +1.90  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.643   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.003
+  flow           -11.596   -2.000   +0.623   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.623   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.624       --       --
+  gtsam          -11.597   -2.003   +0.622   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.73 (err  -0.73)  gtsam=  -0.91 (err  -0.91)
+  lane[ACTIVE                ] raw_lane_yaw= +91.65deg  fused_err= -0.48  imu_err= -0.73  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.645   -0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.001
+  flow           -11.596   -2.000   +0.623   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.623   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.628       --       --
+  gtsam          -11.597   -2.004   +0.623   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.93 (err  +0.93)  gtsam=  +0.13 (err  +0.13)
+  lane[ACTIVE                ] raw_lane_yaw= +89.97deg  fused_err= +0.21  imu_err= +0.93  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.647   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.001
+  flow           -11.596   -2.000   +0.631   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.631   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.624       --       --
+  gtsam          -11.596   -2.003   +0.631   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.98 (err  +1.98)  gtsam=  +0.59 (err  +0.59)
+  lane[ACTIVE                ] raw_lane_yaw= +88.92deg  fused_err= +0.66  imu_err= +1.98  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.650   -0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.000
+  flow           -11.596   -2.000   +0.633   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.633   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.633       --       --
+  gtsam          -11.597   -2.004   +0.633   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.56 (err  -0.56)  gtsam=  -1.87 (err  -1.87)
+  lane[ACTIVE                ] raw_lane_yaw= +92.24deg  fused_err= -2.24  imu_err= -0.56  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.652   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.596   -2.000   +0.630   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.630   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.636       --       --
+  gtsam          -11.597   -2.004   +0.633   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.61 (err  +1.61)  gtsam=  -1.87 (err  -1.87)
+  lane[ACTIVE                ] raw_lane_yaw= +89.25deg  fused_err= +0.28  imu_err= +1.61  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.656   -0.000   -0.000
+  dvl                 --       --       --   -0.003   -0.001
+  flow           -11.596   -2.000   +0.636   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.635   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.636       --       --
+  gtsam          -11.597   -2.003   +0.636   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.31 (err  -0.31)  gtsam=  -2.22 (err  -2.22)
+  lane[ACTIVE                ] raw_lane_yaw= +91.28deg  fused_err= -1.28  imu_err= -0.31  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.659   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.596   -2.000   +0.638   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.636   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.638       --       --
+  gtsam          -11.597   -2.003   +0.636   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.33 (err  +0.33)  gtsam=  -2.22 (err  -2.22)
+  lane[ACTIVE                ] raw_lane_yaw= +90.57deg  fused_err= -0.57  imu_err= +0.33  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.662   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.004
+  flow           -11.596   -2.000   +0.643   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.643   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.644       --       --
+  gtsam          -11.597   -2.004   +0.638   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.41 (err  +1.41)  gtsam=  -0.71 (err  -0.71)
+  lane[ACTIVE                ] raw_lane_yaw= +89.48deg  fused_err= +0.21  imu_err= +1.41  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.665   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.596   -2.000   +0.647   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.647   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.647       --       --
+  gtsam          -11.597   -2.004   +0.647   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.28 (err  +1.28)  gtsam=  -1.06 (err  -1.06)
+  lane[ACTIVE                ] raw_lane_yaw= +89.57deg  fused_err= -1.01  imu_err= +1.28  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.668   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.002
+  flow           -11.596   -2.000   +0.646   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.646   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.652       --       --
+  gtsam          -11.597   -2.004   +0.646   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.40 (err  -0.40)  gtsam=  +0.07 (err  +0.07)
+  lane[ACTIVE                ] raw_lane_yaw= +91.25deg  fused_err= +0.22  imu_err= -0.40  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.671   -0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.000
+  flow           -11.596   -2.000   +0.650   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.650   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.654       --       --
+  gtsam          -11.597   -2.004   +0.646   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.32 (err  +1.32)  gtsam=  +0.07 (err  +0.07)
+  lane[ACTIVE                ] raw_lane_yaw= +89.50deg  fused_err= -1.55  imu_err= +1.32  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.674   -0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.002
+  flow           -11.596   -2.000   +0.651   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.651   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.656       --       --
+  gtsam          -11.597   -2.004   +0.651   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.86 (err  +2.86)  gtsam=  +1.21 (err  +1.21)
+  lane[ACTIVE                ] raw_lane_yaw= +87.99deg  fused_err= +1.34  imu_err= +2.86  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.677   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.596   -2.000   +0.651   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.651   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.659       --       --
+  gtsam          -11.597   -2.004   +0.651   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.01 (err  +2.01)  gtsam=  +1.21 (err  +1.21)
+  lane[ACTIVE                ] raw_lane_yaw= +88.86deg  fused_err= +1.34  imu_err= +2.01  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.679   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.596   -2.000   +0.661   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.661   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.662       --       --
+  gtsam          -11.597   -2.004   +0.661   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.41 (err  -0.41)  gtsam=  -0.97 (err  -0.97)
+  lane[ACTIVE                ] raw_lane_yaw= +87.78deg  fused_err= -1.17  imu_err= -0.41  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.682   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.596   -2.000   +0.664   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.664   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.666       --       --
+  gtsam          -11.597   -2.004   +0.664   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.07 (err  +1.07)  gtsam=  +0.48 (err  +0.48)
+  lane[ACTIVE                ] raw_lane_yaw= +89.89deg  fused_err= +0.65  imu_err= +1.07  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.684   +0.001   -0.000
+  dvl                 --       --       --   -0.000   +0.001
+  flow           -11.595   -2.000   +0.666   +0.007   +0.000
+  ekf            -11.592   -2.001   +0.666   +0.005   +0.000
+  pressure       -11.600   -2.000   +0.668       --       --
+  gtsam          -11.596   -2.003   +0.666   +0.007   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.04 (err  -0.04)  gtsam=  -0.95 (err  -0.95)
+  lane[ACTIVE                ] raw_lane_yaw= +91.00deg  fused_err= -1.14  imu_err= -0.04  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.685   -0.001   -0.000
+  dvl                 --       --       --   +0.001   -0.000
+  flow           -11.595   -2.000   +0.666   +0.007   +0.000
+  ekf            -11.592   -2.001   +0.666   +0.005   +0.000
+  pressure       -11.600   -2.000   +0.668       --       --
+  gtsam          -11.596   -2.003   +0.666   +0.007   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.27 (err  +1.27)  gtsam=  -0.95 (err  -0.95)
+  lane[ACTIVE                ] raw_lane_yaw= +89.67deg  fused_err= -1.14  imu_err= +1.27  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.686   -0.003   -0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.595   -2.000   +0.666   +0.007   +0.000
+  ekf            -11.592   -2.001   +0.666   +0.005   +0.000
+  pressure       -11.600   -2.000   +0.670       --       --
+  gtsam          -11.596   -2.003   +0.666   +0.007   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.11 (err  +1.11)  gtsam=  -0.95 (err  -0.95)
+  lane[ACTIVE                ] raw_lane_yaw= +89.84deg  fused_err= -1.14  imu_err= +1.11  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.687   -0.002   -0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.595   -2.000   +0.668   +0.001   +0.000
+  ekf            -11.592   -2.001   +0.668   -0.000   +0.001
+  pressure       -11.600   -2.000   +0.670       --       --
+  gtsam          -11.596   -2.004   +0.669   -0.007   +0.001
+  yaw[deg]      gt=  +0.00  imu=  -0.23 (err  -0.23)  gtsam=  -0.56 (err  -0.56)
+  lane[ACTIVE                ] raw_lane_yaw= +91.10deg  fused_err= -0.06  imu_err= -0.23  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.603   -2.000   +0.690   -0.001   -0.000
+  dvl                 --       --       --   -0.001   -0.002
+  flow           -11.594   -1.999   +0.674   +0.003   -0.000
+  ekf            -11.592   -2.001   +0.670   +0.003   +0.001
+  pressure       -11.600   -2.000   +0.674       --       --
+  gtsam          -11.596   -2.004   +0.669   -0.007   +0.001
+  yaw[deg]      gt=  +0.00  imu=  +1.17 (err  +1.17)  gtsam=  -0.56 (err  -0.56)
+  lane[ACTIVE                ] raw_lane_yaw= +89.67deg  fused_err= +0.33  imu_err= +1.17  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.603   -2.000   +0.693   +0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.001
+  flow           -11.594   -1.999   +0.674   +0.003   -0.000
+  ekf            -11.591   -2.001   +0.674   +0.003   +0.000
+  pressure       -11.600   -2.000   +0.671       --       --
+  gtsam          -11.597   -2.003   +0.674   +0.003   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.48 (err  +0.48)  gtsam=  +0.25 (err  +0.25)
+  lane[ACTIVE                ] raw_lane_yaw= +90.33deg  fused_err= +0.33  imu_err= +0.48  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.603   -2.000   +0.696   +0.001   -0.000
+  dvl                 --       --       --   -0.001   +0.003
+  flow           -11.594   -1.999   +0.677   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.677   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.678       --       --
+  gtsam          -11.597   -2.003   +0.678   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.62 (err  +1.62)  gtsam=  +0.26 (err  +0.26)
+  lane[ACTIVE                ] raw_lane_yaw= +89.19deg  fused_err= +0.32  imu_err= +1.62  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.699   +0.000   -0.000
+  dvl                 --       --       --   +0.000   -0.000
+  flow           -11.594   -1.999   +0.678   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.678   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.679       --       --
+  gtsam          -11.597   -2.003   +0.678   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.45 (err  +2.45)  gtsam=  +1.18 (err  +1.18)
+  lane[ACTIVE                ] raw_lane_yaw= +88.36deg  fused_err= +1.28  imu_err= +2.45  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.702   +0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.001
+  flow           -11.594   -1.999   +0.682   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.682   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.685       --       --
+  gtsam          -11.597   -2.003   +0.678   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.84 (err  +1.84)  gtsam=  +1.18 (err  +1.18)
+  lane[ACTIVE                ] raw_lane_yaw= +88.96deg  fused_err= -0.25  imu_err= +1.84  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.705   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.001
+  flow           -11.594   -1.999   +0.688   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.688   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.687       --       --
+  gtsam          -11.597   -2.003   +0.684   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.17 (err  +1.17)  gtsam=  -0.80 (err  -0.81)
+  lane[ACTIVE                ] raw_lane_yaw= +89.59deg  fused_err= -1.14  imu_err= +1.17  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.707   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.594   -1.999   +0.684   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.684   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.687       --       --
+  gtsam          -11.597   -2.003   +0.684   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.33 (err  -1.33)  gtsam=  -1.10 (err  -1.10)
+  lane[ACTIVE                ] raw_lane_yaw= +92.07deg  fused_err= -1.15  imu_err= -1.33  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.710   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.000
+  flow           -11.594   -1.999   +0.691   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.691   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.693       --       --
+  gtsam          -11.597   -2.003   +0.692   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.22 (err  +0.22)  gtsam=  -1.03 (err  -1.03)
+  lane[ACTIVE                ] raw_lane_yaw= +89.59deg  fused_err= +0.41  imu_err= +0.22  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.713   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.594   -1.999   +0.694   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.694   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.696       --       --
+  gtsam          -11.597   -2.003   +0.694   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.69 (err  +1.69)  gtsam=  -1.16 (err  -1.16)
+  lane[ACTIVE                ] raw_lane_yaw= +91.18deg  fused_err= -1.18  imu_err= +1.69  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.716   -0.000   -0.000
+  dvl                 --       --       --   -0.004   -0.003
+  flow           -11.594   -1.999   +0.696   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.696   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.702       --       --
+  gtsam          -11.597   -2.003   +0.694   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.21 (err  -0.21)  gtsam=  -1.16 (err  -1.16)
+  lane[ACTIVE                ] raw_lane_yaw= +90.90deg  fused_err= -0.55  imu_err= -0.21  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.719   +0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.001
+  flow           -11.594   -1.999   +0.702   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.702   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.705       --       --
+  gtsam          -11.597   -2.004   +0.702   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.78 (err  +0.78)  gtsam=  -0.94 (err  -0.94)
+  lane[ACTIVE                ] raw_lane_yaw= +89.92deg  fused_err= -0.90  imu_err= +0.78  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.722   +0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.002
+  flow           -11.594   -1.999   +0.705   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.705   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.703       --       --
+  gtsam          -11.597   -2.004   +0.705   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.27 (err  +2.27)  gtsam=  -0.07 (err  -0.07)
+  lane[ACTIVE                ] raw_lane_yaw= +88.41deg  fused_err= +0.06  imu_err= +2.27  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.725   +0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.000
+  flow           -11.594   -1.999   +0.706   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.706   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.706       --       --
+  gtsam          -11.597   -2.004   +0.706   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.70 (err  -0.70)  gtsam=  -0.43 (err  -0.43)
+  lane[ACTIVE                ] raw_lane_yaw= +91.34deg  fused_err= -0.47  imu_err= -0.70  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.729   +0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.001
+  flow           -11.594   -1.999   +0.708   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.708   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.714       --       --
+  gtsam          -11.597   -2.004   +0.708   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.34 (err  +2.34)  gtsam=  +1.10 (err  +1.10)
+  lane[ACTIVE                ] raw_lane_yaw= +88.34deg  fused_err= +1.30  imu_err= +2.34  better
+[INFO] [1784735410.128544529] [flow_eval_node]: lane_heading effectiveness: accepted 303/303 (100%), rejected-stale 0 (no fresh /heading/pool_relative), rejected-gate 0 (disagreed >30 deg). Right now: fused_yaw err=+1.45 deg vs raw IMU err=+2.13 deg — HELPING.
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.732   -0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.002
+  flow           -11.594   -1.999   +0.711   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.711   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.715       --       --
+  gtsam          -11.597   -2.004   +0.708   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +3.65 (err  +3.65)  gtsam=  +1.10 (err  +1.10)
+  lane[ACTIVE                ] raw_lane_yaw= +87.06deg  fused_err= +1.45  imu_err= +3.65  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.735   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.001
+  flow           -11.594   -1.999   +0.711   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.711   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.722       --       --
+  gtsam          -11.597   -2.004   +0.711   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.24 (err  +1.24)  gtsam=  +1.44 (err  +1.44)
+  lane[ACTIVE                ] raw_lane_yaw= +89.59deg  fused_err= +1.47  imu_err= +1.24  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.738   -0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.000
+  flow           -11.594   -1.999   +0.722   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.722   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.720       --       --
+  gtsam          -11.597   -2.004   +0.722   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.03 (err  +1.03)  gtsam=  +0.71 (err  +0.71)
+  lane[ACTIVE                ] raw_lane_yaw= +89.82deg  fused_err= +0.61  imu_err= +1.03  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.739   -0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.000
+  flow           -11.594   -1.999   +0.718   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.718   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.721       --       --
+  gtsam          -11.597   -2.004   +0.718   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -1.11 (err  -1.11)  gtsam=  +0.65 (err  +0.65)
+  lane[ACTIVE                ] raw_lane_yaw= +92.03deg  fused_err= +0.64  imu_err= -1.11  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.742   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.594   -1.999   +0.721   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.721   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.725       --       --
+  gtsam          -11.597   -2.004   +0.718   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.81 (err  +0.80)  gtsam=  +0.65 (err  +0.65)
+  lane[ACTIVE                ] raw_lane_yaw= +90.09deg  fused_err= -1.13  imu_err= +0.80  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.743   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.001
+  flow           -11.594   -1.999   +0.723   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.723   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.731       --       --
+  gtsam          -11.596   -2.004   +0.723   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.08 (err  +1.08)  gtsam=  -0.41 (err  -0.41)
+  lane[ACTIVE                ] raw_lane_yaw= +89.77deg  fused_err= -0.48  imu_err= +1.08  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.745   -0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.002
+  flow           -11.594   -1.999   +0.727   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.727   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.727       --       --
+  gtsam          -11.596   -2.004   +0.723   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.40 (err  +0.40)  gtsam=  -0.41 (err  -0.41)
+  lane[ACTIVE                ] raw_lane_yaw= +90.45deg  fused_err= -0.51  imu_err= +0.40  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.746   -0.000   +0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.594   -1.999   +0.728   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.728   +0.000   +0.000
+  pressure       -11.600   -2.000   +0.728       --       --
+  gtsam          -11.597   -2.004   +0.728   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.74 (err  +0.74)  gtsam=  -0.15 (err  -0.15)
+  lane[ACTIVE                ] raw_lane_yaw= +90.13deg  fused_err= -0.13  imu_err= +0.74  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.745   +0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.000
+  flow           -11.594   -2.000   +0.727   +0.005   -0.006
+  ekf            -11.591   -2.001   +0.726   +0.000   -0.002
+  pressure       -11.600   -2.000   +0.727       --       --
+  gtsam          -11.597   -2.004   +0.728   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.35 (err  -0.35)  gtsam=  -0.15 (err  -0.15)
+  lane[ACTIVE                ] raw_lane_yaw= +91.16deg  fused_err= -1.16  imu_err= -0.35  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.745   +0.001   -0.001
+  dvl                 --       --       --   +0.000   -0.000
+  flow           -11.594   -2.000   +0.728   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.728   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.732       --       --
+  gtsam          -11.596   -2.005   +0.727   +0.005   -0.005
+  yaw[deg]      gt=  +0.00  imu=  -1.12 (err  -1.12)  gtsam=  -1.03 (err  -1.03)
+  lane[ACTIVE                ] raw_lane_yaw= +92.01deg  fused_err= +0.66  imu_err= -1.12  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.744   +0.001   -0.001
+  dvl                 --       --       --   +0.001   +0.003
+  flow           -11.594   -2.000   +0.732   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.732   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.725       --       --
+  gtsam          -11.596   -2.005   +0.732   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.40 (err  +1.40)  gtsam=  -1.87 (err  -1.87)
+  lane[ACTIVE                ] raw_lane_yaw= +89.40deg  fused_err= -2.38  imu_err= +1.40  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.744   +0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.003
+  flow           -11.594   -2.000   +0.722   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.722   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.726       --       --
+  gtsam          -11.596   -2.005   +0.729   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.05 (err  -0.05)  gtsam=  -0.04 (err  -0.04)
+  lane[ACTIVE                ] raw_lane_yaw= +90.77deg  fused_err= -0.99  imu_err= -0.05  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.744   +0.000   +0.000
+  dvl                 --       --       --   -0.000   +0.001
+  flow           -11.594   -2.000   +0.722   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.722   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.729       --       --
+  gtsam          -11.596   -2.005   +0.729   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.01 (err  -0.01)  gtsam=  -0.04 (err  -0.04)
+  lane[ACTIVE                ] raw_lane_yaw= +90.73deg  fused_err= -0.99  imu_err= -0.01  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.744   -0.000   +0.000
+  dvl                 --       --       --   -0.000   -0.000
+  flow           -11.594   -2.000   +0.724   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.724   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.722       --       --
+  gtsam          -11.596   -2.005   +0.724   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.24 (err  +0.23)  gtsam=  -1.57 (err  -1.57)
+  lane[ACTIVE                ] raw_lane_yaw= +90.45deg  fused_err= -1.70  imu_err= +0.23  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.744   -0.000   +0.000
+  dvl                 --       --       --   -0.001   -0.000
+  flow           -11.594   -2.000   +0.728   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.727   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.726       --       --
+  gtsam          -11.596   -2.005   +0.728   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.75 (err  +0.75)  gtsam=  -1.43 (err  -1.43)
+  lane[ACTIVE                ] raw_lane_yaw= +89.91deg  fused_err= -1.41  imu_err= +0.75  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.743   +0.000   -0.000
+  dvl                 --       --       --   -0.001   -0.002
+  flow           -11.594   -2.000   +0.727   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.727   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.726       --       --
+  gtsam          -11.596   -2.005   +0.728   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.57 (err  +0.57)  gtsam=  -1.43 (err  -1.43)
+  lane[ACTIVE                ] raw_lane_yaw= +90.07deg  fused_err= -0.16  imu_err= +0.57  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.740   -0.001   +0.001
+  dvl                 --       --       --   +0.002   +0.001
+  flow           -11.594   -2.000   +0.727   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.727   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.720       --       --
+  gtsam          -11.596   -2.005   +0.728   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.49 (err  +1.49)  gtsam=  -1.43 (err  -1.43)
+  lane[ACTIVE                ] raw_lane_yaw= +89.15deg  fused_err= -0.17  imu_err= +1.49  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.738   -0.001   +0.001
+  dvl                 --       --       --   +0.001   +0.000
+  flow           -11.594   -2.000   +0.727   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.727   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.719       --       --
+  gtsam          -11.596   -2.005   +0.728   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.84 (err  +2.84)  gtsam=  -1.43 (err  -1.43)
+  lane[ACTIVE                ] raw_lane_yaw= +87.82deg  fused_err= -0.17  imu_err= +2.84  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.738   -0.001   +0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.594   -2.000   +0.722   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.722   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.725       --       --
+  gtsam          -11.594   -2.002   +0.722   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.40 (err  +0.40)  gtsam=  -0.72 (err  -0.72)
+  lane[ACTIVE                ] raw_lane_yaw= +90.25deg  fused_err= -0.68  imu_err= +0.40  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.739   -0.000   +0.000
+  dvl                 --       --       --   +0.001   +0.000
+  flow           -11.594   -2.000   +0.721   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.721   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.719       --       --
+  gtsam          -11.594   -2.001   +0.721   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.84 (err  +0.84)  gtsam=  +0.17 (err  +0.17)
+  lane[ACTIVE                ] raw_lane_yaw= +89.84deg  fused_err= +0.32  imu_err= +0.84  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.739   +0.000   -0.000
+  dvl                 --       --       --   -0.002   +0.003
+  flow           -11.594   -2.000   +0.725   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.725   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.721       --       --
+  gtsam          -11.594   -2.001   +0.725   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.87 (err  +1.87)  gtsam=  +2.17 (err  +2.17)
+  lane[ACTIVE                ] raw_lane_yaw= +88.85deg  fused_err= +2.48  imu_err= +1.87  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.741   +0.000   -0.000
+  dvl                 --       --       --   -0.004   +0.000
+  flow           -11.594   -2.000   +0.722   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.722   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.725       --       --
+  gtsam          -11.594   -2.001   +0.722   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.74 (err  +1.74)  gtsam=  +0.60 (err  +0.59)
+  lane[ACTIVE                ] raw_lane_yaw= +89.02deg  fused_err= +0.32  imu_err= +1.74  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.742   +0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.002
+  flow           -11.594   -2.000   +0.721   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.722   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.721       --       --
+  gtsam          -11.594   -2.001   +0.722   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.13 (err  +0.13)  gtsam=  +0.60 (err  +0.59)
+  lane[ACTIVE                ] raw_lane_yaw= +90.64deg  fused_err= -2.35  imu_err= +0.13  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.743   +0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.001
+  flow           -11.594   -2.000   +0.725   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.721   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.725       --       --
+  gtsam          -11.594   -2.001   +0.721   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.18 (err  +0.18)  gtsam=  +2.35 (err  +2.35)
+  lane[ACTIVE                ] raw_lane_yaw= +90.65deg  fused_err= -0.65  imu_err= +0.18  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.603   -2.000   +0.743   -0.000   +0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.594   -2.000   +0.725   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.725   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.726       --       --
+  gtsam          -11.594   -2.001   +0.721   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.50 (err  +0.50)  gtsam=  +2.35 (err  +2.35)
+  lane[ACTIVE                ] raw_lane_yaw= +90.33deg  fused_err= -0.65  imu_err= +0.50  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.742   +0.002   -0.000
+  dvl                 --       --       --   -0.003   -0.000
+  flow           -11.594   -2.000   +0.725   +0.000   +0.000
+  ekf            -11.591   -2.001   +0.725   +0.000   -0.000
+  pressure       -11.600   -2.000   +0.722       --       --
+  gtsam          -11.594   -2.001   +0.721   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +2.91 (err  +2.90)  gtsam=  +2.35 (err  +2.35)
+  lane[ACTIVE                ] raw_lane_yaw= +87.91deg  fused_err= -0.65  imu_err= +2.90  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.602   -2.000   +0.741   +0.002   -0.000
+  dvl                 --       --       --   -0.002   -0.000
+  flow           -11.594   -2.000   +0.724   -0.001   -0.000
+  ekf            -11.591   -2.001   +0.724   -0.001   -0.000
+  pressure       -11.600   -2.000   +0.724       --       --
+  gtsam          -11.600   -2.001   +0.724   -0.001   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.18 (err  -0.18)  gtsam=  -0.09 (err  -0.09)
+  lane[ACTIVE                ] raw_lane_yaw= +91.01deg  fused_err= -0.22  imu_err= -0.18  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.741   +0.002   -0.000
+  dvl                 --       --       --   +0.001   +0.001
+  flow           -11.594   -2.000   +0.727   -0.000   +0.000
+  ekf            -11.591   -2.001   +0.727   -0.000   +0.000
+  pressure       -11.600   -2.000   +0.725       --       --
+  gtsam          -11.600   -2.001   +0.724   -0.001   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.32 (err  -0.32)  gtsam=  -0.09 (err  -0.09)
+  lane[ACTIVE                ] raw_lane_yaw= +91.16deg  fused_err= +0.65  imu_err= -0.32  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.741   +0.001   -0.000
+  dvl                 --       --       --   -0.001   +0.001
+  flow           -11.595   -2.000   +0.723   -0.003   -0.000
+  ekf            -11.591   -2.001   +0.723   -0.003   -0.000
+  pressure       -11.600   -2.000   +0.723       --       --
+  gtsam          -11.600   -2.003   +0.725   -0.002   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.61 (err  +0.61)  gtsam=  -1.05 (err  -1.05)
+  lane[ACTIVE                ] raw_lane_yaw= +90.22deg  fused_err= +0.18  imu_err= +0.61  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.741   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.595   -2.000   +0.722   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.722   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.721       --       --
+  gtsam          -11.600   -2.003   +0.722   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.07 (err  +1.07)  gtsam=  +1.26 (err  +1.26)
+  lane[ACTIVE                ] raw_lane_yaw= +89.76deg  fused_err= +1.49  imu_err= +1.07  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.742   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.001
+  flow           -11.595   -2.000   +0.722   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.722   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.725       --       --
+  gtsam          -11.600   -2.003   +0.722   -0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.77 (err  +0.77)  gtsam=  +1.26 (err  +1.26)
+  lane[ACTIVE                ] raw_lane_yaw= +90.06deg  fused_err= +1.49  imu_err= +0.77  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.743   -0.000   -0.000
+  dvl                 --       --       --   +0.002   -0.002
+  flow           -11.595   -2.000   +0.722   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.723   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.726       --       --
+  gtsam          -11.601   -2.003   +0.722   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  -0.27 (err  -0.27)  gtsam=  +1.03 (err  +1.03)
+  lane[ACTIVE                ] raw_lane_yaw= +91.09deg  fused_err= +1.02  imu_err= -0.27  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.744   -0.000   -0.000
+  dvl                 --       --       --   -0.002   -0.001
+  flow           -11.595   -2.000   +0.722   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.723   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.729       --       --
+  gtsam          -11.601   -2.003   +0.722   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.84 (err  +0.84)  gtsam=  +1.03 (err  +1.03)
+  lane[ACTIVE                ] raw_lane_yaw= +89.96deg  fused_err= +1.02  imu_err= +0.84  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.745   +0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.001
+  flow           -11.595   -2.000   +0.730   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.730   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.729       --       --
+  gtsam          -11.601   -2.003   +0.729   +0.000   +0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.28 (err  +0.28)  gtsam=  +0.16 (err  +0.16)
+  lane[ACTIVE                ] raw_lane_yaw= +90.58deg  fused_err= +0.45  imu_err= +0.28  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.745   +0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.000
+  flow           -11.595   -2.000   +0.728   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.728   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.728       --       --
+  gtsam          -11.601   -2.003   +0.729   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.75 (err  +0.75)  gtsam=  +0.37 (err  +0.37)
+  lane[ACTIVE                ] raw_lane_yaw= +90.15deg  fused_err= -0.44  imu_err= +0.75  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.745   +0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.000
+  flow           -11.595   -2.000   +0.731   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.731   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.726       --       --
+  gtsam          -11.601   -2.003   +0.728   +0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.70 (err  +1.70)  gtsam=  -0.37 (err  -0.37)
+  lane[ACTIVE                ] raw_lane_yaw= +89.24deg  fused_err= +0.68  imu_err= +1.70  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.745   +0.000   -0.000
+  dvl                 --       --       --   -0.001   +0.001
+  flow           -11.595   -2.000   +0.726   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.726   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.729       --       --
+  gtsam          -11.601   -2.003   +0.726   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.31 (err  +1.31)  gtsam=  +0.42 (err  +0.42)
+  lane[ACTIVE                ] raw_lane_yaw= +89.57deg  fused_err= +0.54  imu_err= +1.31  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.745   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.003
+  flow           -11.595   -2.000   +0.725   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.725   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.731       --       --
+  gtsam          -11.601   -2.003   +0.726   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +1.10 (err  +1.10)  gtsam=  +0.42 (err  +0.42)
+  lane[ACTIVE                ] raw_lane_yaw= +89.77deg  fused_err= -2.06  imu_err= +1.10  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.745   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.595   -2.000   +0.725   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.725   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.729       --       --
+  gtsam          -11.601   -2.003   +0.726   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.63 (err  +0.63)  gtsam=  +0.42 (err  +0.42)
+  lane[ACTIVE                ] raw_lane_yaw= +90.24deg  fused_err= -2.06  imu_err= +0.63  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.745   -0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.001
+  flow           -11.595   -2.000   +0.725   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.725   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.727       --       --
+  gtsam          -11.601   -2.003   +0.726   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.97 (err  +0.97)  gtsam=  +0.42 (err  +0.42)
+  lane[ACTIVE                ] raw_lane_yaw= +89.94deg  fused_err= -2.06  imu_err= +0.97  WORSE/no-help
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.601   -2.000   +0.745   -0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.001
+  flow           -11.595   -2.000   +0.727   +0.000   +0.000
+  ekf            -11.592   -2.001   +0.727   -0.000   -0.000
+  pressure       -11.600   -2.000   +0.729       --       --
+  gtsam          -11.603   -2.005   +0.727   -0.000   -0.000
+  yaw[deg]      gt=  +0.00  imu=  +0.46 (err  +0.46)  gtsam=  -0.60 (err  -0.61)
+  lane[ACTIVE                ] raw_lane_yaw= +90.41deg  fused_err= -0.65  imu_err= +0.46  WORSE/no-help
+[flow_eval_node] trajectory frame saved: /home/haadi/Robotics_Job/sauvc_ws/src/sauvc_flow_eval/flow_eval_logs/flow_eval_traj_20260722_212021.png
+Traceback (most recent call last):
+  File "/home/haadi/Robotics_Job/sauvc_ws/install/sauvc_flow_eval/lib/sauvc_flow_eval/flow_eval_node", line 33, in <module>
+    sys.exit(load_entry_point('sauvc-flow-eval', 'console_scripts', 'flow_eval_node')())
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/haadi/Robotics_Job/sauvc_ws/build/sauvc_flow_eval/sauvc_flow_eval/flow_eval_node.py", line 1268, in main
+    rclpy.shutdown()
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 134, in shutdown
+    _shutdown(context=context)
+  File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py", line 82, in shutdown
+    context.shutdown()

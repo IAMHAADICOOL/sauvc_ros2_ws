@@ -1,3 +1,14 @@
 /build
 /install
 /log
+# Exclude datasets and logs
+src/sauvc_traj_recorder/sauvc_data/
+tree_log.txt
+
+# Exclude YOLO training runs and model weights
+src/sauvc_vision/scripts/runs/
+*.pt
+
+# Exclude Python bytecode
+**/__pycache__/
+*.pyc

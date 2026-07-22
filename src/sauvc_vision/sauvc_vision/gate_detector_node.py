@@ -1,36 +1,28 @@
 #!/usr/bin/env python3
-"""gate_detector_node — Phase 6. Classifies SAUVC props on the forward camera into
-DISTINCT NAMED FEATURES with metric relative poses, for visual servoing and for the
-landmark/map localization updates in flow_eval_node.
+"""gate_detector_node — Phase 6. Classifies SAUVC props into DISTINCT NAMED FEATURES
+with metric relative poses, for visual servoing and the landmark updates in
+flow_eval_node.
 
-Classification (color + shape + context — no NN needed in the sim):
-  orange, tall (aspect>=2)                       -> OrangeFlare      (unique)
-  yellow, tall                                   -> FlareYellow      (unique)
-  blue:  area>10% of image                       -> WATER, ignored
-         tall (aspect>=2)                        -> FlareBlue
-         squat (aspect<1.6)                      -> DrumBlue
-  green, tall                                    -> GatePostGreen
-  red:   tall + a tall green at similar elevation
-         and similar height                      -> GatePostRed  (pair => Gate)
-         tall, no green partner                  -> FlareRed
-         squat                                   -> DrumRed1..3 (ordered by bearing)
+TWO detection backends, same downstream math:
+  * HSV color+shape+context (default, sim-tuned)   — the original pipeline
+  * YOLO (`use_yolo:=true yolo_model:=/path/best.pt`) — your trained model; boxes
+    replace the color blobs, class names map to feature names, the SAME known-size
+    ranging (_pose) turns each box into a metric body-FRD position. The gate
+    pair-width ranging still applies when both posts are detected.
 
-Range per feature from KNOWN SIZES (rulebook / scene):
-  Gate (both posts):  R = (1.50/2) / tan(dBearing/2)          <- best, width-based
-  single tall flare:  R = H / (2 tan(vertExtent/2)),  H: golf flares 0.80 m,
-                      orange 1.50 m, gate post 1.00 m (fallback when pair not seen)
-  drum:               R = 0.60 / (2 tan(horizExtent/2))
-Relative body-FRD position from (R, bearing, elev):  x=R ce cb, y=R ce sb, z=-R se.
+GROUND-TRUTH ERROR COLUMNS (new): this node now also subscribes to the
+/truth/rel/<name> topics that landmark_truth_node publishes and prints, next to
+every estimated feature pose, the deviation from truth (dx dy dz dR dbrg delev).
+Run landmark_truth_node alongside; without it the error columns show '--'.
+Detector names differ from scene names (GatePostRed vs GatePostPort): the
+`truth_name_map` parameter holds explicit pairs; anything unmapped is matched to
+the NEAREST truth landmark of the same class (drum/flare/gate) so DrumRed1..3
+(ordered by bearing) still score against DrumRed2/DrumRed3/DrumRedPinger.
 
-Pub:  /vision/features    std_msgs/String  per feature:
-                          "name,x,y,z,range,bearing_rad,elev_rad,area_frac"
-      /vision/detections  std_msgs/String  legacy "label,bearing,elev,area" (mission)
+Pub:  /vision/features    std_msgs/String  "name,x,y,z,range,bearing_rad,elev_rad,area_frac"
+      /vision/detections  std_msgs/String  legacy "label,bearing,elev,area"
       /vision/debug_image sensor_msgs/Image overlay
-Sub:  image_topic (param)
-
-Terminal: throttled table in the SAME format as landmark_truth_node, so estimated and
-true relative poses diff by eye; 'NEW feature' log on first sighting of each name.
-A cv2 window (show_detections) draws boxes + labels live.
+Sub:  image_topic (param), /truth/rel/* (auto-discovered)
 """
 import math
 import time
@@ -41,6 +33,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
+from geometry_msgs.msg import PointStamped
 from cv_bridge import CvBridge
 
 COLORS = {
@@ -51,15 +44,24 @@ COLORS = {
     'blue':   [((95, 120, 60), (130, 255, 255))],
 }
 MIN_AREA_FRAC = 0.0008
-WATER_AREA_FRAC = 0.10          # a "blue" blob this big is the water column, not a prop
-TALL_ASPECT = 2.0               # bh/bw >= this -> pole-like
-SQUAT_ASPECT = 1.6              # bh/bw <  this -> drum-like
+WATER_AREA_FRAC = 0.10
+TALL_ASPECT = 2.0
+SQUAT_ASPECT = 1.6
 GATE_WIDTH_M = 1.50
-SIZES_M = {                     # known metric size used for single-blob ranging
+SIZES_M = {
     'OrangeFlare': ('h', 1.50), 'FlareRed': ('h', 0.80), 'FlareYellow': ('h', 0.80),
     'FlareBlue': ('h', 0.80), 'GatePostRed': ('h', 1.00), 'GatePostGreen': ('h', 1.00),
     'DrumBlue': ('w', 0.60), 'DrumRed': ('w', 0.60),
 }
+# default detector-name -> truth-name pairs (scene: sauvc_finals.scn)
+DEFAULT_TRUTH_MAP = ('GatePostRed=GatePostPort,GatePostGreen=GatePostStbd')
+# class token used for nearest-truth fallback matching
+def _class_token(name):
+    for tok in ('GatePost', 'DrumRed', 'DrumBlue', 'Drum', 'FlareRed', 'FlareYellow',
+                'FlareBlue', 'OrangeFlare', 'Flare', 'Gate'):
+        if name.startswith(tok):
+            return tok
+    return name
 
 
 class GateDetectorNode(Node):
@@ -70,7 +72,16 @@ class GateDetectorNode(Node):
         p('vfov_deg', 60.0)
         p('image_topic', '/camera_front/image_raw')
         p('log_period', 1.0)
-        p('show_detections', True)      # cv2 window with boxes + labels
+        p('show_detections', True)
+        # --- YOLO backend ---
+        p('use_yolo', False)
+        p('yolo_model', '')              # path to your trained .pt
+        p('yolo_conf', 0.4)
+        # 'model_class=FeatureName,...'; empty -> auto-match on lowercase tokens
+        p('yolo_class_map', '')
+        # --- truth comparison ---
+        p('truth_name_map', DEFAULT_TRUTH_MAP)
+        p('truth_max_age', 1.0)          # s; older cached truth prints as '--'
         self.bridge = CvBridge()
         self.pub_feat = self.create_publisher(String, '/vision/features', 10)
         self.pub = self.create_publisher(String, '/vision/detections', 10)
@@ -81,10 +92,120 @@ class GateDetectorNode(Node):
         self._last_log = 0.0
         self._last_frame_wall = None
         self._seen_ever = set()
+
+        # truth cache: name -> (t_wall, np.array([x,y,z]) body FRD)
+        self._truth = {}
+        self._truth_subs = {}
+        self._truth_map = {}
+        for pair in self.get_parameter('truth_name_map').value.split(','):
+            if '=' in pair:
+                a, b = pair.split('=', 1)
+                self._truth_map[a.strip()] = b.strip()
+        self.create_timer(2.0, self._discover_truth_topics)
+
+        # YOLO (lazy, optional)
+        self._yolo = None
+        self._yolo_names = {}
+        if self.get_parameter('use_yolo').value:
+            self._load_yolo()
+
         self.get_logger().info(
-            f'gate_detector up: image_topic={topic}, features on /vision/features, '
-            f'cv2 window={"ON" if self.get_parameter("show_detections").value else "off"}')
+            f'gate_detector up: image_topic={topic}, backend='
+            + ('YOLO' if self._yolo is not None else 'HSV')
+            + ', features on /vision/features')
         self.create_timer(10.0, self._heartbeat)
+
+    # ---------------- YOLO backend ----------------
+    def _load_yolo(self):
+        path = self.get_parameter('yolo_model').value
+        try:
+            from ultralytics import YOLO
+            self._yolo = YOLO(path)
+            cmap = {}
+            raw = self.get_parameter('yolo_class_map').value
+            for pair in raw.split(','):
+                if '=' in pair:
+                    a, b = pair.split('=', 1)
+                    cmap[a.strip().lower()] = b.strip()
+            self._yolo_names = cmap
+            self.get_logger().info(f'YOLO model loaded: {path}, '
+                                   f'classes={list(self._yolo.names.values())}')
+        except Exception as e:
+            self._yolo = None
+            self.get_logger().error(f'YOLO unavailable ({e}) — falling back to HSV')
+
+    def _yolo_feature_name(self, cls_name):
+        """Map a model class to a canonical feature name."""
+        if cls_name.lower() in self._yolo_names:
+            return self._yolo_names[cls_name.lower()]
+        c = cls_name.lower().replace('_', '').replace('-', '')
+        table = {'gatepostred': 'GatePostRed', 'redgatepost': 'GatePostRed',
+                 'gatepostgreen': 'GatePostGreen', 'greengatepost': 'GatePostGreen',
+                 'gate': 'GatePostRed',
+                 'orangeflare': 'OrangeFlare', 'flareorange': 'OrangeFlare',
+                 'redflare': 'FlareRed', 'flarered': 'FlareRed',
+                 'yellowflare': 'FlareYellow', 'flareyellow': 'FlareYellow',
+                 'blueflare': 'FlareBlue', 'flareblue': 'FlareBlue',
+                 'bluedrum': 'DrumBlue', 'drumblue': 'DrumBlue',
+                 'reddrum': 'DrumRed', 'drumred': 'DrumRed', 'drum': 'DrumRed'}
+        return table.get(c)
+
+    def _classify_yolo(self, bgr, w, h):
+        conf = self.get_parameter('yolo_conf').value
+        res = self._yolo(bgr, conf=conf, verbose=False)[0]
+        feats = {}
+        red_drums = []
+        for box in res.boxes:
+            cls_name = self._yolo.names[int(box.cls[0])]
+            base = self._yolo_feature_name(cls_name)
+            if base is None:
+                continue
+            x1, y1, x2, y2 = (float(v) for v in box.xyxy[0])
+            bw, bh = x2 - x1, y2 - y1
+            b = dict(area=(bw * bh) / (w * h), x=int(x1), y=int(y1),
+                     bw=int(bw), bh=int(bh), cx=x1 + bw / 2, cy=y1 + bh / 2,
+                     aspect=bh / max(bw, 1.0), conf=float(box.conf[0]))
+            if b['area'] < MIN_AREA_FRAC:
+                continue
+            if base == 'DrumRed':
+                red_drums.append(b)
+            elif base not in feats or b['conf'] > feats[base].get('conf', 0):
+                feats[base] = b
+        for i, b in enumerate(sorted(red_drums, key=lambda d: d['cx'])[:3], 1):
+            feats[f'DrumRed{i}'] = b       # numbered port->stbd, like the HSV path
+        return feats
+
+    # ---------------- truth plumbing ----------------
+    def _discover_truth_topics(self):
+        for name, types in self.get_topic_names_and_types():
+            if name.startswith('/truth/rel/') and name not in self._truth_subs:
+                lm = name.rsplit('/', 1)[-1]
+                self._truth_subs[name] = self.create_subscription(
+                    PointStamped, name,
+                    lambda m, lm=lm: self._on_truth(lm, m), 10)
+
+    def _on_truth(self, lm_name, msg):
+        self._truth[lm_name] = (time.time(),
+                                np.array([msg.point.x, msg.point.y, msg.point.z]))
+
+    def _truth_for(self, det_name, est_xyz):
+        """Truth body-FRD position for a detected feature: explicit map first,
+        exact name second, else nearest fresh truth landmark of the same class."""
+        max_age = self.get_parameter('truth_max_age').value
+        now = time.time()
+        fresh = {n: v for n, (tw, v) in self._truth.items() if now - tw <= max_age}
+        cand = self._truth_map.get(det_name, det_name)
+        if cand in fresh:
+            return cand, fresh[cand]
+        tok = _class_token(det_name)
+        best, bname = None, None
+        for n, v in fresh.items():
+            if _class_token(n) != tok and not n.startswith(tok):
+                continue
+            d = float(np.linalg.norm(v - est_xyz))
+            if best is None or d < best:
+                best, bname = d, n
+        return (bname, fresh[bname]) if bname else (None, None)
 
     def _heartbeat(self):
         if self._last_frame_wall is None:
@@ -93,7 +214,7 @@ class GateDetectorNode(Node):
         elif time.time() - self._last_frame_wall > 5.0:
             self.get_logger().warn('image stream STALLED (>5 s)')
 
-    # ---------------- blob extraction ----------------
+    # ---------------- blob extraction (HSV backend) ----------------
     def _blobs(self, hsv, w, h):
         out = {}
         for label, ranges in COLORS.items():
@@ -118,7 +239,7 @@ class GateDetectorNode(Node):
 
     # ---------------- classification -> named features ----------------
     def _classify(self, blobs):
-        feats = {}                       # name -> blob
+        feats = {}
         tall = lambda b: b['aspect'] >= TALL_ASPECT
         squat = lambda b: b['aspect'] < SQUAT_ASPECT
 
@@ -130,7 +251,7 @@ class GateDetectorNode(Node):
                 feats['FlareYellow'] = b; break
         for b in blobs['blue']:
             if b['area'] >= WATER_AREA_FRAC:
-                continue                 # the water column pretending to be a prop
+                continue
             if tall(b) and 'FlareBlue' not in feats:
                 feats['FlareBlue'] = b
             elif squat(b) and 'DrumBlue' not in feats:
@@ -156,7 +277,7 @@ class GateDetectorNode(Node):
     # ---------------- ranging + body-frame pose ----------------
     def _pose(self, name, b, w, h, hfov, vfov, feats):
         bearing = ((b['cx'] / w) - 0.5) * hfov
-        elev = -((b['cy'] / h) - 0.5) * vfov          # + up
+        elev = -((b['cy'] / h) - 0.5) * vfov
         rng = None
         if name.startswith('GatePost') and 'GatePostRed' in feats and 'GatePostGreen' in feats:
             b1, b2 = feats['GatePostRed'], feats['GatePostGreen']
@@ -173,7 +294,6 @@ class GateDetectorNode(Node):
             return None
         ce, se = math.cos(elev), math.sin(elev)
         cb, sb = math.cos(bearing), math.sin(bearing)
-        # body FRD (camera assumed forward-aligned): z down => z = -R sin(elev_up)
         return dict(x=rng * ce * cb, y=rng * ce * sb, z=-rng * se,
                     range=rng, brg=bearing, elev=elev, area=b['area'])
 
@@ -185,8 +305,11 @@ class GateDetectorNode(Node):
         h, w = bgr.shape[:2]
         hfov = math.radians(self.get_parameter('hfov_deg').value)
         vfov = math.radians(self.get_parameter('vfov_deg').value)
-        hsv = cv2.cvtColor(cv2.GaussianBlur(bgr, (5, 5), 0), cv2.COLOR_BGR2HSV)
-        feats = self._classify(self._blobs(hsv, w, h))
+        if self._yolo is not None:
+            feats = self._classify_yolo(bgr, w, h)
+        else:
+            hsv = cv2.cvtColor(cv2.GaussianBlur(bgr, (5, 5), 0), cv2.COLOR_BGR2HSV)
+            feats = self._classify(self._blobs(hsv, w, h))
         dbg = bgr.copy()
 
         poses = {}
@@ -215,20 +338,43 @@ class GateDetectorNode(Node):
         t = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
         if poses and t - self._last_log >= self.get_parameter('log_period').value:
             self._last_log = t
-            print('\n─ ESTIMATED feature poses in body FRD (x fwd, y stbd, z down) ─'
-                  ' bearing +stbd ─')
-            print(f"  {'feature':<16}{'x':>8}{'y':>8}{'z':>8}"
-                  f"{'range':>8}{'brg°':>8}{'elev°':>8}")
-            for name in sorted(poses):
-                pz = poses[name]
-                print(f"  {name:<16}{pz['x']:>+8.2f}{pz['y']:>+8.2f}{pz['z']:>+8.2f}"
-                      f"{pz['range']:>8.2f}{math.degrees(pz['brg']):>+8.1f}"
-                      f"{-math.degrees(pz['elev']):>+8.1f}")
+            self._print_table(poses)
 
         self.pub_dbg.publish(self.bridge.cv2_to_imgmsg(dbg, encoding='bgr8'))
         if self.get_parameter('show_detections').value:
             cv2.imshow('gate_detector', dbg)
             cv2.waitKey(1)
+
+    def _print_table(self, poses):
+        print('\n─ ESTIMATED feature poses in body FRD (x fwd, y stbd, z down)'
+              ' vs GROUND TRUTH ─ bearing +stbd ─')
+        print(f"  {'feature':<16}{'x':>8}{'y':>8}{'z':>8}"
+              f"{'range':>8}{'brg°':>8}{'elev°':>8}"
+              f" │{'dx':>7}{'dy':>7}{'dz':>7}{'dR':>7}{'dbrg°':>7}{'delev°':>7}"
+              f"  truth")
+        for name in sorted(poses):
+            pz = poses[name]
+            est = np.array([pz['x'], pz['y'], pz['z']])
+            row = (f"  {name:<16}{pz['x']:>+8.2f}{pz['y']:>+8.2f}{pz['z']:>+8.2f}"
+                   f"{pz['range']:>8.2f}{math.degrees(pz['brg']):>+8.1f}"
+                   f"{-math.degrees(pz['elev']):>+8.1f}")
+            tname, txyz = self._truth_for(name, est)
+            if txyz is None:
+                row += (f" │{'--':>7}{'--':>7}{'--':>7}{'--':>7}{'--':>7}{'--':>7}"
+                        f"  (run landmark_truth_node)")
+            else:
+                d = est - txyz
+                t_rng = float(np.linalg.norm(txyz))
+                t_brg = math.degrees(math.atan2(txyz[1], txyz[0]))
+                t_elv = math.degrees(math.atan2(
+                    txyz[2], math.hypot(txyz[0], txyz[1])))
+                # detector elev is +up; truth table prints +down — compare in +down
+                e_elv = -math.degrees(pz['elev'])
+                row += (f" │{d[0]:>+7.2f}{d[1]:>+7.2f}{d[2]:>+7.2f}"
+                        f"{pz['range'] - t_rng:>+7.2f}"
+                        f"{math.degrees(pz['brg']) - t_brg:>+7.1f}"
+                        f"{e_elv - t_elv:>+7.1f}  {tname}")
+            print(row)
 
 
 def main():

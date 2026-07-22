@@ -1,0 +1,4 @@
+# flow_eval_node run log — started 2026-07-22 21:17:23
+# argv: /home/haadi/Robotics_Job/sauvc_ws/install/sauvc_flow_eval/lib/sauvc_flow_eval/flow_eval_node --ros-args -p scene_file:=/home/haadi/Robotics_Job/sauvc_ws/src/sauvc_stonefish/scenarios/sauvc_finals.scn -p flow_yaw_autocal:=false -p flow_yaw_offset:=0.0 -p use_lane_heading:=true -p pool_axis_ned_yaw:=0.0 -p show_camera:=false -p show_optical_flow:=false -p log_to_file:=true -p log_dir:=~/Robotics_Job/sauvc_ws/src/sauvc_flow_eval/flow_eval_logs -p flow_compensate_vz:=true -p live_plot:=true
+[INFO] [1784735243.500919452] [flow_eval_node]: run log: teeing all console output to /home/haadi/Robotics_Job/sauvc_ws/src/sauvc_flow_eval/flow_eval_logs/flow_eval_20260722_211723.txt
+# run ended 2026-07-22 21:17:23
