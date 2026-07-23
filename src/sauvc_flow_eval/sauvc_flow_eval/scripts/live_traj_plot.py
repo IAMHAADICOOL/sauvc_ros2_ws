@@ -65,6 +65,7 @@ _DEFAULT_COLORS = {
     'ekf':          (80, 220, 80),     # green
     'gtsam':        (230, 80, 230),    # magenta
     'dvl':          (230, 220, 60),    # cyan-ish
+    'tile_grid':    (0, 215, 255),     # yellow
     'pressure':     (140, 140, 140),   # grey (normally excluded anyway)
 }
 _FALLBACK_COLOR = (0, 215, 255)        # yellow, for any unknown key
@@ -251,9 +252,10 @@ class TrajectoryPlotter:
         font = cv2.FONT_HERSHEY_SIMPLEX
         x0 = self.margin + 12
         y = self.margin + 22
-        for key in ('ground_truth', 'dvl', 'flow', 'ekf', 'gtsam', 'pressure'):
-            if key not in snapshot:
-                continue
+        keys = [k for k in ('ground_truth', 'dvl', 'flow', 'ekf', 'gtsam',
+                            'tile_grid', 'pressure') if k in snapshot]
+        keys += [k for k in sorted(snapshot) if k not in keys]  # unknown tracks too
+        for key in keys:
             col = self.colors.get(key, _FALLBACK_COLOR)
             cv2.line(img, (x0, y - 4), (x0 + 24, y - 4), col, 2, cv2.LINE_AA)
             lx, ly = snapshot[key][-1]

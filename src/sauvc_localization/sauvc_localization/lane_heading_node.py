@@ -26,6 +26,7 @@ import cv2
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+# from sauvc_stonefish.ardupilot.modules.waf.waflib.extras.wafcache import loop
 from sensor_msgs.msg import Image, Imu
 from std_msgs.msg import Float32
 from cv_bridge import CvBridge
@@ -44,6 +45,25 @@ class LaneHeadingNode(Node):
     def __init__(self):
         super().__init__('lane_heading_node')
         self.declare_parameter('pool_axis_offset', 0.0)   # rad
+        # pool_axis_offset (default 0.0 rad)
+        # This is a calibration constant, not something computed at runtime — it's the fixed rotational offset between 
+        # "the pool's grid axis" (what the lines actually measure, mod 90°) and "the direction you actually care about," 
+        # e.g. straight from the start zone toward the gate.
+        # Remember: the raw line-based heading is anchored to the pool's tile/lane grid — it has no idea that your 
+        # mission has a meaningful "forward" direction (start → gate). If the grid happens to be rotated some 
+        # arbitrary angle relative to your mission axis, the node needs to know that angle to translate "yaw 
+        # relative to the grid" into "yaw relative to my mission." That's pool_axis_offset:
+        # python
+        # out.data = wrap(self.gyro_yaw + self.offset
+        #                 - self.get_parameter('pool_axis_offset').value)
+        # It's applied at the very end, as a fixed subtraction, before publishing /heading/pool_relative. The docstring 
+        # tells you exactly how to determine it in practice:
+        # Set pool_axis_offset so that yaw=0 points along your chosen mission axis... Determine it once at the 
+        # venue: hold the vehicle pointing at the gate, read /heading/line_meas, put that value in the parameter.
+        # So it's a one-time, per-venue calibration number — you physically point the vehicle at the gate, 
+        # read off what the raw grid-relative measurement says at that moment, and that's the offset you 
+        # plug in so that "0" in the published heading topic means "facing the gate," not "facing along 
+        # some arbitrary pool tile line."
         self.declare_parameter('gain', 0.02)              # complementary gain per frame
         self.declare_parameter('min_lines', 4)
         # --- TURN HARDENING (post 360-spin + translate-and-rotate log analysis) ---
@@ -174,6 +194,7 @@ class LaneHeadingNode(Node):
             self._yaw_buf.append((t, self.gyro_yaw))
         # low-pass |yaw rate| (alpha 0.2 at ~50 Hz -> ~0.1 s time constant)
         self._rate_lp += 0.2 * (abs(msg.angular_velocity.z) - self._rate_lp)
+        # Read the associate .md file
         if self.gyro_yaw is not None:
             out = Float32()
             out.data = wrap(self.gyro_yaw + self.offset
@@ -184,21 +205,72 @@ class LaneHeadingNode(Node):
         """IMU yaw interpolated at the image timestamp (wrap-aware). Falls back to
         the latest yaw if the buffer is empty, stamps are unusable, or the image
         stamp is >0.2 s outside the buffered range (clock mismatch)."""
+        # First safety check — bail out to a fallback. Two conditions:
+        # t_img <= 0.0: the image's timestamp looks invalid/unset (a real 
+        # ROS timestamp should be a positive number of seconds since epoch or
+        # since some reference — zero or negative means something's wrong with the stamp).
+        # not self._yaw_buf: the buffer is empty (e.g., no IMU messages have arrived yet).
+        # In either case, there's nothing sensible to interpolate against, so just return 
+        # whatever self.gyro_yaw currently is — the simple "latest known value" fallback, 
+        # better than crashing or returning garbage.
         if t_img <= 0.0 or not self._yaw_buf:
             return self.gyro_yaw
         buf = self._yaw_buf
+        # Second safety check — is t_img within a sane range of what we have buffered?
+        # buf[0][0] is the timestamp of the oldest entry in the buffer (the deque is ordered 
+        # oldest→newest since things are appended in arrival order).
+        # buf[-1][0] is the timestamp of the newest entry.
+        # If t_img is more than 0.2 seconds before the oldest buffered sample, or more than 0.2 
+        # seconds after the newest — the image timestamp is essentially outside the range 
+        # of history we have. That's a red flag (comment: "clock mismatch") — maybe the camera 
+        # and IMU clocks aren't synchronized properly, or there's a large unexpected delay 
+        # somewhere. Rather than trying to extrapolate wildly outside known data (unreliable), 
+        # just fall back to the simple latest-yaw estimate.
+        # The 0.2 second tolerance is a little slack — it allows t_img to be slightly outside 
+        # the buffered range (e.g., a fraction of a millisecond due to normal jitter) without 
+        # triggering the fallback, but stops far-outside timestamps from being trusted.
         if t_img <= buf[0][0] - 0.2 or t_img >= buf[-1][0] + 0.2:
             return self.gyro_yaw
         prev = None
+        # Walking the buffer to find the two samples that bracket t_img. This loops through the buffer from oldest to newest.
+        # prev tracks "the last sample we looked at that was still before t_img" — it starts as None because at the very 
+        # first iteration, there's no "previous" sample yet.
+        # The loop is looking for the first sample whose timestamp t is >= t_img — i.e., the first sample that is at 
+        # or after the image's capture time. Once found, that sample (call it (t, y)) is the one right after t_img, 
+        # and whatever was stored in prev just before it is the one right before t_img. Together, prev and (t, y) are 
+        # the two neighboring data points that bracket the moment we care about — exactly what you need to 
+        # interpolate between.
         for (t, y) in buf:
             if t >= t_img:
+                # Inside the loop, once we find t >= t_img: first check — if prev is still None, 
+                # that means this is the very first sample in the whole buffer, and it's already 
+                # at or after t_img. There's nothing earlier to interpolate from (t_img is right 
+                # at, or even before, the very start of our history) — so just return this sample's 
+                # yaw y directly, no interpolation possible.
                 if prev is None:
                     return y
                 t0, y0 = prev
+                # Otherwise, unpack prev into t0, y0 — the timestamp/yaw of the bracketing sample just before t_img. 
+                # Then a defensive sanity check: if t <= t0 (the "after" sample's timestamp isn't actually later than 
+                # the "before" sample's timestamp), something is inconsistent (e.g., duplicate or out-of-order timestamps) 
+                # — dividing by (t - t0) in the next step would divide by zero or a negative number, so this 
+                # guards against that and just returns y (the later sample) as a safe fallback rather than 
+                # crashing or producing a nonsensical interpolation.
                 if t <= t0:
                     return y
-                f = (t_img - t0) / (t - t0)
+                f = (t_img - t0) / (t - t0) # fraction of the way from t0 to t
                 return wrap(y0 + f * wrap(y - y0))
+                # The actual interpolation, once we're sure it's safe to do.
+                # f = (t_img - t0) / (t - t0): this is a fraction between 0 and 1 representing where t_img sits between t0 
+                # and t. If t_img is exactly at t0, f = 0. If exactly at t, f = 1. If halfway between, f = 0.5.
+                # wrap(y - y0): the difference in yaw between the two bracketing samples, wrap-aware. This matters because 
+                # yaw is cyclic — if y0 = 170° and y = -170°, the "raw" difference (-170 - 170 = -340) looks huge, but the 
+                # vehicle actually only rotated 20° (crossing the ±180° seam). wrap() correctly computes that true small 
+                # difference instead of the naively-huge one.
+                # y0 + f * wrap(y - y0): standard linear interpolation — start at y0, move f fraction of the way toward y 
+                # (using the correctly-wrapped difference).
+                # Outer wrap(...): the interpolated result itself is wrapped back into (-π, π], in case the interpolation 
+                # pushed it slightly outside that canonical range.
             prev = (t, y)
         return buf[-1][1]
 
@@ -280,6 +352,13 @@ class LaneHeadingNode(Node):
             return
         gray = self.bridge.imgmsg_to_cv2(msg, desired_encoding='mono8')
         self._last_reject = None
+        # why setting the following variables to None? 
+        # Because they are used in the debug drawing function to show the last edges, 
+        # lines, and concentration R. If we don't reset them here, they might show 
+        # stale data from a previous frame, which could be misleading. By setting 
+        # them to None at the start of processing a new image, we ensure that if 
+        # the current frame fails to detect any lines or edges, the debug output 
+        # will accurately reflect that no valid data was found for this frame.
         self._last_edges = self._last_lines = self._last_R = None
         ang = self.detect_line_angle(gray)
         status = 'accepted'

@@ -24,5 +24,7 @@ setup(
     entry_points={'console_scripts': [
         'flow_eval_node = sauvc_flow_eval.flow_eval_node:main',
         'landmark_truth_node = sauvc_flow_eval.landmark_truth_node:main', 
+        'imu_noise_node = sauvc_flow_eval.imu_noise_node:main',   # add this line
+
     ]},
 )

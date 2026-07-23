@@ -18,7 +18,8 @@ setup(
     license='MIT',
     entry_points={
         'console_scripts': [
-            'depth_pid_mission = sauvc_motion_demo.depth_pid_mission:main'
+            'depth_pid_mission = sauvc_motion_demo.depth_pid_mission:main',
+            'waypoint_pid_mission = sauvc_motion_demo.waypoint_pid_mission:main'
         ],
     },
 )

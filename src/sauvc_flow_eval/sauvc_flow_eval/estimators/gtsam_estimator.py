@@ -260,6 +260,16 @@ class GtsamEstimator:
         if not self.ok or self.pose is None:
             return None
         return float(self.pose.rotation().yaw())
+    def gyro_bias(self):
+        """The graph's current estimate of the gyro bias [rad/s], (bx, by, bz),
+        or None before initialization. The z component should converge to the
+        .scn's yaw_drift value once the CombinedImuFactor has enough keyframes to
+        observe it — that convergence is the proof the bias is being estimated
+        (not just the drift being suffered)."""
+        if not self.ok or not self.initialized:
+            return None
+        gb = self.bias.gyroscope()
+        return (float(gb[0]), float(gb[1]), float(gb[2]))
     def add_landmark_xy(self, px, py, sigma_x, sigma_y):
         """Anisotropic absolute x/y correction from a mapped-landmark observation.
         Consumed by flow_eval_node's landmark_mode ('gate'/'map'); previously MISSING,

@@ -8,6 +8,9 @@ overlay them directly:
   /eval/ekf            self-contained EKF fusing flow + depth
   /eval/pressure       depth only (world Z; x,y left at 0)
   /eval/gtsam          IMU preintegration, integrated to position   [only if gtsam present]
+  /eval/tile_grid      grid-phase odometry on the pool floor tiles (uv_mode="2":
+                       20 tiles / 1 m texture = 0.05 m pitch). Absolute position mod
+                       one tile every frame -> sub-tile error cannot accumulate.
 Also opens two OpenCV windows: the raw down-camera feed and the optical-flow overlay.
 DESIGN (per request):
   * Landmark/gate localization is deliberately NOT included — this is dead-reckoning-style
@@ -74,24 +77,20 @@ from sauvc_flow_eval.eval_common import (
 from sauvc_flow_eval.estimators.flow_estimator import FlowEstimator
 from sauvc_flow_eval.estimators.ekf_estimator import EkfEstimator
 from sauvc_flow_eval.estimators.gtsam_estimator import GtsamEstimator
+from sauvc_flow_eval.estimators.tile_grid_estimator import TileGridEstimator
 from sauvc_flow_eval.scripts.live_traj_plot import TrajectoryPlotter
 from sauvc_sim_bridge.frames import ned_frd_quat_to_enu_flu, flu_frd_to_ned_wxyz
-
-
 class RunLogTee:
     """UPGRADE I: mirror the ENTIRE console output of this run into a text file.
-
     Enabled with -p log_to_file:=true. Works at the FILE-DESCRIPTOR level (fd 1/2
     are redirected through pipes and pumped to both the original console and the
     file), which is the only way to also capture rclpy's get_logger() lines —
     those are written by the C rcutils layer directly to the process's stdout/
     stderr and would be invisible to a Python-level sys.stdout wrapper.
-
     * One file per run, timestamped: <log_dir>/flow_eval_YYYYmmdd_HHMMSS.txt
     * Written incrementally (unbuffered), so Ctrl+C at ANY moment loses nothing:
       the file is already complete on disk; close() just restores the fds.
     """
-
     def __init__(self, log_dir):
         log_dir = os.path.expanduser(log_dir)
         os.makedirs(log_dir, exist_ok=True)
@@ -122,7 +121,6 @@ class RunLogTee:
             sys.stdout.reconfigure(line_buffering=True)
         except Exception:
             pass
-
     def _pump(self, r, orig):
         while True:
             try:
@@ -133,7 +131,6 @@ class RunLogTee:
                 break
             os.write(orig, data)          # still show on the console
             self._file.write(data)        # and persist immediately
-
     def close(self):
         sys.stdout.flush()
         sys.stderr.flush()
@@ -153,8 +150,6 @@ class RunLogTee:
         self._file.write(
             f'# run ended {_time.strftime("%Y-%m-%d %H:%M:%S")}\n'.encode())
         self._file.close()
-
-
 def _enu_quat_to_ned_wxyz(x, y, z, w):
     return flu_frd_to_ned_wxyz(x, y, z, w)
 def _quat_to_R(x, y, z, w):
@@ -310,7 +305,7 @@ class FlowEvalNode(Node):
         # timestamped, collision-suffixed name so nothing is ever overwritten.
         p('live_plot', False)
         p('live_plot_rate', 5.0)           # window refresh [Hz]
-        p('live_plot_tracks', 'ground_truth,flow,ekf,gtsam,dvl')  # 'pressure'
+        p('live_plot_tracks', 'ground_truth,flow,ekf,gtsam,dvl,tile_grid')  # 'pressure'
         #   excluded on purpose: its x/y are pinned to 0 and would drag the
         #   autoscaled view out to the world origin.
         p('live_plot_min_span', 2.0)       # [m] never zoom tighter than this
@@ -352,7 +347,15 @@ class FlowEvalNode(Node):
         p('print_rate', 5.0)             # Hz, terminal print throttle
         p('gravity', 9.81)
         p('flow_compensate_vz', False)
-        
+        # --- TILE-GRID estimator (grid-phase odometry on the pool floor tiles) ---
+        p('tile_pitch', 0.05)              # grout pitch [m]; uv_mode=2 -> 20 tiles/m
+        p('tile_patch', 256)               # analysis patch side [px]
+        p('tile_min_quality', 1.5)         # fold-peak z-score gate (coast below)
+        # world (NED) angle of the IMAGE X axis minus vehicle NED yaw. my_auv.scn
+        # mounts camera_down with rpy z=+90deg -> image right = body right -> +pi/2.
+        # Tune like flow's sign_x/sign_y if the mount differs (verify vs GT).
+        p('tile_cam_yaw_offset', 1.5708)
+
         g = lambda n: self.get_parameter(n).value
         self.frame = g('compare_frame')
         if self.frame not in ('ned', 'enu'):
@@ -455,7 +458,8 @@ class FlowEvalNode(Node):
         self._lane_summary_period = 15.0   # s, matches the yaw-autocal log cadence
         # latest published value per source, for the terminal table
         self._latest = {k: None for k in
-                        ('ground_truth', 'dvl', 'flow', 'ekf', 'pressure', 'gtsam')}
+                        ('ground_truth', 'dvl', 'flow', 'ekf', 'pressure', 'gtsam',
+                         'tile_grid')}
         self._gt_R = None          # GT body->NED rotation, for the DVL twist
         self._last_print = 0.0
         # --- estimators ---
@@ -468,6 +472,10 @@ class FlowEvalNode(Node):
         self.gtsam = GtsamEstimator(gravity=g('gravity'), compare_frame=self.frame)
         self.flow_pos = PositionIntegrator()
         self.gtsam_pos = PositionIntegrator()
+        self.tile = TileGridEstimator(g('fx'), tile_pitch=g('tile_pitch'),
+                                      patch=g('tile_patch'),
+                                      min_quality=g('tile_min_quality'))
+        self.tile_cam_yaw_offset = float(g('tile_cam_yaw_offset'))
         if self.gtsam.available:
             self.get_logger().info('gtsam present -> /eval/gtsam active')
         else:
@@ -491,7 +499,7 @@ class FlowEvalNode(Node):
         # --- publishers ---
         self.pubs = {k: self.create_publisher(Odometry, f'/eval/{k}', 10)
                      for k in ('ground_truth', 'dvl', 'flow', 'ekf', 'pressure',
-                               'gtsam')}
+                               'gtsam', 'tile_grid')}
         # --- live trajectory plot (see live_traj_plot.py for the design) ---
         self.traj = None
         if bool(g('live_plot')):
@@ -558,7 +566,7 @@ class FlowEvalNode(Node):
         self.get_logger().info(
             f"flow_eval up, compare_frame='{self.frame}'. Publishing /eval/* "
             "(ground_truth, flow, ekf, pressure"
-            + (", gtsam" if self.gtsam.available else "") + "). "
+            + (", gtsam" if self.gtsam.available else "") + ", tile_grid). "
             + ("ALTITUDE: self-computed in-node (floor profile at GT x, camera datum, "
                "tilt-compensated); /altitude used only as a cross-check."
                if self.self_alt else "ALTITUDE: from /altitude (shim)."))
@@ -976,6 +984,7 @@ class FlowEvalNode(Node):
         else:
             alt = self.altitude if self.altitude is not None else max(
                 self.get_parameter('pool_depth').value - self.depth, 0.1)
+        tile_vhint_ned = None
         res = self.flow.estimate(gray, dt, gyro_xy_cam, alt)
         if res is None:
             # FIX(dropout visibility): every None here is displacement PERMANENTLY
@@ -1026,6 +1035,9 @@ class FlowEvalNode(Node):
                 self._update_yaw_autocal(vx_b, vy_b, yaw_cmp, t)
             yaw_cmp_f = yaw_cmp + self.flow_yaw_offset
             yaw_ned_f = yaw_ned_used + self.flow_yaw_offset
+            _vyf = -vy_b if self.frame != 'ned' else vy_b
+            _cN, _sN = math.cos(yaw_ned_f), math.sin(yaw_ned_f)
+            tile_vhint_ned = (_cN * vx_b - _sN * _vyf, _sN * vx_b + _cN * _vyf)
             # UPGRADE E: quality-scaled measurement variance (flow_velocity_node's
             # model): worse spread / fewer inliers -> larger R -> less trust.
             r_var = (self.r_flow_base * (1.0 + res['spread_px'])
@@ -1118,6 +1130,23 @@ class FlowEvalNode(Node):
                                                  self.frame)
                         self._publish('gtsam', gx, gy, gz, msg.header.stamp,
                                       vx=float(gv[0]), vy=float(gv[1]))
+        # ---- TILE-GRID estimator: absolute grid phase every frame ----
+        # Runs whether or not flow succeeded; flow only hints the tile unwrap /
+        # coasts dropouts. Output is NED-world displacement-from-start.
+        tr = self.tile.estimate(gray, t, alt,
+                                self.yaw_ned + self.tile_cam_yaw_offset,
+                                tile_vhint_ned)
+        if tr is not None:
+            tp = gt_world_to_compare(np.array([tr['x'], tr['y'], 0.0]), self.frame)
+            tzw = depth_to_world_z(self.depth, self.frame)
+            tax, tay, taz = self._anchor(tp[0], tp[1], tzw)
+            tvx = tvy = None
+            if tile_vhint_ned is not None:
+                tv = gt_world_to_compare(
+                    np.array([tile_vhint_ned[0], tile_vhint_ned[1], 0.0]), self.frame)
+                tvx, tvy = float(tv[0]), float(tv[1])
+            self._publish('tile_grid', tax, tay, taz, msg.header.stamp,
+                          vx=tvx, vy=tvy)
         if self.show_cam:
             cv2.imshow('down camera', frame_bgr)
         if self.show_flow:
@@ -1174,7 +1203,8 @@ class FlowEvalNode(Node):
                 v = (None,) * 5
             cells = [f"{c:+8.3f}" if c is not None else f"{'--':>8}" for c in v]
             return ' '.join(cells)
-        order = ['ground_truth', 'dvl', 'flow', 'ekf', 'pressure', 'gtsam']
+        order = ['ground_truth', 'dvl', 'flow', 'ekf', 'pressure', 'gtsam',
+                 'tile_grid']
         lines = [f"\n─ estimates [{self.frame.upper()} frame]  "
                  f"x        y        z       vx       vy ──────"]
         for k in order:
@@ -1194,6 +1224,17 @@ class FlowEvalNode(Node):
                     f"  yaw[deg]      gt={math.degrees(self.gt_yaw_ned):+7.2f}  "
                     f"imu={math.degrees(self.yaw_ned):+7.2f} (err {d(self.yaw_ned, self.gt_yaw_ned):+6.2f})  "
                     f"gtsam={math.degrees(gy):+7.2f} (err {d(gy, self.gt_yaw_ned):+6.2f})")
+            # GYRO-BIAS ESTIMATE: with the patched Stonefish IMU, yaw drift enters
+            # as a real gyro z-bias (= the .scn yaw_drift, rad/s). GTSAM's bias state
+            # should converge to it. Printing gz here (rad/s AND deg/min for eyeball
+            # comparison to the .scn yaw_drift) shows whether the graph is ESTIMATING
+            # the bias, not merely suffering the drift. Expected: gz -> ~yaw_drift.
+            gb = self.gtsam.gyro_bias()
+            if gb is not None:
+                lines.append(
+                    f"  gyro_bias[rad/s] bx={gb[0]:+.5f} by={gb[1]:+.5f} "
+                    f"bz={gb[2]:+.5f}  (bz={math.degrees(gb[2])*60:+.2f} deg/min "
+                    f"-> compare to .scn yaw_drift)")
         # LANE-HEADING VISIBILITY: previously this print's imu= column was the ONLY
         # yaw info shown, and it's raw self.yaw_ned regardless of whether lane fusion
         # ran — there was no way to tell from these logs whether lane_heading_node was

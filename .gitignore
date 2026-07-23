@@ -4,6 +4,7 @@
 # Exclude datasets and logs
 src/sauvc_traj_recorder/sauvc_data/
 tree_log.txt
+to_do.txt
 
 # Exclude YOLO training runs and model weights
 src/sauvc_vision/scripts/runs/
