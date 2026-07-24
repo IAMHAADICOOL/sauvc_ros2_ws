@@ -1,0 +1,263 @@
+# flow_eval_node run log — started 2026-07-24 01:15:28
+# argv: /home/haadi/Robotics_Job/sauvc_ws/install/sauvc_flow_eval/lib/sauvc_flow_eval/flow_eval_node --ros-args -p scene_file:=/home/haadi/Robotics_Job/sauvc_ws/src/sauvc_stonefish/scenarios/sauvc_finals.scn -p flow_yaw_autocal:=false -p flow_yaw_offset:=0.0 -p use_lane_heading:=true -p pool_axis_ned_yaw:=0.0 -p show_camera:=false -p show_optical_flow:=false -p log_to_file:=true -p log_dir:=~/Robotics_Job/sauvc_ws/src/sauvc_flow_eval/flow_eval_logs -p flow_compensate_vz:=true -p live_plot:=true
+[INFO] [1784835928.580329064] [flow_eval_node]: run log: teeing all console output to /home/haadi/Robotics_Job/sauvc_ws/src/sauvc_flow_eval/flow_eval_logs/flow_eval_20260724_011528.txt
+[eskf] init deferred: 0/200 static samples (settle skip 1.0 s).
+[WARN] [1784835929.590926755] [flow_eval_node]: /altitude from depth_shim (0.99 m) disagrees with the in-node camera altitude (1.39 m) by more than 0.15 m. The shim is almost certainly still evaluating the floor profile at a stale x (its odom_topic feed is not connected). This node is UNAFFECTED (self_altitude is on), but fix the shim before hardware parity work.
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth        --       --       --       --       --
+  dvl                 --       --       --       --       --
+  flow                --       --       --       --       --
+  ekf                 --       --       --       --       --
+  eskf                --       --       --       --       --
+  pressure            --       --       --       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.600   -2.000   +0.300       --       --
+yaw2[deg]     gt=    --   imu=  +2.27  ekf=  +0.49 s=1.00  eskf=    --   gtsam=    --   lane=  +0.10  | bias[deg/min] ekf=+0.049  lane_upd ok/gated=3/0
+  lane[inactive(IMU fallback)] raw_lane_yaw= +90.48deg
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow                --       --       --       --       --
+  ekf                 --       --       --       --       --
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.600   -2.000   +0.300       --       --
+yaw2[deg]     gt=  +0.00  imu=  +3.53 (err  +3.53)  ekf=  +1.47 (err  +1.47) s=0.82  eskf=    --   gtsam=    --   lane=  +0.06 (err  +0.06)  | bias[deg/min] ekf=+0.067  lane_upd ok/gated=5/0
+  lane[inactive(IMU fallback)] raw_lane_yaw= +89.19deg  fused_err= -0.00  imu_err= +3.53  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.003
+  flow                --       --       --       --       --
+  ekf                 --       --       --       --       --
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.600   -2.000   +0.300       --       --
+yaw2[deg]     gt=  +0.00  imu=  +6.22 (err  +6.22)  ekf=  +4.17 (err  +4.17) s=0.83  eskf=    --   gtsam=    --   lane=  +0.06 (err  +0.06)  | bias[deg/min] ekf=+0.067  lane_upd ok/gated=5/0
+  lane[inactive(IMU fallback)] raw_lane_yaw= +86.49deg  fused_err= -0.00  imu_err= +6.22  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   +0.004   +0.001
+  flow                --       --       --       --       --
+  ekf                 --       --       --       --       --
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.084       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.600   -2.000   +0.300       --       --
+yaw2[deg]     gt=  +0.00  imu=  +4.00 (err  +4.00)  ekf=  +1.95 (err  +1.95) s=0.83  eskf=    --   gtsam=    --   lane=  +0.06 (err  +0.06)  | bias[deg/min] ekf=+0.067  lane_upd ok/gated=5/0
+  lane[inactive(IMU fallback)] raw_lane_yaw= +88.71deg  fused_err= -0.00  imu_err= +4.00  better
+[INFO] [1784835930.258419485] [flow_eval_node]: lane_heading effectiveness: accepted 1/1 (100%), rejected-stale 0 (no fresh /heading/pool_relative), rejected-gate 0 (disagreed >30 deg). Right now: fused_yaw err=+0.30 deg vs raw IMU err=+3.01 deg — HELPING.
+[gtsam] init DEFERRED: 0/300 static samples buffered; waiting up to 6 s (vehicle should be floating still) so the gyro z-bias measurement is not noise-dominated.
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.003   +0.001
+  flow           -11.600   -2.000   +0.084   -0.001   -0.001
+  ekf            -11.595   -2.001   +0.084   +0.001   -0.001
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.084   -0.001   -0.001
+yaw2[deg]     gt=  +0.00  imu=  +1.97 (err  +1.97)  ekf=  +0.06 (err  +0.06) s=0.72  eskf=    --   gtsam=    --   lane=  -0.04 (err  -0.04)  | bias[deg/min] ekf=+0.032  lane_upd ok/gated=7/0
+  lane[ACTIVE                ] raw_lane_yaw= +90.76deg  fused_err= +0.54  imu_err= +1.97  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.600   -2.000   +0.084   -0.001   -0.001
+  ekf            -11.595   -2.001   +0.084   +0.001   -0.001
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.080       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.084   -0.001   -0.001
+yaw2[deg]     gt=  +0.00  imu=  +3.98 (err  +3.98)  ekf=  +1.65 (err  +1.65) s=0.65  eskf=    --   gtsam=    --   lane=  +0.07 (err  +0.07)  | bias[deg/min] ekf=+0.175  lane_upd ok/gated=9/0
+  lane[ACTIVE                ] raw_lane_yaw= +88.76deg  fused_err= +0.54  imu_err= +3.98  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.000
+  flow           -11.600   -2.000   +0.082   +0.001   +0.001
+  ekf            -11.595   -2.001   +0.082   +0.001   +0.001
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.082   +0.001   +0.001
+yaw2[deg]     gt=  +0.00  imu=  +3.98 (err  +3.98)  ekf=  +1.40 (err  +1.40) s=0.60  eskf=    --   gtsam=    --   lane=  +0.18 (err  +0.18)  | bias[deg/min] ekf=+0.283  lane_upd ok/gated=11/0
+  lane[ACTIVE                ] raw_lane_yaw= +88.76deg  fused_err= +1.24  imu_err= +3.98  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   -0.000   +0.002
+  flow           -11.600   -2.000   +0.082   +0.001   +0.001
+  ekf            -11.595   -2.001   +0.082   +0.001   +0.001
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.082   +0.001   +0.001
+yaw2[deg]     gt=  +0.00  imu=  +2.25 (err  +2.25)  ekf=  -0.72 (err  -0.72) s=0.54  eskf=    --   gtsam=    --   lane=  +0.05 (err  +0.05)  | bias[deg/min] ekf=+0.514  lane_upd ok/gated=14/0
+  lane[ACTIVE                ] raw_lane_yaw= +90.60deg  fused_err= +1.24  imu_err= +2.25  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   -0.002   +0.001
+  flow           -11.600   -2.000   +0.082   +0.001   +0.001
+  ekf            -11.595   -2.001   +0.082   +0.001   +0.001
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.082   +0.001   +0.001
+yaw2[deg]     gt=  +0.00  imu=  +2.93 (err  +2.93)  ekf=  +0.09 (err  +0.09) s=0.53  eskf=    --   gtsam=    --   lane=  +0.16 (err  +0.16)  | bias[deg/min] ekf=+0.435  lane_upd ok/gated=15/0
+  lane[ACTIVE                ] raw_lane_yaw= +89.88deg  fused_err= +1.24  imu_err= +2.93  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.600   -2.000   +0.083   -0.001   -0.003
+  ekf            -11.595   -2.002   +0.083   -0.001   -0.003
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.081       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.083   -0.001   -0.003
+yaw2[deg]     gt=  +0.00  imu=  +1.48 (err  +1.48)  ekf=  -1.36 (err  -1.36) s=0.50  eskf=    --   gtsam=    --   lane=  +0.05 (err  +0.05)  | bias[deg/min] ekf=+0.433  lane_upd ok/gated=17/0
+  lane[ACTIVE                ] raw_lane_yaw= +91.35deg  fused_err= +1.15  imu_err= +1.48  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   +0.000
+  dvl                 --       --       --   -0.003   -0.000
+  flow           -11.600   -2.000   +0.083   -0.001   -0.003
+  ekf            -11.595   -2.002   +0.083   -0.001   -0.003
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.083   -0.001   -0.003
+yaw2[deg]     gt=  +0.00  imu=  +3.15 (err  +3.15)  ekf=  +0.23 (err  +0.23) s=0.49  eskf=    --   gtsam=    --   lane=  +0.21 (err  +0.21)  | bias[deg/min] ekf=+0.501  lane_upd ok/gated=18/0
+  lane[ACTIVE                ] raw_lane_yaw= +89.63deg  fused_err= +1.15  imu_err= +3.15  better
+[eskf] static init from 200/200 samples: b_g=[7.0e-05 1.2e-04 6.1e-04] +/- [0.00013 0.00012 0.00012] (bgz +2.08 deg/min), b_a=[-0.0114  0.0118  0.0021]
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.002
+  flow           -11.600   -2.001   +0.087   +0.004   -0.002
+  ekf            -11.594   -2.002   +0.087   +0.003   -0.001
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.085       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.019   +0.087   +0.004   -0.002
+yaw2[deg]     gt=  +0.00  imu=  +4.44 (err  +4.44)  ekf=  +1.37 (err  +1.37) s=0.46  eskf=  +3.69 (err  +3.69)  gtsam=    --   lane=  +0.06 (err  +0.06)  | bias[deg/min] ekf=+0.670 eskf=+2.081  lane_upd ok/gated=21/0
+  lane[ACTIVE                ] raw_lane_yaw= +88.34deg  fused_err= +0.49  imu_err= +4.44  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   +0.002   +0.001
+  flow           -11.600   -2.001   +0.087   +0.004   -0.002
+  ekf            -11.594   -2.002   +0.087   +0.003   -0.001
+  eskf                --       --       --       --       --
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.019   +0.087   +0.004   -0.002
+yaw2[deg]     gt=  +0.00  imu=  +4.01 (err  +4.01)  ekf=  +0.93 (err  +0.93) s=0.45  eskf=  +1.35 (err  +1.35)  gtsam=    --   lane=  +0.14 (err  +0.14)  | bias[deg/min] ekf=+0.662 eskf=+2.099  lane_upd ok/gated=23/0
+  lane[ACTIVE                ] raw_lane_yaw= +88.80deg  fused_err= +0.49  imu_err= +4.01  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   -0.000   +0.002
+  flow           -11.599   -2.001   +0.082   -0.001   -0.001
+  ekf            -11.594   -2.003   +0.082   -0.001   -0.001
+  eskf           -11.600   -2.000   +0.080   -0.000   -0.001
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.082   -0.001   -0.001
+yaw2[deg]     gt=  +0.00  imu=  +1.99 (err  +1.99)  ekf=  -1.09 (err  -1.09) s=0.45  eskf=  +1.03 (err  +1.03)  gtsam=    --   lane=  +0.10 (err  +0.10)  | bias[deg/min] ekf=+0.678 eskf=+2.107  lane_upd ok/gated=24/0
+  lane[ACTIVE                ] raw_lane_yaw= +90.81deg  fused_err= -0.01  imu_err= +1.99  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   +0.002   -0.000
+  flow           -11.599   -2.001   +0.082   -0.001   -0.001
+  ekf            -11.594   -2.003   +0.082   -0.001   -0.001
+  eskf           -11.600   -2.000   +0.080   -0.000   -0.001
+  pressure       -11.600   -2.000   +0.086       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.082   -0.001   -0.001
+yaw2[deg]     gt=  +0.00  imu=  -0.65 (err  -0.65)  ekf=  -3.74 (err  -3.74) s=0.46  eskf=  +1.03 (err  +1.03)  gtsam=    --   lane=  +0.10 (err  +0.10)  | bias[deg/min] ekf=+0.678 eskf=+2.107  lane_upd ok/gated=24/0
+  lane[ACTIVE                ] raw_lane_yaw= +93.45deg  fused_err= -0.01  imu_err= -0.65  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   +0.001   +0.001
+  flow           -11.599   -2.001   +0.084   -0.000   +0.001
+  ekf            -11.594   -2.003   +0.084   -0.000   +0.001
+  eskf           -11.601   -2.000   +0.084   +0.002   -0.001
+  pressure       -11.600   -2.000   +0.086       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.084   -0.000   +0.001
+yaw2[deg]     gt=  +0.00  imu=  +3.05 (err  +3.05)  ekf=  -0.06 (err  -0.06) s=0.45  eskf=  +0.71 (err  +0.71)  gtsam=    --   lane=  +0.05 (err  +0.05)  | bias[deg/min] ekf=+0.702 eskf=+2.147  lane_upd ok/gated=26/0
+  lane[ACTIVE                ] raw_lane_yaw= +89.79deg  fused_err= +1.46  imu_err= +3.05  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.001
+  flow           -11.599   -2.001   +0.084   -0.000   +0.001
+  ekf            -11.594   -2.003   +0.084   -0.000   +0.001
+  eskf           -11.601   -2.000   +0.084   +0.002   -0.001
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.084   -0.000   +0.001
+yaw2[deg]     gt=  +0.00  imu=  +3.35 (err  +3.35)  ekf=  +0.19 (err  +0.19) s=0.45  eskf=  +0.61 (err  +0.61)  gtsam=    --   lane=  +0.07 (err  +0.07)  | bias[deg/min] ekf=+0.800 eskf=+2.163  lane_upd ok/gated=27/0
+  lane[ACTIVE                ] raw_lane_yaw= +89.46deg  fused_err= +1.46  imu_err= +3.35  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   -0.000
+  dvl                 --       --       --   -0.000   -0.000
+  flow           -11.599   -2.001   +0.084   -0.000   +0.001
+  ekf            -11.594   -2.003   +0.084   -0.000   +0.001
+  eskf           -11.601   -2.000   +0.084   +0.002   -0.001
+  pressure       -11.600   -2.000   +0.083       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.084   -0.000   +0.001
+yaw2[deg]     gt=  +0.00  imu=  +2.87 (err  +2.87)  ekf=  -0.30 (err  -0.30) s=0.46  eskf=  +0.60 (err  +0.60)  gtsam=    --   lane=  +0.07 (err  +0.07)  | bias[deg/min] ekf=+0.800 eskf=+2.163  lane_upd ok/gated=27/0
+  lane[ACTIVE                ] raw_lane_yaw= +89.95deg  fused_err= +1.46  imu_err= +2.87  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.001   -0.001
+  flow           -11.599   -2.001   +0.084   -0.000   +0.001
+  ekf            -11.594   -2.003   +0.084   -0.000   +0.001
+  eskf           -11.601   -2.000   +0.084   +0.002   -0.001
+  pressure       -11.600   -2.000   +0.084       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.084   -0.000   +0.001
+yaw2[deg]     gt=  +0.00  imu=  +5.91 (err  +5.91)  ekf=  +2.74 (err  +2.74) s=0.46  eskf=  +0.55 (err  +0.55)  gtsam=    --   lane=  +0.20 (err  +0.20)  | bias[deg/min] ekf=+0.799 eskf=+2.180  lane_upd ok/gated=28/0
+  lane[ACTIVE                ] raw_lane_yaw= +86.91deg  fused_err= +1.46  imu_err= +5.91  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   -0.000   -0.000
+  dvl                 --       --       --   +0.000   +0.001
+  flow           -11.599   -2.001   +0.084   -0.000   +0.001
+  ekf            -11.594   -2.003   +0.084   -0.000   +0.001
+  eskf           -11.601   -2.000   +0.084   +0.002   -0.001
+  pressure       -11.600   -2.000   +0.084       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.084   -0.000   +0.001
+yaw2[deg]     gt=  +0.00  imu=  +2.24 (err  +2.24)  ekf=  -0.95 (err  -0.95) s=0.45  eskf=  +0.44 (err  +0.44)  gtsam=    --   lane=  +0.05 (err  +0.05)  | bias[deg/min] ekf=+0.839 eskf=+2.219  lane_upd ok/gated=30/0
+  lane[ACTIVE                ] raw_lane_yaw= +90.56deg  fused_err= +1.46  imu_err= +2.24  better
+
+─ estimates [NED frame]  x        y        z       vx       vy ──────
+  ground_truth   -11.600   -2.000   +0.083   +0.000   +0.000
+  dvl                 --       --       --   -0.002   -0.001
+  flow           -11.599   -2.001   +0.084   -0.000   +0.001
+  ekf            -11.594   -2.003   +0.084   -0.000   +0.001
+  eskf           -11.601   -2.000   +0.084   +0.002   -0.001
+  pressure       -11.600   -2.000   +0.082       --       --
+  gtsam               --       --       --       --       --
+  tile_grid      -11.597   -2.018   +0.084   -0.000   +0.001
+yaw2[deg]     gt=  +0.00  imu=  +0.50 (err  +0.50)  ekf=  -2.70 (err  -2.70) s=0.46  eskf=  +0.44 (err  +0.44)  gtsam=    --   lane=  +0.05 (err  +0.05)  | bias[deg/min] ekf=+0.839 eskf=+2.219  lane_upd ok/gated=30/0
+  lane[ACTIVE                ] raw_lane_yaw= +92.30deg  fused_err= +1.46  imu_err= +0.50  WORSE/no-help
+[flow_eval_node] trajectory frame saved: /home/haadi/Robotics_Job/sauvc_ws/src/sauvc_flow_eval/flow_eval_logs/flow_eval_traj_20260724_011533.png
+Traceback (most recent call last):
+  File "/home/haadi/Robotics_Job/sauvc_ws/install/sauvc_flow_eval/lib/sauvc_flow_eval/flow_eval_node", line 33, in <module>

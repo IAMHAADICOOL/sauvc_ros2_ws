@@ -36,9 +36,13 @@ def generate_launch_description():
         # altitude. Default keeps the hardware-parity topic; eval launches that run
         # WITHOUT robot_localization must override this (ground truth is fine for a
         # diagnostic), otherwise x_est never updates and /altitude is wrong.
+        # DeclareLaunchArgument(
+        #     'alt_odom_topic', default_value='/odometry/filtered',
+        #     description='Odometry topic supplying x for the floor-profile lookup.'),
+        
         DeclareLaunchArgument(
-            'alt_odom_topic', default_value='/odometry/filtered',
-            description='Odometry topic supplying x for the floor-profile lookup.'),
+                    'alt_odom_topic', default_value='/odometry/filtered',
+                    description='Odometry topic supplying x for the floor-profile lookup.'),
 
         # Republish /sauvc_auv/*/image_color -> /camera_*/image_raw. lane_heading_node
         # and gate_detector_node HARDCODE the image_raw names (no param), so a relay is

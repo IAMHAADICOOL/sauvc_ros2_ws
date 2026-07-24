@@ -29,6 +29,7 @@ from rclpy.qos import qos_profile_sensor_data
 # from sauvc_stonefish.ardupilot.modules.waf.waflib.extras.wafcache import loop
 from sensor_msgs.msg import Image, Imu
 from std_msgs.msg import Float32
+from geometry_msgs.msg import Vector3Stamped
 from cv_bridge import CvBridge
 
 
@@ -125,6 +126,15 @@ class LaneHeadingNode(Node):
         self._n_relocks = 0
         self.pub_yaw = self.create_publisher(Float32, '/heading/pool_relative', 10)
         self.pub_meas = self.create_publisher(Float32, '/heading/line_meas', 10)
+        # RAW STAMPED measurement for downstream FILTERS (flow_eval's 7-state
+        # EKF + GTSAM attitude prior): x = line angle in (-pi/4, pi/4],
+        # y = concentration R in [0.6, 1], header.stamp = the IMAGE stamp.
+        # Published pre-gate/pre-freeze like /heading/line_meas — consumers run
+        # their own gating; this node's complementary fusion (which blends the
+        # gyro back in) stays on /heading/pool_relative and must NOT be fed to
+        # anything that already integrates the same gyro.
+        self.pub_meas2 = self.create_publisher(Vector3Stamped,
+                                               '/heading/line_meas2', 10)
         self.pub_dbg = self.create_publisher(Image, '/heading/debug_image', 2)
         self.create_subscription(Imu, '/imu/data', self.on_imu, 50)
         # FIX(QoS incompatibility): Stonefish's camera publisher uses BEST_EFFORT
@@ -371,10 +381,28 @@ class LaneHeadingNode(Node):
                 status = 'too-few-lines'
         else:
             self.pub_meas.publish(Float32(data=float(ang)))
+            m2 = Vector3Stamped()
+            m2.header.stamp = msg.header.stamp        # image time, not wall time
+            m2.vector.x = float(ang)
+            m2.vector.y = float(self._last_R if self._last_R is not None else 0.6)
+            m2.vector.z = 0.0
+            self.pub_meas2.publish(m2)
             hardening = bool(self.get_parameter('enable_hardening').value)
-            # Lines at image angle `ang` mean vehicle yaw relative to the pool grid is
-            # -ang (mod 90°) — sign VALIDATED by the 360° spin test (slope -1 over a
-            # full revolution). Pick the mod-90 branch closest to the current yaw.
+            # SIGN CORRECTED (2026-07-23, flow_eval run 225022). The old claim
+            # here — vehicle yaw relative to the grid is -ang, "VALIDATED by the
+            # 360-deg spin test" — was a misattribution: the spin ran above
+            # freeze_rate, so line frames were maintain-only and the slope -1 it
+            # demonstrated was the ENU/NED reflection of the PUBLISHED yaw, not
+            # the line-angle sign. Every other run sat near yaw ~ 0 (mod 90),
+            # where +ang and -ang are indistinguishable and this loop converges
+            # to the right offset either way. The 225022 circle (2-4 deg/s,
+            # UNfrozen, yaw sweeping continuously) finally exercised it: the
+            # residual signature was exactly -2*yaw (mod 90), i.e. the empirical
+            # relation is  vehicle yaw (this node's convention) == +ang + const
+            # (mod 90). With the old sign, at grid-relative yaw psi_f =
+            # fold90(yaw) this loop's accepted corrections carried a -2*psi_f
+            # error into the offset — harmless at psi_f ~ 0, wrong everywhere
+            # else. Pick the mod-90 branch closest to the current yaw, as before.
             if hardening:
                 # Yaw AT THE IMAGE STAMP: using the latest IMU sample instead biases
                 # branch selection by rate*latency, exactly when the 45° fold is closest.
@@ -385,7 +413,7 @@ class LaneHeadingNode(Node):
                 # ORIGINAL behavior: latest gyro sample, no stamp interpolation.
                 yaw_img = self.gyro_yaw
             cur = wrap(yaw_img + self.offset)
-            meas = -ang
+            meas = ang          # was -ang; see SIGN CORRECTED above
             k = round((cur - meas) / (math.pi / 2))
             meas_unwrapped = meas + k * (math.pi / 2)
             err = wrap(meas_unwrapped - cur)

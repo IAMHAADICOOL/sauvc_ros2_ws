@@ -64,6 +64,7 @@ _DEFAULT_COLORS = {
     'flow':         (60, 160, 255),    # orange-ish
     'ekf':          (80, 220, 80),     # green
     'gtsam':        (230, 80, 230),    # magenta
+    'eskf':         (70, 70, 255),     # red
     'dvl':          (230, 220, 60),    # cyan-ish
     'tile_grid':    (0, 215, 255),     # yellow
     'pressure':     (140, 140, 140),   # grey (normally excluded anyway)
@@ -75,7 +76,7 @@ class TrajectoryPlotter:
     """Accumulates (x, y) points per named track and renders a top-down view."""
 
     def __init__(self, frame='ned', tracks=('ground_truth', 'flow', 'ekf',
-                                            'gtsam', 'dvl'),
+                                            'eskf', 'gtsam', 'dvl'),
                  size_px=760, margin_px=64, min_span_m=2.0, pad_frac=0.08,
                  min_step_m=0.02, max_points_per_track=20000, colors=None):
         """
@@ -252,8 +253,8 @@ class TrajectoryPlotter:
         font = cv2.FONT_HERSHEY_SIMPLEX
         x0 = self.margin + 12
         y = self.margin + 22
-        keys = [k for k in ('ground_truth', 'dvl', 'flow', 'ekf', 'gtsam',
-                            'tile_grid', 'pressure') if k in snapshot]
+        keys = [k for k in ('ground_truth', 'dvl', 'flow', 'ekf', 'eskf',
+                            'gtsam', 'tile_grid', 'pressure') if k in snapshot]
         keys += [k for k in sorted(snapshot) if k not in keys]  # unknown tracks too
         for key in keys:
             col = self.colors.get(key, _FALLBACK_COLOR)
