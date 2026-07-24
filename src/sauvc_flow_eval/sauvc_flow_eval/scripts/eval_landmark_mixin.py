@@ -52,6 +52,19 @@ class EvalLandmarkMixin:
         rwy = s * bx + c * by
         obs_var = (self.lm_obs_sigma * max(rng, 1.0)) ** 2
         ex, ey = self.ekf.x[0], self.ekf.x[1]     # current EKF position estimate
+        # LIVE PLOT: mark this landmark the moment it is observed, in the EKF
+        # colour with a short unique id (F1, F2, ...). Position is anchored to the
+        # world so it overlays the trajectory tracks: gate posts use the rulebook x,
+        # everything else the EKF robot estimate plus the rotated body observation.
+        # In 'slam' mode the SLAM print block later refines the same marker from the
+        # settled state estimate (and adds a matching GTSAM-colour marker).
+        if self.traj is not None:
+            anchor_y = (self.gt_anchor[1] if self.gt_anchor is not None
+                        else self.scene_start_ned[1])
+            _is_gate_lm = name.startswith('GatePost') or name == 'GateCenter'
+            lx = (gate_x_state if _is_gate_lm else ex + rwx) + anchor_x
+            ly = (ey + rwy) + anchor_y
+            self.traj.add_feature('ekf', name, lx, ly)
         # ---- UPGRADE H: 'slam' -> true state augmentation, then done ----
         if self.lm_mode == 'slam':
             self._on_feature_slam(name, bx, by, bz, rng, brg, gate_x_state, t)

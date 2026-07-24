@@ -81,6 +81,8 @@ class EvalPublishMixin:
         lines = [f"\n─ estimates [{self.frame.upper()} frame]  "
                  f"x        y        z       vx       vy ──────"]
         for k in order:
+            if k not in self.src_on:            # disabled sources aren't printed
+                continue
             if k == 'gtsam' and not self.gtsam.available:
                 continue
             lines.append(f"  {k:<13} {fmt(self._latest[k])}")
@@ -151,9 +153,15 @@ class EvalPublishMixin:
                         f"    {n:<16} x={fx0 + ax:+7.2f}±{math.sqrt(vx0):4.2f} "
                         f"y={fy0 + ay:+7.2f}±{math.sqrt(vy0):4.2f}"
                         + (f'  [chi2-rejected {rej}]' if rej else ''))
+                    # live-plot marker: EKF's own estimate, EKF colour, short id.
+                    if self.traj is not None:
+                        self.traj.add_feature('ekf', n, fx0 + ax, fy0 + ay)
                 lm_est = self.gtsam.landmark_estimates() if self.gtsam.available else {}
                 for n in sorted(lm_est):
                     e = lm_est[n]
                     lines.append(f"    {n:<16} x={e[0] + ax:+7.2f} "
                                  f"y={e[1] + ay:+7.2f}  [gtsam]")
+                    # live-plot marker: GTSAM's landmark estimate, GTSAM colour.
+                    if self.traj is not None:
+                        self.traj.add_feature('gtsam', n, e[0] + ax, e[1] + ay)
         print('\n'.join(lines))

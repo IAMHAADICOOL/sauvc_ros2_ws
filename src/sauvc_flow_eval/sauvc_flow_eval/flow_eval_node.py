@@ -110,6 +110,26 @@ from sauvc_flow_eval.scripts.eval_landmark_mixin import EvalLandmarkMixin
 from sauvc_flow_eval.scripts.eval_publish_mixin import EvalPublishMixin
 
 
+class _DisabledEstimator:
+    """Stand-in for an estimator switched OFF via the `estimate_sources` parameter.
+
+    It constructs nothing, allocates nothing and calculates nothing, so a disabled
+    source really is absent rather than running silently in the background. Every
+    attribute read returns a benign default and every method call is a harmless
+    no-op, so the (source-guarded) call sites that still name the estimator degrade
+    quietly instead of raising. `available`/`initialized` read False so the many
+    existing `if self.<est>.available:` / `... .initialized:` guards naturally skip
+    it, and `features` reads empty so the SLAM print block is a no-op too."""
+    available = False
+    initialized = False
+    ok = False
+    features = {}
+
+    def __getattr__(self, _name):
+        # Any method call (add_imu, add_landmark_xy, update_*, ...) -> no-op None.
+        return lambda *a, **k: None
+
+
 class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
     def __init__(self):
         super().__init__('flow_eval_node')
@@ -130,6 +150,39 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
         self._alt_x_last = None    # last good NED x, fallback when a source is silent
         self._alt_warned_src = None
         self.add_on_set_parameters_callback(self._on_set_params)
+        # --- ESTIMATE SOURCE SELECTION (runtime, see eval_parameters docstring) ---
+        # Turn the estimate_sources list into per-source flags used everywhere below
+        # to gate CONSTRUCTION, feeding, publishing, the terminal table and the live
+        # plot. A disabled source is never built or updated (not merely hidden).
+        self._ALL_SOURCES = ('ground_truth', 'dvl', 'flow', 'ekf', 'eskf',
+                             'pressure', 'gtsam', 'tile_grid')
+        req = [str(s).strip() for s in (g('estimate_sources') or [])
+               if str(s).strip()]
+        if not req:
+            req = list(self._ALL_SOURCES)     # empty list -> everything (default)
+        bad = [s for s in req if s not in self._ALL_SOURCES]
+        if bad:
+            raise ValueError(
+                f"estimate_sources: unknown source(s) {bad}; valid values are "
+                f"{self._ALL_SOURCES}")
+        self.src_on = set(req)
+        self.src_gt = 'ground_truth' in self.src_on
+        self.src_dvl = 'dvl' in self.src_on
+        self.src_flow = 'flow' in self.src_on          # the integrated flow track
+        self.src_ekf = 'ekf' in self.src_on
+        self.src_eskf = 'eskf' in self.src_on
+        self.src_pressure = 'pressure' in self.src_on
+        self.src_gtsam = 'gtsam' in self.src_on
+        self.src_tile = 'tile_grid' in self.src_on
+        # The optical-flow front-end is a SHARED sensor stage: it produces the body
+        # velocity that flow/ekf/eskf/gtsam all consume, so it must run if ANY of
+        # them is on and can be skipped only when none is. tile_grid takes the flow
+        # result as an optional hint and so does NOT by itself keep it alive.
+        self._run_flow_frontend = (self.src_flow or self.src_ekf
+                                   or self.src_eskf or self.src_gtsam)
+        self.ekf_on = self.src_ekf
+        self.tile_on = self.src_tile
+        self.dvl_on = self.src_dvl
         self.frame = g('compare_frame')
         if self.frame not in ('ned', 'enu'):
             raise ValueError("compare_frame must be 'ned' or 'enu'")
@@ -262,12 +315,15 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
                          'gtsam', 'tile_grid')}
         self._gt_R = None          # GT body->NED rotation, for the DVL twist
         self._last_print = 0.0
-        # --- estimators ---
-        self.flow = FlowEstimator(g('fx'), g('fy'), g('cx'), g('cy'),
-                                  use_clahe=g('use_clahe'),
-                                  grid_rows=g('feature_grid_rows'),
-                                  grid_cols=g('feature_grid_cols'),
-                                  compensate_vz=g('flow_compensate_vz'))
+        # --- estimators (each built ONLY if its source is enabled) ---
+        # Flow front-end: the shared optical-flow stage. Built when any consumer
+        # (flow/ekf/eskf/gtsam) is enabled; None otherwise so nothing runs per frame.
+        self.flow = (FlowEstimator(g('fx'), g('fy'), g('cx'), g('cy'),
+                                   use_clahe=g('use_clahe'),
+                                   grid_rows=g('feature_grid_rows'),
+                                   grid_cols=g('feature_grid_cols'),
+                                   compensate_vz=g('flow_compensate_vz'))
+                     if self._run_flow_frontend else None)
         # YAW UPGRADE: lane_sign/lane_grid encode the lane measurement model
         # h = fold90(lane_sign*psi - lane_grid). SIGN CORRECTED (2026-07-23,
         # run 225022): the EMPIRICAL model is  ang == gamma - psi_ned (mod 90),
@@ -286,17 +342,20 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
         # grid=-gamma. gamma != 0 remains UNTESTED on live data (all runs used
         # pool_axis_ned_yaw=0) — verify at the venue before trusting a rotated
         # grid.
-        self.ekf = EkfEstimator(q_yaw=float(g('ekf_q_yaw')),
-                                q_bias=float(g('ekf_q_bias')),
-                                lane_sign=(-1.0 if self.frame == 'ned' else 1.0),
-                                lane_grid=-self.pool_axis_ned)
+        self.ekf = (EkfEstimator(q_yaw=float(g('ekf_q_yaw')),
+                                 q_bias=float(g('ekf_q_bias')),
+                                 lane_sign=(-1.0 if self.frame == 'ned' else 1.0),
+                                 lane_grid=-self.pool_axis_ned)
+                    if self.ekf_on else _DisabledEstimator())
         # CONFIG D (2026-07-24): 15-state ERROR-STATE KF — IMU strapdown +
         # recursive filtering, the third architecture next to the kinematic
         # EKF and the smoothing graph. Runs internally in NED (like the graph);
         # fed the SAME FLU->FRD-converted IMU, the same flow/depth/lane. Its
         # lane model takes grid directly: h = fold90(grid - psi_ned).
-        self.eskf_on = bool(g('eskf_enabled'))
-        self.eskf = EskfEstimator(
+        # eskf_on now also honours estimate_sources (kept as the single flag every
+        # eskf call site already guards on).
+        self.eskf_on = bool(g('eskf_enabled')) and self.src_eskf
+        self.eskf = (EskfEstimator(
             gravity=g('gravity'),
             accel_sigma=float(g('eskf_accel_sigma')),
             gyro_sigma=float(g('eskf_gyro_sigma')),
@@ -305,19 +364,32 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
             lane_grid=self.pool_axis_ned,
             init_min_samples=int(g('eskf_init_min_samples')),
             init_settle_skip_s=float(g('eskf_init_settle_skip_s')))
+            if self.eskf_on else _DisabledEstimator())
         self.eskf_rp_sigma = math.radians(float(g('eskf_rp_sigma_deg')))
-        self.gtsam = GtsamEstimator(gravity=g('gravity'), compare_frame=self.frame)
-        self.flow_pos = PositionIntegrator()
-        self.gtsam_pos = PositionIntegrator()
-        self.tile = TileGridEstimator(g('fx'), tile_pitch=g('tile_pitch'),
-                                      patch=g('tile_patch'),
-                                      min_quality=g('tile_min_quality'))
+        self.gtsam = (GtsamEstimator(gravity=g('gravity'), compare_frame=self.frame)
+                      if self.src_gtsam else _DisabledEstimator())
+        # flow_pos integrates ONLY the published 'flow' track; gtsam_pos rides with
+        # the graph. Build each only when its source is on.
+        self.flow_pos = PositionIntegrator() if self.src_flow else None
+        self.gtsam_pos = PositionIntegrator() if self.src_gtsam else None
+        self.tile = (TileGridEstimator(g('fx'), tile_pitch=g('tile_pitch'),
+                                       patch=g('tile_patch'),
+                                       min_quality=g('tile_min_quality'))
+                     if self.tile_on else None)
         self.tile_cam_yaw_offset = float(g('tile_cam_yaw_offset'))
-        if self.gtsam.available:
+        if not self.src_gtsam:
+            self.get_logger().info(
+                'gtsam DISABLED via estimate_sources -> /eval/gtsam off '
+                '(not constructed)')
+        elif self.gtsam.available:
             self.get_logger().info('gtsam present -> /eval/gtsam active')
         else:
             self.get_logger().warn('gtsam NOT available -> /eval/gtsam disabled '
-                                   '(other four estimators run normally)')
+                                   '(other estimators run normally)')
+        self.get_logger().info(
+            'estimate_sources active: ' + ', '.join(sorted(self.src_on))
+            + (' | flow front-end: ON' if self._run_flow_frontend
+               else ' | flow front-end: OFF (no consumer enabled)'))
         # --- state caches ---
         self.bridge = CvBridge() if _HAVE_CV else None
         self.gyro_body = (0.0, 0.0, 0.0)
@@ -344,8 +416,13 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
                 self.get_logger().warn('live_plot requested but cv2/cv_bridge '
                                        'unavailable - plot disabled')
             else:
-                tracks = tuple(t.strip() for t in
-                               str(g('live_plot_tracks')).split(',') if t.strip())
+                # Intersect the configured tracks with the enabled sources: a
+                # source turned off in estimate_sources is never plotted (it never
+                # publishes anyway), and this also scopes the per-source feature
+                # markers (add_feature only accepts included sources).
+                tracks = tuple(t for t in (s.strip() for s in
+                               str(g('live_plot_tracks')).split(','))
+                               if t and t in self.src_on)
                 self.traj = TrajectoryPlotter(
                     frame=self.frame, tracks=tracks,
                     min_span_m=float(g('live_plot_min_span')))
@@ -361,8 +438,19 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
         self.create_subscription(Float32, '/altitude', self.on_altitude, 10)
         self.create_subscription(Image, '/camera_down/image_raw',
                                  self.on_image, qos_profile_sensor_data)
-        self.create_subscription(Odometry, f'/{robot}/odometry',
-                                 self.on_ground_truth, qos_profile_sensor_data)
+        # Ground truth drives anchoring, the yaw autocal, the altitude profile and
+        # every verification line — so it is subscribed only when the source is
+        # enabled. Disabling it runs the node hardware-style: anchoring falls back
+        # to the parsed scene start, autocal/verification go quiet, /altitude is
+        # used directly. All those fallbacks already exist.
+        if self.src_gt:
+            self.create_subscription(Odometry, f'/{robot}/odometry',
+                                     self.on_ground_truth, qos_profile_sensor_data)
+        else:
+            self.get_logger().info(
+                'ground_truth DISABLED via estimate_sources -> no /odometry '
+                'subscription; anchoring uses the parsed scene start, autocal and '
+                'GT verification are inactive (hardware-style run).')
         if self.use_lane:
             self.create_subscription(Float32, g('lane_heading_topic'),
                                      self.on_lane_heading, 10)
@@ -374,13 +462,29 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
         # DVL truth-velocity row: SIM-ONLY reference (my_auv.scn declares the DVL
         # purely so the flow can be graded; it must NEVER be fused). Import guarded:
         # without stonefish_ros2 msgs (real vehicle) the row simply stays '--'.
-        try:
-            from stonefish_ros2.msg import DVL as _DVLMsg
-            self.create_subscription(_DVLMsg, f'/{robot}/dvl', self.on_dvl,
-                                     qos_profile_sensor_data)
-            self.get_logger().info('DVL reference row enabled (/%s/dvl)' % robot)
-        except ImportError:
-            self.get_logger().info('stonefish_ros2 DVL msg unavailable - dvl row off')
+        if self.dvl_on:
+            try:
+                from stonefish_ros2.msg import DVL as _DVLMsg
+                self.create_subscription(_DVLMsg, f'/{robot}/dvl', self.on_dvl,
+                                         qos_profile_sensor_data)
+                self.get_logger().info('DVL reference row enabled (/%s/dvl)' % robot)
+                if not self.src_gt:
+                    self.get_logger().warn(
+                        "dvl enabled but ground_truth is not: the DVL row needs GT "
+                        "attitude to rotate its velocity and will stay empty.")
+            except ImportError:
+                self.get_logger().info(
+                    'stonefish_ros2 DVL msg unavailable - dvl row off')
+        else:
+            self.get_logger().info('dvl DISABLED via estimate_sources -> row off')
+        if self.lm_mode in ('gate', 'map', 'slam') and not self.ekf_on:
+            # Every landmark branch corrects (and, in slam, augments) the EKF, so
+            # the EKF must be an enabled source. Refusing loudly beats corrupting
+            # a run silently.
+            self.get_logger().error(
+                f"landmark_mode='{self.lm_mode}' needs 'ekf' in estimate_sources — "
+                "landmark corrections DISABLED for this run.")
+            self.lm_mode = 'off'
         if self.lm_mode in ('gate', 'map', 'slam'):
             from std_msgs.msg import String as _String
             self.create_subscription(_String, g('features_topic'),
@@ -403,12 +507,14 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
                 self.lm_mode = 'off'
         if self.show_cam:
             cv2.namedWindow('down camera', cv2.WINDOW_NORMAL)
-        if self.show_flow:
+        if self.show_flow and self.flow is not None:
             cv2.namedWindow('optical flow', cv2.WINDOW_NORMAL)
         self.get_logger().info(
-            f"flow_eval up, compare_frame='{self.frame}'. Publishing /eval/* "
-            "(ground_truth, flow, ekf, pressure"
-            + (", gtsam" if self.gtsam.available else "") + ", tile_grid). "
+            f"flow_eval up, compare_frame='{self.frame}'. Publishing /eval/* for: "
+            + ', '.join(k for k in self._ALL_SOURCES
+                        if k in self.src_on and not (k == 'gtsam'
+                                                     and not self.gtsam.available))
+            + ". "
             + ("ALTITUDE: self-computed in-node (floor profile at GT x, camera datum, "
                "tilt-compensated); /altitude used only as a cross-check."
                if self.self_alt else "ALTITUDE: from /altitude (shim)."))
@@ -514,7 +620,8 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
         # b_psi estimate inside; the published yaw is NEVER fused as absolute
         # (it is the integral of what's already fed — that would double-count
         # the bias).
-        self.ekf.propagate_yaw(self.yaw, ti)
+        if self.ekf_on:
+            self.ekf.propagate_yaw(self.yaw, ti)
         # feed GTSAM preintegration at IMU rate — in body FRD, matching the
         # graph's NED/FRD convention (see the CORRECTION comment above; the
         # flip is frames.frd_to_flu_vec's involution, same map both ways:
@@ -542,12 +649,14 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
         self.depth = msg.fluid_pressure / (1000.0 * 9.81)
         t = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
         pz = depth_to_world_z(self.depth, self.frame)
-        self.ekf.update_depth(pz, t)
+        if self.ekf_on:
+            self.ekf.update_depth(pz, t)
         if self.eskf_on and self.eskf.initialized:
             self.eskf.update_depth(self.depth, t)    # ESKF is NED-internal
         # /eval/pressure: depth only, x=y=0
-        ax, ay, az = self._anchor(0.0, 0.0, pz)
-        self._publish('pressure', ax, ay, az, msg.header.stamp)
+        if self.src_pressure:
+            ax, ay, az = self._anchor(0.0, 0.0, pz)
+            self._publish('pressure', ax, ay, az, msg.header.stamp)
     def on_altitude(self, msg):
         self.altitude = msg.data
     def on_lane_heading(self, msg):
@@ -567,7 +676,7 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
         self._lane_meas = (t, ang, R)
         sig = self.ekf_lane_sig * (1.0 + self.ekf_lane_slope
                                    * max(0.0, 1.0 - R))
-        if self.ekf_use_lane:
+        if self.ekf_use_lane and self.ekf_on:
             self.ekf.update_lane(ang, sig, t)
         if self.eskf_on and self.eskf.initialized:
             self.eskf.update_lane(ang, sig, t)
@@ -609,11 +718,20 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
             e = '' if (not err or self.gt_yaw_ned is None) else \
                 f' (err {d2(_w(val - self.gt_yaw_ned)):+6.2f})'
             return f'{d2(_w(val)):+7.2f}{e}'
-        ekf_psi, ekf_sig = self.ekf.yaw_est
-        ekf_ned = ekf_psi if self.frame == 'ned' else math.pi / 2 - ekf_psi
-        ekf_b, _ = self.ekf.yaw_bias
-        if self.frame != 'ned':
-            ekf_b = -ekf_b       # d(psi_ned)/dt = -d(psi_enu)/dt
+        if self.ekf_on:
+            ekf_psi, ekf_sig = self.ekf.yaw_est
+            ekf_ned = ekf_psi if self.frame == 'ned' else math.pi / 2 - ekf_psi
+            ekf_b, _ = self.ekf.yaw_bias
+            if self.frame != 'ned':
+                ekf_b = -ekf_b       # d(psi_ned)/dt = -d(psi_enu)/dt
+            ekf_col = col(ekf_ned) + f' s={d2(ekf_sig):4.2f}'
+            ekf_bias_col = f' ekf={d2(ekf_b) * 60.0:+6.3f}'
+            lane_col = f'{self.ekf.lane_ok_n}/{self.ekf.lane_gate_n}'
+        else:
+            ekf_ned = None
+            ekf_col = col(None)
+            ekf_bias_col = ' ekf=  --'
+            lane_col = '--/--'
         es_yaw = self.eskf.ned_yaw() if (self.eskf_on
                                          and self.eskf.initialized) else None
         es_b = (math.degrees(self.eskf.gyro_bias()[2]) * 60.0
@@ -624,15 +742,14 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
         lane_abs = self._lane_abs_yaw_ned(ekf_ned, now_t)
         return ('yaw2[deg]     gt=' + col(self.gt_yaw_ned, err=False)
                 + '  imu=' + col(self.yaw_ned)
-                + '  ekf=' + col(ekf_ned) + f' s={d2(ekf_sig):4.2f}'
+                + '  ekf=' + ekf_col
                 + '  eskf=' + col(es_yaw)
                 + '  gtsam=' + col(g_yaw)
                 + '  lane=' + col(lane_abs)
-                + f'  | bias[deg/min] ekf={d2(ekf_b) * 60.0:+6.3f}'
+                + '  | bias[deg/min]' + ekf_bias_col
                 + ('' if es_b is None else f' eskf={es_b:+6.3f}')
                 + ('' if gb is None else f' gtsam_bz={d2(gb[2]) * 60.0:+6.3f}')
-                + f'  lane_upd ok/gated={self.ekf.lane_ok_n}/'
-                + f'{self.ekf.lane_gate_n}')
+                + f'  lane_upd ok/gated={lane_col}')
     def on_ground_truth(self, msg):
         # Stonefish odometry: NED world position. Convert to compare frame.
         p = msg.pose.pose.position
@@ -710,12 +827,15 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
             alt = self.altitude if self.altitude is not None else max(
                 self.get_parameter('pool_depth').value - self.depth, 0.1)
         tile_vhint_ned = None
-        res = self.flow.estimate(gray, dt, gyro_xy_cam, alt)
+        # Flow front-end runs only when a consumer (flow/ekf/eskf/gtsam) is enabled.
+        res = self.flow.estimate(gray, dt, gyro_xy_cam, alt) \
+            if self.flow is not None else None
         if res is None:
             # FIX(dropout visibility): every None here is displacement PERMANENTLY
             # lost from the dead-reckoned track (the log showed 48% of GT-moving
-            # intervals frozen). Count it and warn, throttled to 1 Hz.
-            if dt > 0.0:
+            # intervals frozen). Count it and warn, throttled to 1 Hz. (Skipped when
+            # the front-end is intentionally off — a None then is not a dropout.)
+            if self.flow is not None and dt > 0.0:
                 self._drop_count += 1
                 self._drop_streak += 1
                 if t - self._last_drop_warn > 1.0:
@@ -820,26 +940,31 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
             # psi state — the external yaw_cmp_f path is gone for the EKF; the
             # d/dpsi Jacobian columns this creates are what couple heading to
             # velocity and let lane/landmark evidence correct both coherently)
-            self.ekf.update_flow(vx_b, vy_b, t, r_var=r_var)
+            if self.ekf_on:
+                self.ekf.update_flow(vx_b, vy_b, t, r_var=r_var)
             # CONFIG D: the ESKF's world is ALWAYS NED, so it needs body FRD
             # unconditionally (same reasoning as the graph's vy_frd below).
             if self.eskf_on and self.eskf.initialized:
                 vy_frd_e = -vy_b if self.frame != 'ned' else vy_b
                 self.eskf.update_flow(vx_b, vy_frd_e, t, r_var=r_var)
-            fx_, fy_ = self.flow_pos.update(vx_b, vy_b, yaw_cmp_f, t)
-            fz = depth_to_world_z(self.depth, self.frame)
-            ax, ay, az = self._anchor(fx_, fy_, fz)
-            # velocity column in the WORLD compare frame like every other row
-            # (was body-frame - not comparable), rotated by the SAME offset-corrected
-            # yaw the integrator uses.
-            cwf, swf = math.cos(yaw_cmp_f), math.sin(yaw_cmp_f)
-            self._publish('flow', ax, ay, az, msg.header.stamp,
-                          vx=cwf * vx_b - swf * vy_b, vy=swf * vx_b + cwf * vy_b)
+            if self.src_flow:
+                fx_, fy_ = self.flow_pos.update(vx_b, vy_b, yaw_cmp_f, t)
+                fz = depth_to_world_z(self.depth, self.frame)
+                ax, ay, az = self._anchor(fx_, fy_, fz)
+                # velocity column in the WORLD compare frame like every other row
+                # (was body-frame - not comparable), rotated by the SAME offset-
+                # corrected yaw the integrator uses.
+                cwf, swf = math.cos(yaw_cmp_f), math.sin(yaw_cmp_f)
+                self._publish('flow', ax, ay, az, msg.header.stamp,
+                              vx=cwf * vx_b - swf * vy_b,
+                              vy=swf * vx_b + cwf * vy_b)
             # EKF publish (position + velocity)
-            ex, ey, ez = self.ekf.position
-            evx, evy = self.ekf.velocity
-            aex, aey, aez = self._anchor(ex, ey, ez)
-            self._publish('ekf', aex, aey, aez, msg.header.stamp, vx=evx, vy=evy)
+            if self.ekf_on:
+                ex, ey, ez = self.ekf.position
+                evx, evy = self.ekf.velocity
+                aex, aey, aez = self._anchor(ex, ey, ez)
+                self._publish('ekf', aex, aey, aez, msg.header.stamp,
+                              vx=evx, vy=evy)
             # GTSAM path: independent metric velocity, integrated
             if self.gtsam.available:
                 # Rotate flow body velocity into NED world (the graph runs in NED).
@@ -939,20 +1064,23 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
         # ---- TILE-GRID estimator: absolute grid phase every frame ----
         # Runs whether or not flow succeeded; flow only hints the tile unwrap /
         # coasts dropouts. Output is NED-world displacement-from-start.
-        tr = self.tile.estimate(gray, t, alt,
-                                self.yaw_ned + self.tile_cam_yaw_offset,
-                                tile_vhint_ned)
-        if tr is not None:
-            tp = gt_world_to_compare(np.array([tr['x'], tr['y'], 0.0]), self.frame)
-            tzw = depth_to_world_z(self.depth, self.frame)
-            tax, tay, taz = self._anchor(tp[0], tp[1], tzw)
-            tvx = tvy = None
-            if tile_vhint_ned is not None:
-                tv = gt_world_to_compare(
-                    np.array([tile_vhint_ned[0], tile_vhint_ned[1], 0.0]), self.frame)
-                tvx, tvy = float(tv[0]), float(tv[1])
-            self._publish('tile_grid', tax, tay, taz, msg.header.stamp,
-                          vx=tvx, vy=tvy)
+        if self.tile is not None:
+            tr = self.tile.estimate(gray, t, alt,
+                                    self.yaw_ned + self.tile_cam_yaw_offset,
+                                    tile_vhint_ned)
+            if tr is not None:
+                tp = gt_world_to_compare(np.array([tr['x'], tr['y'], 0.0]),
+                                         self.frame)
+                tzw = depth_to_world_z(self.depth, self.frame)
+                tax, tay, taz = self._anchor(tp[0], tp[1], tzw)
+                tvx = tvy = None
+                if tile_vhint_ned is not None:
+                    tv = gt_world_to_compare(
+                        np.array([tile_vhint_ned[0], tile_vhint_ned[1], 0.0]),
+                        self.frame)
+                    tvx, tvy = float(tv[0]), float(tv[1])
+                self._publish('tile_grid', tax, tay, taz, msg.header.stamp,
+                              vx=tvx, vy=tvy)
         # CONFIG D publish: OUTSIDE the flow-success block on purpose — the
         # strapdown keeps integrating IMU through flow dropouts, and that
         # coasting behavior is precisely what this architecture demonstrates.
@@ -964,7 +1092,7 @@ class FlowEvalNode(EvalHelpersMixin, EvalLandmarkMixin, EvalPublishMixin, Node):
                           vx=float(ev_[0]), vy=float(ev_[1]))
         if self.show_cam:
             cv2.imshow('down camera', frame_bgr)
-        if self.show_flow:
+        if self.show_flow and self.flow is not None:
             cv2.imshow('optical flow', self.flow.overlay(frame_bgr))
         if self.show_cam or self.show_flow:
             cv2.waitKey(1)

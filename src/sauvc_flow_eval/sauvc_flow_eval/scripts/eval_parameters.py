@@ -18,6 +18,25 @@ def declare_eval_parameters(node):
     p = node.declare_parameter
     p('compare_frame', 'ned')          # 'ned' (default, per request) | 'enu'
     p('robot_name', 'sauvc_auv')
+    # --- ESTIMATE SOURCE SELECTION (runtime) ---
+    # Which of the eight tracks are actually CONSTRUCTED, fed, published, printed
+    # in the terminal table and drawn in the live trajectory plot. A source left
+    # out of this list is NOT initialised or calculated at all — it is not merely
+    # hidden — so dropping the heavy ones (gtsam, tile_grid, eskf) is the way to
+    # cut this node's per-frame CPU. Default = all eight (previous behavior).
+    # Notes:
+    #   * The optical-flow FRONT-END is shared: it runs whenever ANY of
+    #     flow/ekf/eskf/gtsam is enabled (they all consume its body velocity),
+    #     and is skipped entirely otherwise. tile_grid only takes the flow result
+    #     as an optional hint, so it does not by itself keep the front-end alive.
+    #   * 'dvl' is a sim-only reference row and needs ground-truth attitude to
+    #     rotate its velocity, so enabling 'dvl' without 'ground_truth' yields an
+    #     empty row.
+    #   * landmark_mode ('gate'/'map'/'slam') needs 'ekf' enabled; it is forced
+    #     'off' (with a warning) if 'ekf' is not in this list.
+    p('estimate_sources',
+      ['ground_truth', 'dvl', 'flow', 'ekf', 'eskf', 'pressure',
+       'gtsam', 'tile_grid'])
     # FIX(resolution parity): scene camera is now 640x480 (see my_auv.scn + the
     # README "Resolution parity" note). Stonefish intrinsics are analytic:
     #   fx = fy = (640/2)/tan(40deg) = 381.36, cx = 320, cy = 240.

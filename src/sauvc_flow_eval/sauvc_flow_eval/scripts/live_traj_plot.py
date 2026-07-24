@@ -108,6 +108,14 @@ class TrajectoryPlotter:
         self._pts = {}            # key -> list[(x, y)]
         self._bbox = None         # [min_x, min_y, max_x, max_y] over ALL tracks
         self._t0 = _time.time()
+        # LANDMARK / FEATURE MARKERS (gate & slam modes). One marker per named
+        # feature per source; each source's markers share that source's track
+        # colour (ekf features green, gtsam features magenta, ...), and every
+        # feature gets a SHORT unique id (F1, F2, ...) that is the SAME across
+        # sources so one physical prop reads as one id in every colour.
+        self._feat = {}           # source -> {name: (x, y)}
+        self._feat_id = {}        # feature name -> short id 'F#'
+        self._feat_next = 1       # next short-id number to hand out
 
     # ------------------------------------------------------------------ feed
     def add(self, key, x, y):
@@ -129,6 +137,32 @@ class TrajectoryPlotter:
             pts.append((x, y))
             if len(pts) > self.max_pts:                 # self-halving history
                 del pts[::2]
+            if self._bbox is None:
+                self._bbox = [x, y, x, y]
+            else:
+                b = self._bbox
+                if x < b[0]: b[0] = x
+                if y < b[1]: b[1] = y
+                if x > b[2]: b[2] = x
+                if y > b[3]: b[3] = y
+
+    def add_feature(self, source, name, x, y):
+        """Record/refresh one landmark marker for `source` ('ekf', 'gtsam', ...) at
+        world (compare-frame) x, y. Assigns the feature a short unique id shared
+        across sources on first sight. Cheap, lock-guarded, NaN-safe. Only sources
+        in the plotter's include set are kept, so a disabled track carries no
+        markers. Feature points join the autoscale bbox so they stay in view."""
+        if source not in self.include:
+            return
+        x = float(x)
+        y = float(y)
+        if not (np.isfinite(x) and np.isfinite(y)):
+            return
+        with self._lock:
+            if name not in self._feat_id:
+                self._feat_id[name] = f'F{self._feat_next}'
+                self._feat_next += 1
+            self._feat.setdefault(source, {})[name] = (x, y)
             if self._bbox is None:
                 self._bbox = [x, y, x, y]
             else:
@@ -172,6 +206,8 @@ class TrajectoryPlotter:
                       (55, 55, 55), 1)
         with self._lock:
             snapshot = {k: list(v) for k, v in self._pts.items()}
+            feat_snapshot = {src: dict(d) for src, d in self._feat.items()}
+            feat_ids = dict(self._feat_id)
             bbox = None if self._bbox is None else list(self._bbox)
         if bbox is None:
             cv2.putText(img, 'trajectory: waiting for data...',
@@ -195,9 +231,39 @@ class TrajectoryPlotter:
             ex, ey = self._to_px(*pts[-1], cx, cy, half, plot_px)
             cv2.circle(img, (sx, sy), 5, col, 1, cv2.LINE_AA)
             cv2.circle(img, (ex, ey), 4, col, -1, cv2.LINE_AA)
+        self._draw_features(img, feat_snapshot, feat_ids, cx, cy, half, plot_px)
         self._draw_legend(img, snapshot)
         self._draw_titles(img, half)
         return img
+
+    def _draw_features(self, img, feats, ids, cx, cy, half, plot_px):
+        """Landmark markers: one star per (source, feature), coloured by source, each
+        tagged with its short id (F1, F2, ...). All markers share the SAME shape; only
+        the colour differs by source. A compact 'F# = name' key is drawn top-right so
+        the ids stay interpretable."""
+        if not feats:
+            return
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        for source, named in feats.items():
+            col = self.colors.get(source, _FALLBACK_COLOR)
+            for name, (x, y) in named.items():
+                px, py = self._to_px(x, y, cx, cy, half, plot_px)
+                cv2.drawMarker(img, (px, py), col, cv2.MARKER_STAR, 12, 2,
+                               cv2.LINE_AA)
+                cv2.putText(img, ids.get(name, '?'), (px + 8, py - 8), font, 0.42,
+                            col, 1, cv2.LINE_AA)
+        # mapping key (top-right), so F1/F2/... are readable in a screenshot
+        if ids:
+            W = img.shape[1]
+            x0 = W - self.margin - 150
+            y = self.margin + 16
+            cv2.putText(img, 'features', (x0, y), font, 0.45, (200, 200, 200), 1,
+                        cv2.LINE_AA)
+            y += 18
+            for name in sorted(ids, key=lambda n: int(ids[n][1:])):
+                cv2.putText(img, f'{ids[name]} = {name}', (x0, y), font, 0.40,
+                            (180, 180, 180), 1, cv2.LINE_AA)
+                y += 16
 
     # ------------------------------------------------------------ decorations
     def _nice_tick(self, span):
